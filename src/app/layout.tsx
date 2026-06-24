@@ -1,5 +1,5 @@
 "use client";
-import { Inter, Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";
@@ -10,9 +10,7 @@ import Providers from "./_components/providers";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export default function RootLayout({
   children,
@@ -34,7 +32,7 @@ export default function RootLayout({
   const isDashboardRoute = pathname.startsWith("/dashboard");
 
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
+    <html lang="en" className={cn("font-sans", inter.variable)}>
       <body className={inter.className}>
         <Providers>
           <Toaster />
