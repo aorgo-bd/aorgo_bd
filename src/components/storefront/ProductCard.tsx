@@ -13,13 +13,13 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { toggleItem, hasItem } = useWishlistStore();
-  const isWishlisted = hasItem(product.id);
+  const { toggle, has } = useWishlistStore();
+  const isWishlisted = has(product.id);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleItem(product);
+    toggle(product.id);
     if (!isWishlisted) {
       toast.success(`Added ${product.title} to wishlist!`);
     } else {

@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import AuthSync from "./AuthSync";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -23,6 +24,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
+          <AuthSync />
           {children}
         </QueryClientProvider>
       </PersistGate>

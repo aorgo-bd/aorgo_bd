@@ -29,8 +29,8 @@ export default function ProductDetailPage() {
   const { data: allProducts = [] } = useProducts();
   const { data: categoriesList = [] } = useCategories();
 
-  const addItem = useCartStore((state) => state.addItem);
-  const { toggleItem, hasItem } = useWishlistStore();
+  const { add: addItem, setIsOpen: setCartOpen } = useCartStore();
+  const { toggle: toggleWishlist, has: hasWishlist } = useWishlistStore();
 
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
 
   const lookScrollRef = useRef<HTMLDivElement>(null);
 
-  const isWishlisted = hasItem(product?.id || "");
+  const isWishlisted = hasWishlist(product?.id || "");
 
   // Reset selections when product changes
   useEffect(() => {
@@ -178,6 +178,7 @@ export default function ProductDetailPage() {
       price: product.price,
       brand: product.brand,
     });
+    setCartOpen(true);
     toast.success(`${product.title} added to cart!`);
   };
 
@@ -221,11 +222,13 @@ export default function ProductDetailPage() {
   };
 
   const handleWishlistToggle = () => {
-    toggleItem(product);
-    if (!isWishlisted) {
-      toast.success(`Added ${product.title} to wishlist!`);
-    } else {
-      toast.success(`Removed ${product.title} from wishlist.`);
+    if (product) {
+      toggleWishlist(product.id);
+      if (!isWishlisted) {
+        toast.success(`Added ${product.title} to wishlist!`);
+      } else {
+        toast.success(`Removed ${product.title} from wishlist.`);
+      }
     }
   };
 

@@ -22,6 +22,7 @@ import { useUser } from "@/lib/hooks/useUser";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { useCartStore } from "@/lib/stores/cart";
 import { useWishlistStore } from "@/lib/stores/wishlist";
+import CartDrawer from "./CartDrawer";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { toast } from "sonner";
@@ -47,7 +48,8 @@ export default function Header() {
   const { user, isAuthenticated, isLoading } = useUser();
   const { data: categories = [], isLoading: isLoadingCats } = useCategories();
   const cartItems = useCartStore((state) => state.items);
-  const wishlistItems = useWishlistStore((state) => state.items);
+  const wishlistIds = useWishlistStore((state) => state.ids);
+  const setCartOpen = useCartStore((state) => state.setIsOpen);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
@@ -333,17 +335,17 @@ export default function Header() {
             className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full transition-colors relative group"
           >
             <Heart className="h-5.5 w-5.5 group-hover:scale-105 transition-transform" />
-            {wishlistItems.length > 0 && (
+            {wishlistIds.length > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 text-[9px] font-bold text-white bg-black rounded-full flex items-center justify-center animate-scale-in">
-                {wishlistItems.length}
+                {wishlistIds.length}
               </span>
             )}
           </Link>
 
           {/* Cart Icon */}
-          <Link
-            href="/cart"
-            className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full transition-colors relative group"
+          <button
+            onClick={() => setCartOpen(true)}
+            className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full transition-colors relative group focus:outline-none cursor-pointer"
           >
             <ShoppingCart className="h-5.5 w-5.5 group-hover:scale-105 transition-transform" />
             {totalCartCount > 0 && (
@@ -351,7 +353,7 @@ export default function Header() {
                 {totalCartCount}
               </span>
             )}
-          </Link>
+          </button>
 
           {/* User Profile Dropdown Menu */}
           <div className="flex items-center">
@@ -453,6 +455,7 @@ export default function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+      <CartDrawer />
     </header>
   );
 }
