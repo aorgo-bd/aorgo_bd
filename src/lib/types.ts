@@ -89,6 +89,7 @@ export interface Product {
     [key: string]: any;
   };
   status: ProductStatus;
+  featured?: boolean;        // featured status for collection rails
   rating: number;
   reviewCount: number;
   totalSold: number;

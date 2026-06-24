@@ -1,11 +1,9 @@
 "use client";
 import { Inter } from "next/font/google";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
-import CartModal from "./_components/cart/cartModal";
-import Footer from "./_components/footer";
-import Navbar from "./_components/navigationBar/navbar";
+import Header from "@/components/storefront/Header";
+import Footer from "@/components/storefront/Footer";
 import Providers from "./_components/providers";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -17,28 +15,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isCartOpen, setIsCartOpen] = useState(false); //state for cart open and close
-  const router = useRouter(); // Initialize the useRouter hook
   const pathname = usePathname();
 
-  const handleCartClick = () => {
-    setIsCartOpen(true);
-  };
-
-  const handleCartModalClose = () => {
-    setIsCartOpen(false);
-  };
-
-  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isDashboardRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/seller");
 
   return (
     <html lang="en" className={cn("font-sans", inter.variable)}>
       <body className={inter.className}>
         <Providers>
           <Toaster />
-          {!isDashboardRoute && <Navbar onCartClick={handleCartClick} />}
-          <div>{children}</div>
-          {isCartOpen && <CartModal onClose={handleCartModalClose} />}
+          {!isDashboardRoute && <Header />}
+          <div className="min-h-screen">{children}</div>
           {!isDashboardRoute && <Footer />}
         </Providers>
       </body>

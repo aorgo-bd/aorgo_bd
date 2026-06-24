@@ -1,0 +1,111 @@
+import { useQuery } from "@tanstack/react-query";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
+import { Product } from "@/lib/types";
+
+export interface ProductFilter {
+  category?: string;
+  subcategories?: string[];
+  featured?: boolean;
+  limit?: number;
+  sortBy?: "price" | "rating" | "createdAt" | "totalSold";
+  sortOrder?: "asc" | "desc";
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  colors?: string[];
+  sizes?: string[];
+}
+
+export function useProducts(filter?: ProductFilter) {
+  return useQuery<Product[]>({
+    queryKey: ["products", filter],
+    queryFn: async () => {
+      const productsRef = collection(db, "products");
+      
+      // Filter by 'approved' status in Firestore (single-field query, doesn't need composite indexes)
+      const q = query(productsRef, where("status", "==", "approved"));
+      const snapshot = await getDocs(q);
+      
+      let products = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+        } as Product;
+      });
+
+      // 1. Featured filter
+      if (filter?.featured !== undefined) {
+        products = products.filter((p) => p.featured === filter.featured);
+      }
+
+      // 2. Category / Subcategory filter
+      if (filter?.subcategories && filter.subcategories.length > 0) {
+        products = products.filter((p) => filter.subcategories!.includes(p.category));
+      } else if (filter?.category) {
+        products = products.filter((p) => p.category === filter.category);
+      }
+
+      // 3. Search query filter (case-insensitive title and keywords search)
+      if (filter?.search) {
+        const searchLower = filter.search.toLowerCase().trim();
+        products = products.filter(
+          (p) =>
+            p.title.toLowerCase().includes(searchLower) ||
+            p.brand.toLowerCase().includes(searchLower) ||
+            p.description.toLowerCase().includes(searchLower) ||
+            (p.keywords && p.keywords.some((k) => k.toLowerCase().includes(searchLower)))
+        );
+      }
+
+      // 4. Price range filter
+      if (filter?.minPrice !== undefined) {
+        products = products.filter((p) => p.price >= filter.minPrice!);
+      }
+      if (filter?.maxPrice !== undefined) {
+        products = products.filter((p) => p.price <= filter.maxPrice!);
+      }
+
+      // 5. Colors filter
+      if (filter?.colors && filter.colors.length > 0) {
+        const lowerColors = filter.colors.map((c) => c.toLowerCase());
+        products = products.filter((p) =>
+          p.variants?.some((v) => lowerColors.includes(v.color.toLowerCase()))
+        );
+      }
+
+      // 6. Sizes filter
+      if (filter?.sizes && filter.sizes.length > 0) {
+        products = products.filter((p) =>
+          p.variants?.some((v) => filter.sizes!.includes(v.size))
+        );
+      }
+
+      // 7. Sorting
+      if (filter?.sortBy) {
+        const sortBy = filter.sortBy;
+        const sortOrder = filter.sortOrder || "desc";
+        products.sort((a, b) => {
+          const valA = a[sortBy] ?? 0;
+          const valB = b[sortBy] ?? 0;
+          if (sortOrder === "asc") {
+            return valA > valB ? 1 : -1;
+          } else {
+            return valA < valB ? 1 : -1;
+          }
+        });
+      } else {
+        // Default sort by newest createdAt
+        products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      }
+
+      // 8. Limit
+      if (filter?.limit) {
+        products = products.slice(0, filter.limit);
+      }
+
+      return products;
+    },
+  });
+}
