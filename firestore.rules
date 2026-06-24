@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== Helpers =====
+    function isSignedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function role() {
+      return get(/databases/$(database)/documents/users/$(uid())).data.role;
+    }
+    function isCustomer() { return isSignedIn() && role() == 'customer'; }
+    function isSeller()   { return isSignedIn() && role() == 'seller'; }
+    function isAdmin()    { return isSignedIn() && role() == 'admin'; }
+
+    // ===== USERS =====
+    match /users/{userId} {
+      allow read:   if isAdmin() || uid() == userId;
+      allow create: if uid() == userId
+                    && request.resource.data.role in ['customer', 'seller'];
+      allow update: if (uid() == userId
+                       && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
+                    || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ===== STORES =====
+    match /stores/{storeId} {
+      allow read: if true;                              // public
+      allow create: if isSeller()
+                    && request.resource.data.ownerUid == uid()
+                    && request.resource.data.status == 'pending';
+      allow update: if (isSeller() && resource.data.ownerUid == uid()
+                       && !('status' in request.resource.data.diff(resource.data).affectedKeys())
+                       && !('commissionRate' in request.resource.data.diff(resource.data).affectedKeys()))
+                    || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ===== PRODUCTS =====
+    match /products/{productId} {
+      allow read: if resource.data.status == 'approved'
+                  || isAdmin()
+                  || (isSeller() && resource.data.sellerUid == uid());
+      allow create: if isSeller()
+                    && request.resource.data.sellerUid == uid()
+                    && request.resource.data.status in ['draft', 'pending'];
+      allow update: if (isSeller() && resource.data.sellerUid == uid()
+                       && !('status' in request.resource.data.diff(resource.data).affectedKeys()))
+                    || isAdmin();
+      allow delete: if isAdmin()
+                    || (isSeller() && resource.data.sellerUid == uid());
+    }
+
+    // ===== ORDERS =====
+    match /orders/{orderId} {
+      allow read: if isAdmin()
+                  || (isCustomer() && resource.data.customerUid == uid())
+                  || (isSeller()   && resource.data.storeOwnerUid == uid());
+      allow create: if isCustomer()
+                    && request.resource.data.customerUid == uid()
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.payment.method == 'cod';
+      allow update: if isAdmin()
+                    || (isSeller() && resource.data.storeOwnerUid == uid());
+      allow delete: if false; // no hard delete
+    }
+
+    // ===== WISHLISTS =====
+    match /wishlists/{userId} {
+      allow read, write: if uid() == userId;
+    }
+
+    // ===== REVIEWS =====
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isCustomer()
+                    && request.resource.data.customerUid == uid();
+      allow update, delete: if isAdmin()
+                            || (isCustomer() && resource.data.customerUid == uid());
+    }
+
+    // ===== CATEGORIES, BANNERS, SETTINGS =====
+    match /categories/{slug} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /banners/{id} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow write: if isAdmin();
+    }
+    match /settings/{key} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ===== NOTIFICATIONS =====
+    match /notifications/{id} {
+      allow read, update: if isSignedIn() && resource.data.recipientUid == uid();
+      allow create: if isAdmin() || isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // ===== AUDIT LOGS =====
+    match /audit_logs/{id} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+  }
+}
