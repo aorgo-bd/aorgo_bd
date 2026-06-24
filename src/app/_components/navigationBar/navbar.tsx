@@ -1,6 +1,4 @@
 "use client";
-import { RootState } from "@/fetures/store";
-import { logoutUser } from "@/fetures/user/userSlice";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -11,7 +9,13 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { VscAccount } from "react-icons/vsc";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "@/fetures/store";
+import { useUser } from "@/lib/hooks/useUser";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface NavbarProps {
   onCartClick: () => void;
@@ -22,12 +26,12 @@ export default function Navbar({ onCartClick }: NavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  // user from redux
-  const { currentUser } = useSelector((state: RootState) => state.auth);
+  // user from hook
+  const { user, isAuthenticated, isLoading } = useUser();
   const { cart } = useSelector((state: RootState) => state.cart);
   const { wishlist } = useSelector((state: RootState) => state.wishlist);
-  const dispatch = useDispatch();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -39,9 +43,14 @@ export default function Navbar({ onCartClick }: NavbarProps) {
 
   const handleLogOut = async () => {
     try {
-      await dispatch(logoutUser() as any);
-    } catch (error) {
+      await signOut(auth);
+      toast.success("Successfully logged out!");
+      setShowUserMenu(false);
+      setIsOpen(false);
+      router.push("/");
+    } catch (error: any) {
       console.error("Logout error:", error);
+      toast.error(error.message || "Failed to log out");
     }
   };
 
@@ -133,7 +142,7 @@ export default function Navbar({ onCartClick }: NavbarProps) {
             </Link>
 
             {/* User Authentication */}
-            {!currentUser?.email ? (
+            {!isLoading && !isAuthenticated ? (
               <Link
                 href="/login"
                 className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
@@ -141,63 +150,83 @@ export default function Navbar({ onCartClick }: NavbarProps) {
                 Login
               </Link>
             ) : (
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={handleUserMenuToggle}
-                  className="flex items-center p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                >
-                  <VscAccount className="h-5 w-5 text-gray-600" />
-                </button>
+              <div className="flex items-center space-x-2">
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={handleUserMenuToggle}
+                    className="flex items-center p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <VscAccount className="h-5 w-5 text-gray-600" />
+                  </button>
 
-                {/* User Dropdown */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-10 animate-in slide-in-from-top-2 duration-200">
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {currentUser.email}
-                      </p>
-                      <p className="text-xs text-gray-500 capitalize">
-                        {currentUser.role}
-                      </p>
-                    </div>
+                  {/* User Dropdown */}
+                  {showUserMenu && user && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-10 animate-in slide-in-from-top-2 duration-200">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {user.email}
+                        </p>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {user.role}
+                        </p>
+                      </div>
 
-                    {currentUser.role === "admin" && (
-                      <Link
-                        href="/dashboard"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
-                        onClick={() => setShowUserMenu(false)}
+                      {user.role === "admin" && (
+                        <Link
+                          href="/dashboard"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
+
+                      {user.role === "seller" && (
+                        <Link
+                          href="/seller"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Seller Dashboard
+                        </Link>
+                      )}
+
+                      {user.role === "customer" && (
+                        <>
+                          <Link
+                            href="/profile"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            Profile
+                          </Link>
+                          <Link
+                            href="/settings"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            Settings
+                          </Link>
+                        </>
+                      )}
+
+                      <button
+                        onClick={handleLogOut}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 border-t border-gray-100"
                       >
-                        Admin Dashboard
-                      </Link>
-                    )}
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
 
-                    {currentUser.role === "user" && (
-                      <>
-                        <Link
-                          href="/profile"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
-                          onClick={() => setShowUserMenu(false)}
-                        >
-                          Profile
-                        </Link>
-                        <Link
-                          href="/settings"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
-                          onClick={() => setShowUserMenu(false)}
-                        >
-                          Settings
-                        </Link>
-                      </>
-                    )}
-
-                    <button
-                      onClick={handleLogOut}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 border-t border-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
+                {/* Header logout button */}
+                <button
+                  onClick={handleLogOut}
+                  className="hidden md:inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-red-50 hover:text-red-600 rounded-full transition-all duration-200 border border-gray-200/50"
+                >
+                  Logout
+                </button>
               </div>
             )}
 
@@ -233,7 +262,7 @@ export default function Navbar({ onCartClick }: NavbarProps) {
             </div>
 
             {/* Mobile Login */}
-            {!currentUser?.email && (
+            {!isLoading && !isAuthenticated && (
               <div className="px-4 py-2">
                 <Link
                   href="/login"
@@ -246,18 +275,18 @@ export default function Navbar({ onCartClick }: NavbarProps) {
             )}
 
             {/* Mobile User Menu */}
-            {currentUser?.email && (
+            {!isLoading && isAuthenticated && user && (
               <div className="px-4 py-2 space-y-2">
                 <div className="px-4 py-2 bg-gray-50 rounded-lg">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {currentUser.email}
+                    {user.email}
                   </p>
                   <p className="text-xs text-gray-500 capitalize">
-                    {currentUser.role}
+                    {user.role}
                   </p>
                 </div>
 
-                {currentUser.role === "admin" && (
+                {user.role === "admin" && (
                   <Link
                     href="/dashboard"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
@@ -267,7 +296,17 @@ export default function Navbar({ onCartClick }: NavbarProps) {
                   </Link>
                 )}
 
-                {currentUser.role === "user" && (
+                {user.role === "seller" && (
+                  <Link
+                    href="/seller"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Seller Dashboard
+                  </Link>
+                )}
+
+                {user.role === "customer" && (
                   <>
                     <Link
                       href="/profile"

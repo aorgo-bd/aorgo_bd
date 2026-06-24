@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { FiArrowRight, FiShoppingBag, FiStar, FiUsers } from "react-icons/fi";
+import { useUser } from "@/lib/hooks/useUser";
 
 export default function HeroSection() {
+  const { user, isAuthenticated, isLoading } = useUser();
+
   return (
     <div className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden">
       {/* Background Pattern */}
@@ -19,10 +22,17 @@ export default function HeroSection() {
           {/* Left Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                <FiStar className="mr-2" />
-                Trusted by 50,000+ customers
-              </div>
+              {!isLoading && isAuthenticated && user ? (
+                <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-100 text-blue-700 rounded-full text-sm font-semibold animate-fade-in">
+                  <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                  Hello, {user.displayName || "Shopper"}!
+                </div>
+              ) : (
+                <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                  <FiStar className="mr-2" />
+                  Trusted by 50,000+ customers
+                </div>
+              )}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 Shop the
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
@@ -39,20 +49,40 @@ export default function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/products"
-                className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                Shop Now
-                <FiArrowRight className="ml-2" />
-              </Link>
-              <Link
-                href="/categories"
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md"
-              >
-                <FiShoppingBag className="mr-2" />
-                Browse Categories
-              </Link>
+              {!isLoading && isAuthenticated ? (
+                <>
+                  <Link
+                    href="/products"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  >
+                    Shop Now
+                    <FiArrowRight className="ml-2" />
+                  </Link>
+                  <Link
+                    href="/categories"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md"
+                  >
+                    <FiShoppingBag className="mr-2" />
+                    Browse Categories
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  >
+                    Sign In
+                    <FiArrowRight className="ml-2" />
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md"
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Stats */}
