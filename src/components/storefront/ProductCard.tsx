@@ -38,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link
-      href={`/products/${product.id}`}
+      href={`/product/${product.slug}`}
       className="group flex flex-col w-full bg-white rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-shadow duration-300 border border-gray-100"
     >
       {/* 4:5 Aspect Ratio Image Wrapper */}

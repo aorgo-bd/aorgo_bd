@@ -109,3 +109,27 @@ export function useProducts(filter?: ProductFilter) {
     },
   });
 }
+
+export function useProductBySlug(slug: string) {
+  return useQuery<Product | null>({
+    queryKey: ["product", slug],
+    queryFn: async () => {
+      if (!slug) return null;
+      const productsRef = collection(db, "products");
+      const q = query(
+        productsRef,
+        where("slug", "==", slug),
+        where("status", "==", "approved")
+      );
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return null;
+      const doc = snapshot.docs[0];
+      return {
+        id: doc.id,
+        ...doc.data(),
+      } as Product;
+    },
+    enabled: !!slug,
+  });
+}
+
