@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Product } from "@/lib/types";
 
@@ -132,4 +132,41 @@ export function useProductBySlug(slug: string) {
     enabled: !!slug,
   });
 }
+
+export function useSellerProducts(sellerUid: string) {
+  return useQuery<Product[]>({
+    queryKey: ["seller-products", sellerUid],
+    queryFn: async () => {
+      if (!sellerUid) return [];
+      const productsRef = collection(db, "products");
+      const q = query(productsRef, where("sellerUid", "==", sellerUid));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        } as Product;
+      }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    },
+    enabled: !!sellerUid,
+  });
+}
+
+export function useSellerProduct(productId: string) {
+  return useQuery<Product | null>({
+    queryKey: ["seller-product", productId],
+    queryFn: async () => {
+      if (!productId) return null;
+      const docRef = doc(db, "products", productId);
+      const snapshot = await getDoc(docRef);
+      if (!snapshot.exists()) return null;
+      return {
+        id: snapshot.id,
+        ...snapshot.data(),
+      } as Product;
+    },
+    enabled: !!productId,
+  });
+}
+
 

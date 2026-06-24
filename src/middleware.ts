@@ -8,6 +8,7 @@ export function middleware(request: NextRequest) {
   const userRole = request.cookies.get("user-role")?.value;
 
   const isSellerRoute = pathname.startsWith("/seller");
+  const isSellerRegister = pathname === "/seller/register";
   // Protect /admin routes as well as /dashboard (the admin dashboard)
   const isAdminRoute = pathname.startsWith("/admin") || pathname.startsWith("/dashboard");
 
@@ -23,8 +24,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Seller route check: only 'seller' role can access
-  if (isSellerRoute && userRole !== "seller") {
+  // Seller route check: only 'seller' or 'admin' role can access, except /seller/register which is open to all logged in users
+  if (isSellerRoute && !isSellerRegister && userRole !== "seller" && userRole !== "admin") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
