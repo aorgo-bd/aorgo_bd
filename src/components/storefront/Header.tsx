@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -46,6 +46,7 @@ import {
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useUser();
   const { data: categories = [], isLoading: isLoadingCats } = useCategories();
   const cartItems = useCartStore((state) => state.items);
@@ -96,7 +97,7 @@ export default function Header() {
       <div className="w-full bg-black text-white text-center py-2 px-4 text-xs font-light tracking-wide flex items-center justify-center gap-1">
         <span>Sign up and get 20% off your first order.</span>
         {!isAuthenticated && (
-          <Link href="/register" className="font-semibold underline hover:text-gray-200 transition-colors">
+          <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className="font-semibold underline hover:text-gray-200 transition-colors">
             Sign Up Now
           </Link>
         )}
@@ -192,7 +193,7 @@ export default function Header() {
                   ) : (
                     <SheetClose render={
                       <Link
-                        href="/login"
+                        href={`/login?redirect=${encodeURIComponent(pathname)}`}
                         className="block w-full py-3 text-center bg-black text-white rounded-full font-semibold hover:bg-black/90 transition-colors text-sm"
                       >
                         Log In / Register
@@ -394,7 +395,7 @@ export default function Header() {
               </DropdownMenu>
             ) : (
               <Link
-                href="/login"
+                href={`/login?redirect=${encodeURIComponent(pathname)}`}
                 className="hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold bg-black hover:bg-black/90 text-white rounded-full transition-colors"
               >
                 Login

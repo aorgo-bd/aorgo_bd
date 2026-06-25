@@ -86,3 +86,77 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  /* Hide all non-invoice page furniture */
+  header,
+  footer,
+  aside,
+  nav,
+  .no-print,
+  button,
+  .btn,
+  a[class*="button"],
+  select,
+  textarea,
+  input[type="submit"],
+  .fixed,
+  .sticky {
+    display: none !important;
+  }
+  
+  /* Reset document for clean printing */
+  body, html {
+    background: white !important;
+    color: black !important;
+    font-size: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .container,
+  div[class*="max-w-"] {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Reset shadows, backgrounds and borders for print compatibility */
+  div, 
+  section,
+  .card,
+  table,
+  tr,
+  td {
+    box-shadow: none !important;
+    background: transparent !important;
+    text-shadow: none !important;
+  }
+
+  /* Keep basic layout grid/tables clean */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+  
+  th, td {
+    border-bottom: 1px solid #ddd !important;
+    padding: 8px !important;
+  }
+
+  /* Avoid cutting elements across pages */
+  tr, 
+  img, 
+  .card {
+    page-break-inside: avoid;
+  }
+}
