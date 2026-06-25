@@ -228,6 +228,19 @@ export async function POST(request: NextRequest) {
       for (const order of createdOrders) {
         const orderRef = adminDb.collection("orders").doc(order.id);
         transaction.set(orderRef, order);
+
+        // Audit trail for each created order (matches admin-route pattern)
+        const auditRef = adminDb.collection("audit_logs").doc();
+        transaction.set(auditRef, {
+          id: auditRef.id,
+          actorUid: uid,
+          actorRole: "customer",
+          action: "order.create",
+          entity: "order",
+          entityId: order.id,
+          after: { storeId: order.storeId, total: order.totals.total },
+          at: Date.now(),
+        });
       }
 
       return createdOrders;

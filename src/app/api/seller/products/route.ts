@@ -130,6 +130,19 @@ export async function POST(request: NextRequest) {
         totalProducts: FieldValue.increment(1),
         updatedAt: Date.now(),
       });
+
+      // Audit trail (matches admin-route pattern)
+      const auditRef = adminDb.collection("audit_logs").doc();
+      transaction.set(auditRef, {
+        id: auditRef.id,
+        actorUid: uid,
+        actorRole: userData?.role || "seller",
+        action: "product.create",
+        entity: "product",
+        entityId: productId,
+        after: { title: newProduct.title, storeId },
+        at: Date.now(),
+      });
     });
 
     return NextResponse.json({
