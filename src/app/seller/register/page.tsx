@@ -302,7 +302,7 @@ export default function SellerRegisterPage() {
                     className="mt-1 font-mono text-sm bg-slate-50 dark:bg-slate-900/50"
                   />
                   <p className="text-[10px] mt-0.5 text-slate-400">
-                    This is your store's public web address: aorgo.com/store/{watch("slug") || "your-slug"}
+                    This is your store&apos;s public web address: aorgo.com/store/{watch("slug") || "your-slug"}
                   </p>
                   {errors.slug && (
                     <p className="mt-1 text-xs text-red-500 flex items-center gap-1">

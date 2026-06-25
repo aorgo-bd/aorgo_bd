@@ -96,6 +96,7 @@ export interface Product {
   // search helpers
   titleLower: string;        // for case-insensitive prefix search
   keywords: string[];        // ['saree', 'cotton', 'red'] for array-contains
+  rejectionReason?: string;  // reason for product rejection by admin
   createdAt: number;
   updatedAt: number;
 }

@@ -104,4 +104,17 @@ export const productFormSchema = z.object({
 export type ProductVariantData = z.infer<typeof productVariantSchema>;
 export type ProductFormData = z.infer<typeof productFormSchema>;
 
+export const bannerFormSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  subtitle: z.string().optional(),
+  imagePublicId: z.string().min(1, "Banner image is required"),
+  ctaUrl: z.string().min(1, "CTA URL is required"),
+  position: z.enum(["hero", "mid", "footer"]),
+  active: z.boolean().default(true),
+  order: z.coerce.number().int().nonnegative("Order must be 0 or more"),
+});
+
+export type BannerFormData = z.infer<typeof bannerFormSchema>;
+
+
 
