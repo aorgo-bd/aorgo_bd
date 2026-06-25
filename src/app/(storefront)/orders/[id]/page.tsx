@@ -3,13 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Order } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { useUser } from "@/lib/hooks/useUser";
+import ReviewForm from "@/components/storefront/ReviewForm";
+import { Star } from "lucide-react";
 
 function getStatusBadgeClass(status: string) {
   switch (status) {
@@ -60,6 +62,51 @@ const ORDER_STEPS = [
   { status: "delivered", label: "Delivered", desc: "Package handed to customer" }
 ];
 
+function ReviewActionCell({
+  item,
+  orderId,
+  orderReviews,
+  refetchOrderReviews,
+}: {
+  item: any;
+  orderId: string;
+  orderReviews: any[];
+  refetchOrderReviews: () => void;
+}) {
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
+  const review = orderReviews?.find((r) => r.productId === item.productId);
+
+  if (review) {
+    return (
+      <div className="flex items-center justify-center gap-1 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-450 py-1 px-2.5 rounded-full border border-emerald-100/50 w-fit mx-auto font-semibold">
+        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+        <span className="text-[10px] uppercase tracking-wider">Reviewed ({review.rating}★)</span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setIsFormOpen(true)}
+        className="text-[11px] font-semibold py-1 px-2.5 border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-900/50 dark:text-indigo-400 dark:hover:bg-indigo-950/30"
+      >
+        Write Review
+      </Button>
+      <ReviewForm
+        productId={item.productId}
+        productTitle={item.title}
+        orderId={orderId}
+        isOpen={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        onSuccess={refetchOrderReviews}
+      />
+    </>
+  );
+}
+
 export default function OrderDetailPage({ params }: PageProps) {
   const { id } = params;
   const { user, isAuthenticated, isLoading: isLoadingUser } = useUser();
@@ -81,6 +128,22 @@ export default function OrderDetailPage({ params }: PageProps) {
       return { id: snap.id, ...snap.data() } as Order;
     },
     enabled: !!id && isAuthenticated,
+  });
+
+  // Query reviews for this order to check which items are already reviewed
+  const {
+    data: orderReviews = [],
+    refetch: refetchOrderReviews,
+  } = useQuery<any[]>({
+    queryKey: ["order-reviews", id],
+    queryFn: async () => {
+      if (!id) return [];
+      const reviewsRef = collection(db, "reviews");
+      const q = query(reviewsRef, where("orderId", "==", id));
+      const snap = await getDocs(q);
+      return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    },
+    enabled: !!id && isAuthenticated && order?.status === "delivered",
   });
 
   const isLoading = isLoadingUser || isLoadingQuery;
@@ -320,6 +383,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                       <th className="p-4 pl-6">Product Details</th>
                       <th className="p-4 text-center">Attributes</th>
                       <th className="p-4 text-center">Quantity</th>
+                      {order.status === "delivered" && <th className="p-4 text-center">Feedback</th>}
                       <th className="p-4 text-right pr-6">Subtotal</th>
                     </tr>
                   </thead>
@@ -350,6 +414,16 @@ export default function OrderDetailPage({ params }: PageProps) {
                           </div>
                         </td>
                         <td className="p-4 text-center font-semibold">{item.qty} × ৳{item.priceAtPurchase}</td>
+                        {order.status === "delivered" && (
+                          <td className="p-4 text-center">
+                            <ReviewActionCell
+                              item={item}
+                              orderId={order.id}
+                              orderReviews={orderReviews}
+                              refetchOrderReviews={refetchOrderReviews}
+                            />
+                          </td>
+                        )}
                         <td className="p-4 text-right pr-6 font-bold text-sm text-zinc-700 dark:text-zinc-300">৳{item.qty * item.priceAtPurchase}</td>
                       </tr>
                     ))}

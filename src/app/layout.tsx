@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/storefront/Header";
 import Footer from "@/components/storefront/Footer";
+import BottomNav from "@/components/storefront/BottomNav";
 import Providers from "./_components/providers";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,10 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
 
-  const isDashboardRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/seller");
+  const isDashboardRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/seller") ||
+    pathname.startsWith("/admin");
 
   return (
     <html lang="en" className={cn("font-sans", inter.variable)}>
@@ -25,7 +29,10 @@ export default function RootLayout({
         <Providers>
           <Toaster />
           {!isDashboardRoute && <Header />}
-          <div className="min-h-screen">{children}</div>
+          <div className={cn("min-h-screen", !isDashboardRoute && "pb-16 md:pb-0")}>
+            {children}
+          </div>
+          <BottomNav />
           {!isDashboardRoute && <Footer />}
         </Providers>
       </body>

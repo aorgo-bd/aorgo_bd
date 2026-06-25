@@ -242,7 +242,7 @@ export default function SellerDashboard() {
                           {order.items.reduce((s: number, i: any) => s + i.qty, 0)} Items
                         </p>
                       </div>
-                      <Link href={`/seller/orders`}>
+                      <Link href={`/seller/orders/${order.id}`}>
                         <Button size="sm" variant="ghost" className="h-8 border border-slate-200 dark:border-slate-800 text-xs font-semibold">
                           View details
                         </Button>

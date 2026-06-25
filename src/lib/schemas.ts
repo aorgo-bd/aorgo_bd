@@ -116,5 +116,12 @@ export const bannerFormSchema = z.object({
 
 export type BannerFormData = z.infer<typeof bannerFormSchema>;
 
+export const reviewSchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  orderId: z.string().min(1, "Order ID is required"),
+  rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating cannot exceed 5"),
+  text: z.string().min(5, "Comment must be at least 5 characters").max(500, "Comment cannot exceed 500 characters"),
+  photos: z.array(z.string()).max(5, "You can upload up to 5 photos"),
+});
 
-
+export type ReviewFormData = z.infer<typeof reviewSchema>;

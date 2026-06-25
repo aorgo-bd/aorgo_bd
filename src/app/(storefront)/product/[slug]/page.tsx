@@ -7,10 +7,15 @@ import { toast } from "sonner";
 import { Star, Heart, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useProductBySlug, useProducts } from "@/lib/hooks/useProducts";
-import { Category, Product, ProductVariant } from "@/lib/types";
+import { Category, Product, ProductVariant, Order } from "@/lib/types";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { useCartStore } from "@/lib/stores/cart";
 import { useWishlistStore } from "@/lib/stores/wishlist";
+import { useUser } from "@/lib/hooks/useUser";
+import { useReviews } from "@/lib/hooks/useReviews";
+import { useQuery } from "@tanstack/react-query";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
 
 import ProductGallery from "@/components/storefront/ProductGallery";
 import VariantSelector from "@/components/storefront/VariantSelector";
@@ -28,6 +33,36 @@ export default function ProductDetailPage() {
   const { data: product, isLoading, error } = useProductBySlug(slug);
   const { data: allProducts = [] } = useProducts();
   const { data: categoriesList = [] } = useCategories();
+
+  const { user } = useUser();
+  const { data: reviews = [] } = useReviews(product?.id || "");
+
+  const { data: userOrders = [] } = useQuery<Order[]>({
+    queryKey: ["orders-pdp-check", user?.uid],
+    queryFn: async () => {
+      if (!user?.uid) return [];
+      const ordersRef = collection(db, "orders");
+      const q = query(ordersRef, where("customerUid", "==", user.uid));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Order[];
+    },
+    enabled: !!user?.uid,
+  });
+
+  const eligibleOrder = React.useMemo(() => {
+    if (!user || !product || !userOrders.length) return null;
+    const deliveredOrdersForProduct = userOrders.filter(
+      (order: Order) =>
+        order.status === "delivered" &&
+        order.items.some((item: any) => item.productId === product.id)
+    );
+    return deliveredOrdersForProduct.find(
+      (order: Order) => !reviews.some((r: any) => r.orderId === order.id && r.customerUid === user.uid)
+    );
+  }, [user, product, userOrders, reviews]);
 
   const { add: addItem, setIsOpen: setCartOpen } = useCartStore();
   const { toggle: toggleWishlist, has: hasWishlist } = useWishlistStore();
@@ -310,18 +345,29 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Rating Stars Summary */}
-            {product.rating > 0 && (
-              <div className="flex items-center gap-1.5 py-1 px-2.5 bg-gray-50 border border-gray-100 rounded-full w-fit">
-                <span className="text-xs font-bold text-gray-900">
-                  {product.rating.toFixed(1)}
-                </span>
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span className="text-[10px] text-gray-300">|</span>
-                <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
-                  {product.reviewCount} review{product.reviewCount !== 1 ? "s" : ""}
-                </span>
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {product.rating > 0 ? (
+                <div className="flex items-center gap-1.5 py-1 px-2.5 bg-gray-50 border border-gray-100 rounded-full w-fit">
+                  <span className="text-xs font-bold text-gray-900">
+                    {product.rating.toFixed(1)}
+                  </span>
+                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  <span className="text-[10px] text-gray-300">|</span>
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                    {product.reviewCount} review{product.reviewCount !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              ) : null}
+              {eligibleOrder && (
+                <Link
+                  href={`/orders/${eligibleOrder.id}`}
+                  className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1.5 uppercase tracking-wider bg-emerald-50/50 border border-emerald-100/50 rounded-full px-3 py-1"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Write a review</span>
+                </Link>
+              )}
+            </div>
 
             {/* Pricing Details */}
             <div className="flex items-end gap-3.5">
@@ -520,6 +566,23 @@ export default function ProductDetailPage() {
         )}
 
         {/* Customer Reviews Section */}
+        {eligibleOrder && (
+          <div className="mb-6 p-6 rounded-2xl bg-emerald-50/50 border border-emerald-100/60 dark:bg-emerald-950/10 dark:border-emerald-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-400">Share your feedback!</h4>
+              <p className="text-xs text-emerald-600 dark:text-emerald-550">
+                You purchased this product in order <strong className="font-semibold text-emerald-700 dark:text-emerald-400">#{eligibleOrder.id.slice(-8).toUpperCase()}</strong>.
+              </p>
+            </div>
+            <Link
+              href={`/orders/${eligibleOrder.id}`}
+              className="inline-flex h-10 items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl px-5 text-xs uppercase tracking-wide transition-colors w-fit shadow-xs shadow-emerald-600/10"
+            >
+              Write a Review
+            </Link>
+          </div>
+        )}
+
         <ReviewList productId={product.id} />
 
       </div>
