@@ -34,6 +34,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import {
   Sheet,
@@ -349,13 +350,15 @@ export default function Header() {
                   </button>
                 } />
                 <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-100 shadow-xl rounded-xl p-1.5">
-                  <DropdownMenuLabel className="px-2.5 py-2">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{user.displayName || "My Profile"}</p>
-                    <p className="text-xs text-gray-400 truncate">{user.email}</p>
-                    <p className="text-[10px] text-black font-semibold uppercase tracking-wider bg-gray-100 rounded-full w-fit px-2 py-0.5 mt-1">
-                      {user.role}
-                    </p>
-                  </DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="px-2.5 py-2">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{user.displayName || "My Profile"}</p>
+                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                      <p className="text-[10px] text-black font-semibold uppercase tracking-wider bg-gray-100 rounded-full w-fit px-2 py-0.5 mt-1">
+                        {user.role}
+                      </p>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator className="bg-gray-100" />
                   
                   <DropdownMenuItem render={

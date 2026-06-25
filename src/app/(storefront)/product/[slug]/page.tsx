@@ -12,6 +12,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
 
   try {
+    if (!adminDb) {
+      throw new Error("adminDb is not initialized");
+    }
     const productsSnap = await adminDb.collection('products')
       .where('slug', '==', slug)
       .limit(1)

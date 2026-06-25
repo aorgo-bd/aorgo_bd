@@ -39,6 +39,18 @@ export function useUser() {
               60 * 60 * 24 * 7
             }; SameSite=Lax`;
 
+            const parseDate = (val: any): string => {
+              if (!val) return new Date().toISOString();
+              if (typeof val.toDate === "function") {
+                return val.toDate().toISOString();
+              }
+              const date = new Date(val);
+              if (!isNaN(date.getTime())) {
+                return date.toISOString();
+              }
+              return new Date().toISOString();
+            };
+
             // Keep Redux auth slice synced for reverse compatibility
             dispatch(
               setUser({
@@ -48,8 +60,8 @@ export function useUser() {
                 photoURL: userData.photoURL || null,
                 role: userData.role === "admin" ? "admin" : "user",
                 isActive: true,
-                createdAt: new Date(userData.createdAt).toISOString(),
-                updatedAt: new Date(userData.updatedAt).toISOString(),
+                createdAt: parseDate(userData.createdAt),
+                updatedAt: parseDate(userData.updatedAt),
               })
             );
           } else {

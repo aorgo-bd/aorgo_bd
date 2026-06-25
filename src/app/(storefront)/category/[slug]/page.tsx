@@ -11,6 +11,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
 
   try {
+    if (!adminDb) {
+      throw new Error("adminDb is not initialized");
+    }
     const categoryDoc = await adminDb.collection('categories').doc(slug).get();
 
     if (!categoryDoc.exists) {

@@ -21,6 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
+    if (!adminDb) {
+      throw new Error("adminDb is not initialized");
+    }
     // 1. Fetch categories
     const categoriesSnap = await adminDb.collection('categories').get();
     const categoryRoutes = categoriesSnap.docs.map((doc) => {
