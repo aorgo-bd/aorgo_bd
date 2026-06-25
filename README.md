@@ -1,315 +1,106 @@
-# Firebase Commerce - Full Stack E-commerce Application
+# AORGO — Multi-Vendor Fashion & Lifestyle Marketplace (Bangladesh)
 
-A complete e-commerce solution built with Next.js 13, Firebase, Redux Toolkit, TypeScript, and Tailwind CSS. Features a comprehensive admin dashboard with role-based access control, inventory management, and real-time analytics.
-
-## 🚀 Features
-
-### User Features
-
-- **Authentication**: Email/password, Google, and Facebook sign-in
-- **Product Catalog**: Browse, search, and filter products
-- **Shopping Cart**: Add to cart with persistence
-- **Wishlist**: Save favorite items
-- **Order Management**: Place and track orders
-- **User Profile**: Manage personal information
-
-### Admin Features
-
-- **Dashboard**: Real-time analytics and insights
-- **Product Management**: Full CRUD operations
-- **Category Management**: Organize products
-- **Order Management**: Track and update orders
-- **User Management**: Manage users and roles
-- **Inventory Tracking**: Monitor stock levels
-- **Notifications**: System alerts and updates
-- **Global Search**: Search across all entities
-- **Data Export**: Export data in various formats
-- **Audit Logs**: Track system changes
-- **System Settings**: Configure application settings
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Next.js 13 (App Router), React, TypeScript
-- **State Management**: Redux Toolkit with Redux Persist
-- **Database**: Firebase Firestore
-- **Authentication**: Firebase Auth
-- **Storage**: Firebase Storage
-- **Styling**: Tailwind CSS
-- **Icons**: React Icons
-- **Forms**: React Hook Form
-
-## 📦 Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/yourusername/firebase-commerce.git
-   cd firebase-commerce
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Set up Firebase**
-
-   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Enable Authentication (Email/Password, Google, Facebook)
-   - Enable Firestore Database
-   - Enable Storage
-   - Copy your Firebase configuration
-
-4. **Environment Configuration**
-
-   Create a `.env.local` file in the root directory and add your Firebase configuration:
-
-   ```env
-   # Firebase Configuration
-   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
-
-   # Application Configuration
-   NEXT_PUBLIC_APP_NAME="Firebase Commerce"
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-   # Admin Configuration
-   ADMIN_EMAIL=admin@firebasecommerce.com
-   ADMIN_PASSWORD=admin123
-
-   # Environment
-   NODE_ENV=development
-   ```
-
-   > **Important**: Replace all `your_*_here` values with your actual Firebase project configuration values.
-
-5. **Configure Firestore Security Rules**
-
-   In your Firebase Console, go to Firestore Database → Rules and use these security rules:
-
-   ```javascript
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       // Users can read and write their own data
-       match /users/{userId} {
-         allow read, write: if request.auth != null && request.auth.uid == userId;
-         allow read: if request.auth != null &&
-           resource.data.role == 'admin' &&
-           request.auth.token.role == 'admin';
-       }
-
-       // Public read access to products and categories
-       match /products/{productId} {
-         allow read: if true;
-         allow write: if request.auth != null && request.auth.token.role == 'admin';
-       }
-
-       match /categories/{categoryId} {
-         allow read: if true;
-         allow write: if request.auth != null && request.auth.token.role == 'admin';
-       }
-
-       // Orders can be read by the user who created them or admin
-       match /orders/{orderId} {
-         allow read: if request.auth != null &&
-           (request.auth.uid == resource.data.userId ||
-            request.auth.token.role == 'admin');
-         allow write: if request.auth != null;
-       }
-
-       // Admin-only collections
-       match /notifications/{notificationId} {
-         allow read, write: if request.auth != null && request.auth.token.role == 'admin';
-       }
-
-       match /settings/{settingId} {
-         allow read, write: if request.auth != null && request.auth.token.role == 'admin';
-       }
-     }
-   }
-   ```
-
-6. **Seed the database**
-
-   ```bash
-   npm run seed
-   ```
-
-7. **Start the development server**
-
-   ```bash
-   npm run dev
-   ```
-
-8. **Access the application**
-   - Frontend: [http://localhost:3000](http://localhost:3000)
-   - Admin Dashboard: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
-
-## 🔐 Admin Access
-
-After running the seed script, you can access the admin dashboard with:
-
-- **Email**: admin@firebasecommerce.com
-- **Password**: admin123
-
-## 📁 Project Structure
-
-```
-firebase-commerce/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── dashboard/          # Admin dashboard pages
-│   │   ├── _components/        # Shared components
-│   │   └── layout.tsx          # Root layout
-│   ├── features/               # Redux slices
-│   │   ├── admin/              # Admin slice
-│   │   ├── user/               # User/Auth slice
-│   │   ├── product/            # Product slice
-│   │   ├── category/           # Category slice
-│   │   ├── order/              # Order slice
-│   │   ├── cart/               # Cart slice
-│   │   └── wishlist/           # Wishlist slice
-│   ├── firebase/               # Firebase configuration
-│   │   └── firebase.config.ts  # Firebase config only
-│   └── type.d.ts               # TypeScript definitions
-├── scripts/
-│   └── seed.ts                 # Database seeding script
-└── README.md
-```
-
-## 🔧 Development Scripts
-
-```bash
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm run start
-
-# Run linter
-npm run lint
-
-# Seed database with sample data
-npm run seed
-```
-
-## 🏗️ Architecture
-
-### State Management
-
-- **Redux Toolkit**: Centralized state management
-- **Redux Persist**: State persistence across sessions
-- **Async Thunks**: Handle Firebase operations
-- **Slice Pattern**: Modular state organization
-
-### Firebase Integration
-
-- **Firestore**: NoSQL database for all data
-- **Authentication**: Multi-provider authentication
-- **Storage**: File uploads and management
-- **Security Rules**: Data access control
-
-### Component Architecture
-
-- **App Router**: Next.js 13 app directory structure
-- **Server Components**: Optimized server-side rendering
-- **Client Components**: Interactive UI components
-- **Protected Routes**: Role-based access control
-
-## 🚀 Deployment
-
-### Firebase Hosting
-
-1. Install Firebase CLI:
-
-   ```bash
-   npm install -g firebase-tools
-   ```
-
-2. Login to Firebase:
-
-   ```bash
-   firebase login
-   ```
-
-3. Initialize Firebase:
-
-   ```bash
-   firebase init
-   ```
-
-4. Build and deploy:
-   ```bash
-   npm run build
-   firebase deploy
-   ```
-
-### Environment Variables for Production
-
-Update your `.env.local` file with production Firebase configuration and deploy environment variables to your hosting platform.
-
-## 🔒 Security
-
-- **Firestore Security Rules**: Implement proper data access rules
-- **Authentication**: Role-based access control
-- **Input Validation**: Client and server-side validation
-- **HTTPS**: Secure data transmission
-- **Environment Variables**: Secure configuration management
-
-## 📈 Features Roadmap
-
-- [ ] Payment Integration (Stripe/PayPal)
-- [ ] Email Notifications
-- [ ] Advanced Analytics
-- [ ] Multi-language Support
-- [ ] PWA Features
-- [ ] Mobile App (React Native)
-- [ ] AI-powered Recommendations
-- [ ] Advanced Search with Filters
-- [ ] Bulk Operations
-- [ ] API Documentation
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Firebase for backend infrastructure
-- Next.js team for the amazing framework
-- Redux Toolkit for state management
-- Tailwind CSS for styling
-- React Icons for beautiful icons
-
-## 📧 Contact
-
-For questions or support, please contact:
-
-- Email: admin@firebasecommerce.com
-- GitHub: [Your GitHub Profile](https://github.com/yourusername)
+AORGO is a premium, mobile-first multi-vendor fashion and lifestyle marketplace built for **Bangladesh**, drawing inspiration from platforms like Myntra, Nykaa Fashion, and Ajio. 
 
 ---
 
-**Made with ❤️ using Next.js, Firebase, and Redux Toolkit**
+## 🚀 Key Features
+
+*   **Premium Storefront:** Dynamic collections Mega-Menu, responsive grid layouts, and advanced search with prefix matching.
+*   **Zustand Shopping Cart & Wishlist:** Client-side persisted shopping states in LocalStorage with header badge counters.
+*   **Product Detail Page (PDP):** Fully featured PDP with a Cloudinary image gallery, color/size variant selectors, sticky mobile CTA actions, trust badges, and similar product rails.
+*   **Cash on Delivery (COD) Checkout:** Secure checkout flow featuring client-side Zod validators, BD district selections, and transactional stock deductions in Firestore.
+*   **Fulfillment & Tracking:** Interactive order history logging, courier selector (`manual`, `steadfast`, `pathao`, `redx`, `paperfly`), packing slip printouts, and status progression panels.
+*   **Verified Reviews System:** Secure client-side review locks, next-cloudinary customer upload widgets, and transactional calculations to compute product rating averages.
+
+---
+
+## 🛠️ Hard Constraints (Bangladesh MVP)
+1.  **Payment Mode:** Cash on Delivery (COD) only.
+2.  **Currency:** BDT (`৳`), stored as integer Taka (never float/string).
+3.  **Roles:** `customer`, `seller`, and `admin` only.
+4.  **Top Categories:** Women's Fashion, Men's Fashion, and Footwear (divided into 12 subcategories).
+5.  **Images:** Stored as Cloudinary public IDs only.
+
+---
+
+## 📦 Getting Started
+
+### 1. Installation
+Install project dependencies:
+```bash
+pnpm install
+```
+
+### 2. Environment Configuration
+Create a `.env.local` file in the root `aorgo` folder and supply the Firebase and Cloudinary credentials:
+```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# Cloudinary Configuration
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+
+# Server Admin Config (Encoded Service Account JSON)
+FIREBASE_ADMIN_CREDENTIALS_BASE64=your_base64_service_account_json
+```
+
+### 3. Firestore Seeding
+Seed top-level categories and subcategories first:
+```bash
+npx tsx scripts/seed-categories.ts
+```
+
+Seed mock stores, test accounts, and 36 demo products across all 12 categories:
+```bash
+npx tsx scripts/seed-demo-products.ts
+```
+
+### 4. Run Development Server
+```bash
+pnpm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the storefront.
+
+---
+
+## 📁 Folder Structure
+```text
+src/
+├── app/
+│   ├── (auth)/                # Customer login/registration flows
+│   ├── (storefront)/          # Public shop pages (homepage, PDP, cart, orders)
+│   ├── admin/                 # Admin panel (sellers approval, banners)
+│   ├── api/
+│   │   ├── orders/            # Checkout price-recalculation & inventory decrease
+│   │   └── reviews/           # Transactional review writing & ratings updating
+│   ├── seller/                # Seller portal (products catalog, order fulfillment)
+│   ├── layout.tsx             # Global Root Layout with BottomNav & Header/Footer mounts
+│   └── middleware.ts          # Global middleware guarding roles and auth cookies
+├── components/
+│   ├── storefront/            # Storefront components (ReviewForm, BottomNav, Header, ReviewList)
+│   ├── seller/                # Merchant components (ProductForm)
+│   └── ui/                    # Shadcn component primitives
+```
+
+---
+
+## 🔒 Test Accounts (Demo Seeding)
+
+### Admin Account
+*   **Email:** `aorgobd@gmail.com`
+*   **Password:** *(Use your registered auth credentials)*
+*   **Path:** `/admin`
+
+### Demo Customers
+*   **Email:** `customer1@aorgo.com.bd` or `customer2@aorgo.com.bd`
+
+### Demo Sellers
+*   **Owner UID:** `demo-seller-1` (Aarong), `demo-seller-2` (Yellow), `demo-seller-5` (Apex)
+*   **Path:** `/seller`
