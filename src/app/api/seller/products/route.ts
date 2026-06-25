@@ -59,18 +59,23 @@ export async function POST(request: NextRequest) {
 
     const data = validated.data;
 
-    // 4. Generate search helper fields
     const titleLower = data.title.toLowerCase();
-    
-    // Generate simple keywords: unique words from title + brand + category
-    const cleanWord = (w: string) => w.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
-    const words = [
-      ...data.title.split(/\s+/).map(cleanWord),
-      ...data.brand.split(/\s+/).map(cleanWord),
-      cleanWord(data.category),
-    ].filter((w) => w.length > 2);
-    
-    const keywords = Array.from(new Set(words));
+    // Generate keywords: [...title.toLowerCase().split(' '), brand.toLowerCase(), category, color, ...sizes].slice(0, 30)
+    const titleTokens = data.title.toLowerCase().split(" ");
+    const brandToken = data.brand.toLowerCase();
+    const categoryToken = data.category;
+    const colors = Array.from(new Set(data.variants.map((v) => v.color.toLowerCase())));
+    const sizes = Array.from(new Set(data.variants.map((v) => v.size.toLowerCase())));
+
+    const rawKeywords = [
+      ...titleTokens,
+      brandToken,
+      categoryToken,
+      ...colors,
+      ...sizes
+    ].map((w) => w.trim()).filter(Boolean);
+
+    const keywords = Array.from(new Set(rawKeywords)).slice(0, 30);
 
     // Generate slug from title
     const slugify = (text: string) =>

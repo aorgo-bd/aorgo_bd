@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useCategories } from "@/lib/hooks/useCategories";
-import { useProducts } from "@/lib/hooks/useProducts";
+import { useProductSearch } from "@/lib/hooks/useProductSearch";
 import ProductCard from "@/components/storefront/ProductCard";
 import CategoryFilter from "@/components/storefront/CategoryFilter";
+import SortDropdown from "@/components/storefront/SortDropdown";
 
 interface CategoryPageProps {
   params: {
@@ -37,7 +38,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const [maxPrice, setMaxPrice] = useState<number>(50000);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<string>("newest");
+  const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc" | "rating-desc" | "popular">("newest");
 
   // Reset filters when category changes
   useEffect(() => {
@@ -49,8 +50,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     setSortBy("newest");
   }, [slug]);
 
-  // Construct active filter query for useProducts hook
-  const productFilter: any = {
+  // Construct active filter query for useProductSearch hook
+  const activeFilters: any = {
     minPrice: minPrice || undefined,
     maxPrice: maxPrice || undefined,
     colors: selectedColors,
@@ -59,32 +60,29 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   if (isParentCategory) {
     // If it's a parent category, we fetch products in either the selected subcategories
-    // or if none are selected, all subcategories of this parent + the parent slug itself
-    productFilter.subcategories =
+    // or if none are selected, all subcategories of this parent
+    activeFilters.subcategories =
       selectedSubcategories.length > 0
         ? selectedSubcategories
-        : [slug, ...subcategories.map((c: any) => c.slug)];
+        : subcategories.map((c: any) => c.slug);
   } else {
     // If it's a child category, fetch products belonging to this specific subcategory only
-    productFilter.category = slug;
+    activeFilters.category = slug;
   }
 
-  // Handle Sort
-  if (sortBy === "newest") {
-    productFilter.sortBy = "createdAt";
-    productFilter.sortOrder = "desc";
-  } else if (sortBy === "price-asc") {
-    productFilter.sortBy = "price";
-    productFilter.sortOrder = "asc";
-  } else if (sortBy === "price-desc") {
-    productFilter.sortBy = "price";
-    productFilter.sortOrder = "desc";
-  } else if (sortBy === "rating-desc") {
-    productFilter.sortBy = "rating";
-    productFilter.sortOrder = "desc";
-  }
+  const {
+    data,
+    isLoading: isLoadingProds,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useProductSearch({
+    filters: activeFilters,
+    sortBy,
+    limitCount: 24,
+  });
 
-  const { data: products = [], isLoading: isLoadingProds } = useProducts(productFilter);
+  const products = data?.pages.flatMap((page) => page.products) || [];
 
   // Toggle helpers
   const handleSubcategoryToggle = (subSlug: string) => {
@@ -204,26 +202,17 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-black">
                   {currentCategory.name}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-400 mt-1 font-medium">
-                  Showing {products.length} products
+                <p className="text-xs sm:text-sm text-gray-400 mt-1 font-semibold">
+                  Showing {products.length} product{products.length === 1 ? "" : "s"}
                 </p>
               </div>
 
               {/* Sort selector */}
               <div className="flex items-center space-x-2 self-end sm:self-auto">
-                <span className="text-xs sm:text-sm text-gray-400 font-medium">
+                <span className="text-xs sm:text-sm text-gray-450 font-bold">
                   Sort by:
                 </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-gray-50 border-0 rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold text-black focus:outline-none focus:ring-1 focus:ring-black"
-                >
-                  <option value="newest">Newest Arrivals</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating-desc">Customer Rating</option>
-                </select>
+                <SortDropdown value={sortBy} onChange={setSortBy} />
               </div>
             </div>
 
@@ -237,14 +226,36 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             ) : products.length === 0 ? (
               <div className="py-20 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                 <h3 className="text-base font-bold text-gray-900 mb-1">No products found</h3>
-                <p className="text-sm text-gray-500">Try loosening your filters to see more results.</p>
+                <p className="text-sm text-gray-550">Try loosening your filters to see more results.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-                {products.map((product: any) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                  {products.map((product: any) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {/* Pagination (Load More) */}
+                {hasNextPage && (
+                  <div className="flex justify-center mt-12">
+                    <button
+                      onClick={() => fetchNextPage()}
+                      disabled={isFetchingNextPage}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-black hover:bg-black/90 text-white text-sm font-bold rounded-full transition-colors disabled:opacity-50 min-w-[180px] cursor-pointer"
+                    >
+                      {isFetchingNextPage ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <span>Load More Products</span>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
           </div>

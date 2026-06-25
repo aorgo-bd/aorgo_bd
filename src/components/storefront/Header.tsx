@@ -23,6 +23,7 @@ import { useCategories } from "@/lib/hooks/useCategories";
 import { useCartStore } from "@/lib/stores/cart";
 import { useWishlistStore } from "@/lib/stores/wishlist";
 import CartDrawer from "./CartDrawer";
+import SearchBar from "./SearchBar";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { toast } from "sonner";
@@ -51,7 +52,6 @@ export default function Header() {
   const wishlistIds = useWishlistStore((state) => state.ids);
   const setCartOpen = useCartStore((state) => state.setIsOpen);
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -60,14 +60,6 @@ export default function Header() {
   const rootCategories = categories.filter((c: any) => !c.parent);
   const getSubcategories = (parentSlug: string) =>
     categories.filter((c: any) => c.parent === parentSlug);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setIsMobileSearchOpen(false);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -306,18 +298,7 @@ export default function Header() {
         </nav>
 
         {/* Desktop Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-sm lg:max-w-md relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
-          </div>
-          <input
-            type="search"
-            placeholder="Search for products, brands..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 border border-transparent rounded-full focus:outline-none focus:bg-white focus:border-black transition-all duration-200"
-          />
-        </form>
+        <SearchBar className="hidden md:block flex-1 max-w-sm lg:max-w-md" />
 
         {/* Right Side Icons: Search, Wishlist, Cart, Profile */}
         <div className="flex items-center space-x-1.5 sm:space-x-3">
@@ -432,26 +413,19 @@ export default function Header() {
             exit={{ height: 0, opacity: 0 }}
             className="w-full bg-white border-b border-gray-100 md:hidden overflow-hidden"
           >
-            <form onSubmit={handleSearchSubmit} className="p-4 flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="search"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-full focus:outline-none focus:bg-white focus:border-black text-sm"
-                  autoFocus
-                />
-              </div>
+            <div className="p-4 flex gap-2 items-center">
+              <SearchBar
+                className="flex-1"
+                onSearchExecuted={() => setIsMobileSearchOpen(false)}
+              />
               <button
                 type="button"
                 onClick={() => setIsMobileSearchOpen(false)}
-                className="px-3 text-sm font-semibold text-gray-600 hover:text-black"
+                className="px-3 text-sm font-bold text-gray-500 hover:text-black cursor-pointer"
               >
                 Cancel
               </button>
-            </form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

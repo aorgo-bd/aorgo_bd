@@ -85,13 +85,22 @@ export async function PUT(
     // 5. Generate search helpers and slug
     const titleLower = data.title.toLowerCase();
     
-    const cleanWord = (w: string) => w.toLowerCase().replace(/[^a-z0-9]/g, "").trim();
-    const words = [
-      ...data.title.split(/\s+/).map(cleanWord),
-      ...data.brand.split(/\s+/).map(cleanWord),
-      cleanWord(data.category),
-    ].filter((w) => w.length > 2);
-    const keywords = Array.from(new Set(words));
+    // Generate keywords: [...title.toLowerCase().split(' '), brand.toLowerCase(), category, color, ...sizes].slice(0, 30)
+    const titleTokens = data.title.toLowerCase().split(" ");
+    const brandToken = data.brand.toLowerCase();
+    const categoryToken = data.category;
+    const colors = Array.from(new Set(data.variants.map((v) => v.color.toLowerCase())));
+    const sizes = Array.from(new Set(data.variants.map((v) => v.size.toLowerCase())));
+
+    const rawKeywords = [
+      ...titleTokens,
+      brandToken,
+      categoryToken,
+      ...colors,
+      ...sizes
+    ].map((w) => w.trim()).filter(Boolean);
+
+    const keywords = Array.from(new Set(rawKeywords)).slice(0, 30);
 
     // Update fields
     const updatedProduct: Partial<Product> = {
