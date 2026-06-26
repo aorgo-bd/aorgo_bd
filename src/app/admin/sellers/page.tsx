@@ -18,6 +18,7 @@ import { Store, StoreStatus } from "@/lib/types";
 import { toast } from "sonner";
 import { Search, ShieldAlert, CheckCircle2, AlertOctagon, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { cloudinaryDocumentUrl } from "@/lib/cloudinary";
 
 export default function AdminSellersPage() {
   const { data: sellers = [], isLoading, refetch } = useAdminSellers();
@@ -112,7 +113,7 @@ export default function AdminSellersPage() {
                 <TableCell className="align-top text-xs space-y-2">
                   {store.tradeLicenseUrl ? (
                     <a
-                      href={store.tradeLicenseUrl}
+                      href={cloudinaryDocumentUrl(store.tradeLicenseUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 font-bold text-violet-600 hover:text-violet-700 hover:underline"
@@ -125,7 +126,7 @@ export default function AdminSellersPage() {
                   <br />
                   {store.nidUrl ? (
                     <a
-                      href={store.nidUrl}
+                      href={cloudinaryDocumentUrl(store.nidUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 font-bold text-violet-600 hover:text-violet-700 hover:underline"

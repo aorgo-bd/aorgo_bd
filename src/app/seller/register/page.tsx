@@ -9,15 +9,20 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Cloudinary unsigned upload (replaces Firebase Storage)
+// Cloudinary unsigned upload for seller verification documents.
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+interface CloudinaryUploadResult {
+  publicId: string;
+  secureUrl: string;
+}
 
 async function uploadToCloudinary(
   file: File,
   folder: string,
   onProgress: (pct: number) => void
-): Promise<string> {
+): Promise<CloudinaryUploadResult> {
   if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
     throw new Error("Cloudinary env vars missing (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME / NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)");
   }
@@ -28,7 +33,7 @@ async function uploadToCloudinary(
   form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
   form.append("folder", folder);
 
-  return await new Promise<string>((resolve, reject) => {
+  return await new Promise<CloudinaryUploadResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url);
     xhr.upload.onprogress = (e) => {
@@ -38,7 +43,10 @@ async function uploadToCloudinary(
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const data = JSON.parse(xhr.responseText);
-          resolve(data.secure_url as string);
+          resolve({
+            publicId: data.public_id as string,
+            secureUrl: data.secure_url as string,
+          });
         } catch {
           reject(new Error("Invalid Cloudinary response"));
         }
@@ -67,9 +75,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { cloudinaryDocumentUrl } from "@/lib/cloudinary";
 
 export default function SellerRegisterPage() {
-  const { user, refetch } = useUser();
+  const { user, firebaseUser, refetch } = useUser();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +88,8 @@ export default function SellerRegisterPage() {
   const [licenseProgress, setLicenseProgress] = useState(0);
   const [nidUploading, setNidUploading] = useState(false);
   const [nidProgress, setNidProgress] = useState(0);
+  const [licensePreviewUrl, setLicensePreviewUrl] = useState<string | null>(null);
+  const [nidPreviewUrl, setNidPreviewUrl] = useState<string | null>(null);
 
   // Initialize React Hook Form
   const {
@@ -160,8 +171,13 @@ export default function SellerRegisterPage() {
 
     try {
       const folder = `seller-docs/${user.uid}`;
-      const secureUrl = await uploadToCloudinary(file, folder, setProgress);
-      setValue(fieldName, secureUrl, { shouldValidate: true });
+      const uploadResult = await uploadToCloudinary(file, folder, setProgress);
+      setValue(fieldName, uploadResult.publicId, { shouldValidate: true });
+      if (type === "tradeLicense") {
+        setLicensePreviewUrl(uploadResult.secureUrl);
+      } else {
+        setNidPreviewUrl(uploadResult.secureUrl);
+      }
       toast.success(`${type === "tradeLicense" ? "Trade License" : "NID"} uploaded successfully!`);
       setUploading(false);
     } catch (err: any) {
@@ -195,7 +211,7 @@ export default function SellerRegisterPage() {
   const onSubmit = async (formData: SellerRegisterFormData) => {
     setIsSubmitting(true);
     try {
-      const idToken = await user?.getIdToken();
+      const idToken = await firebaseUser?.getIdToken();
       const res = await fetch("/api/seller/register", {
         method: "POST",
         headers: {
@@ -411,7 +427,7 @@ export default function SellerRegisterPage() {
                         </div>
                         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Trade License Uploaded</p>
                         <a
-                          href={tradeLicenseUrl}
+                          href={licensePreviewUrl ?? cloudinaryDocumentUrl(tradeLicenseUrl)}
                           target="_blank"
                           rel="noreferrer"
                           className="text-xs text-indigo-600 dark:text-indigo-400 underline font-semibold mt-1"
@@ -464,7 +480,7 @@ export default function SellerRegisterPage() {
                         </div>
                         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">National ID Uploaded</p>
                         <a
-                          href={nidUrl}
+                          href={nidPreviewUrl ?? cloudinaryDocumentUrl(nidUrl)}
                           target="_blank"
                           rel="noreferrer"
                           className="text-xs text-indigo-600 dark:text-indigo-400 underline font-semibold mt-1"

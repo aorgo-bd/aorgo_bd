@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -33,9 +33,11 @@ function RegisterForm() {
 
   // Check if already authenticated and redirect
   const { isAuthenticated, isLoading } = useUser();
-  if (isAuthenticated && !isLoading) {
-    router.push(redirectPath);
-  }
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      router.push(redirectPath);
+    }
+  }, [isAuthenticated, isLoading, redirectPath, router]);
 
   const {
     register,

@@ -109,9 +109,10 @@ export default function CheckoutPage() {
     if (!user) return;
     setIsSavingAddress(true);
     try {
-      const token = await doc(db, "users", user.uid); // dummy reference check
       const newAddress: Address = {
-        id: Math.random().toString(36).substring(7),
+        id: typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `addr-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         name: data.name,
         phone: data.phone,
         area: data.area,

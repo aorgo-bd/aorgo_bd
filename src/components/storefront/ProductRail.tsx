@@ -4,33 +4,31 @@ import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import { useProducts, ProductFilter } from "@/lib/hooks/useProducts";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { Product } from "@/lib/types";
 
 interface ProductRailProps {
   title: string;
   filter: ProductFilter;
+  initialProducts?: Product[];
 }
 
-export default function ProductRail({ title, filter }: ProductRailProps) {
-  const { data: products = [], isLoading, error } = useProducts(filter);
+export default function ProductRail({ title, filter, initialProducts }: ProductRailProps) {
+  const { data: productData, isLoading } = useProducts(filter, initialProducts);
+  const products: Product[] = productData ?? [];
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: -320,
-        behavior: "smooth",
-      });
-    }
+    scrollContainerRef.current?.scrollBy({
+      left: -320,
+      behavior: "smooth",
+    });
   };
 
   const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: 320,
-        behavior: "smooth",
-      });
-    }
+    scrollContainerRef.current?.scrollBy({
+      left: 320,
+      behavior: "smooth",
+    });
   };
 
   if (isLoading) {
@@ -54,31 +52,31 @@ export default function ProductRail({ title, filter }: ProductRailProps) {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative group">
-      
-      {/* Header with Navigation controls */}
       <div className="flex items-center justify-between mb-6 sm:mb-8">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase tracking-tight">
           {title}
         </h2>
 
-        {/* Scroll Buttons - Desktop Only */}
         <div className="hidden sm:flex items-center space-x-2">
           <button
+            type="button"
             onClick={scrollLeft}
             className="p-2 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs focus:outline-none"
+            aria-label={`Scroll ${title} left`}
           >
             <ChevronLeft className="h-4.5 w-4.5" />
           </button>
           <button
+            type="button"
             onClick={scrollRight}
             className="p-2 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs focus:outline-none"
+            aria-label={`Scroll ${title} right`}
           >
             <ChevronRight className="h-4.5 w-4.5" />
           </button>
         </div>
       </div>
 
-      {/* Horizontal Snap Scroll Container */}
       <div
         ref={scrollContainerRef}
         className="flex space-x-4 sm:space-x-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-4 select-none cursor-grab active:cursor-grabbing"
@@ -87,7 +85,7 @@ export default function ProductRail({ title, filter }: ProductRailProps) {
           msOverflowStyle: "none",
         }}
       >
-        {products.map((product: any) => (
+        {products.map((product) => (
           <div
             key={product.id}
             className="min-w-[200px] sm:min-w-[260px] md:min-w-[280px] w-[200px] sm:w-[260px] md:w-[280px] snap-start shrink-0"
@@ -96,7 +94,6 @@ export default function ProductRail({ title, filter }: ProductRailProps) {
           </div>
         ))}
       </div>
-      
     </section>
   );
 }

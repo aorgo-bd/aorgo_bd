@@ -63,8 +63,8 @@ export const sellerRegisterSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
   contactEmail: z.string().email("Invalid email address"),
   contactPhone: z.string().regex(bdPhoneRegex, "Invalid Bangladesh phone number"),
-  tradeLicenseUrl: z.string().url("Please upload your Trade License document"),
-  nidUrl: z.string().url("Please upload your NID document"),
+  tradeLicenseUrl: z.string().min(3, "Please upload your Trade License document"),
+  nidUrl: z.string().min(3, "Please upload your NID document"),
   bankDetails: z.object({
     accountName: z.string().min(3, "Account name is required"),
     accountNumber: z.string().min(5, "Account number is required"),

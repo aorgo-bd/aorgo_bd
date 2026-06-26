@@ -4,7 +4,12 @@ import Providers from "./_components/providers";
 import ClientShell from "./_components/ClientShell";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+  preload: true,
+});
 
 export const metadata = {
   title: "AORGO — Bangladesh Marketplace",

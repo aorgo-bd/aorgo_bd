@@ -44,8 +44,8 @@ export interface Store {
   logoPublicId?: string;     // Cloudinary
   bannerPublicId?: string;
   status: StoreStatus;
-  tradeLicenseUrl?: string;  // Firebase Storage (private)
-  nidUrl?: string;
+  tradeLicenseUrl?: string;  // Cloudinary public_id
+  nidUrl?: string;           // Cloudinary public_id
   bankDetails?: BankDetails;
   contact: { email: string; phone: string };
   commissionRate: number;    // e.g. 0.10

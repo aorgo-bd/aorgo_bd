@@ -1,50 +1,63 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useBanners } from "@/lib/hooks/useBanners";
 import { CldImage } from "next-cloudinary";
+import type { Banner } from "@/lib/types";
 
-// High-end default fallbacks in case banners collection is empty in Firestore
-const FALLBACK_BANNERS = [
+const FALLBACK_BANNERS: Banner[] = [
   {
     id: "fallback-1",
     title: "FIND CLOTHES THAT MATCH YOUR STYLE",
-    subtitle: "Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.",
-    imagePublicId: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80",
+    subtitle: "Browse curated fashion and lifestyle products from verified Bangladeshi sellers.",
+    imagePublicId: "/banner-fallback-1.jpg",
     ctaUrl: "/products",
+    position: "hero",
+    active: true,
+    order: 1,
   },
   {
     id: "fallback-2",
     title: "ELEVATE YOUR EVERYDAY LOOKS",
-    subtitle: "Discover comfort and unmatched quality with our premium menswear collection, custom-tailored for the modern lifestyle.",
-    imagePublicId: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80",
+    subtitle: "Discover quality menswear, womenswear, and everyday essentials in one marketplace.",
+    imagePublicId: "/banner-fallback-2.jpg",
     ctaUrl: "/category/men",
+    position: "hero",
+    active: true,
+    order: 2,
   },
   {
     id: "fallback-3",
     title: "STEP OUT IN PREMIUM FOOTWEAR",
-    subtitle: "Complete your outfit with trending sneakers, sandals, and formal footwear crafted with fine Bangladeshi leather.",
-    imagePublicId: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80",
+    subtitle: "Complete your outfit with trending footwear and accessories for every occasion.",
+    imagePublicId: "/banner-fallback-3.jpg",
     ctaUrl: "/category/footwear",
+    position: "hero",
+    active: true,
+    order: 3,
   },
 ];
 
-export default function HeroCarousel() {
-  const { data: dbBanners = [], isLoading, error } = useBanners("hero");
+interface HeroCarouselProps {
+  initialBanners?: Banner[];
+}
+
+export default function HeroCarousel({ initialBanners }: HeroCarouselProps) {
+  const { data: dbBanners = [], isLoading } = useBanners("hero", initialBanners);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+  const [direction, setDirection] = useState(0);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
-  const banners = dbBanners.length > 0 ? dbBanners : FALLBACK_BANNERS;
+  const banners: Banner[] = dbBanners.length > 0 ? dbBanners : FALLBACK_BANNERS;
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setDirection(1);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
-  };
+  }, [banners.length]);
 
   const prevSlide = () => {
     setDirection(-1);
@@ -56,18 +69,19 @@ export default function HeroCarousel() {
     setCurrentIndex(index);
   };
 
-  // Reset autoplay timer
-  const resetAutoplay = () => {
+  useEffect(() => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     autoPlayRef.current = setInterval(nextSlide, 6000);
-  };
-
-  useEffect(() => {
-    resetAutoplay();
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [currentIndex, banners.length]);
+  }, [nextSlide, currentIndex]);
+
+  useEffect(() => {
+    if (currentIndex >= banners.length) {
+      setCurrentIndex(0);
+    }
+  }, [banners.length, currentIndex]);
 
   if (isLoading) {
     return (
@@ -84,7 +98,6 @@ export default function HeroCarousel() {
     );
   }
 
-  // Slide transition animation definitions
   const slideVariants = {
     enter: (dir: number) => ({
       x: dir > 0 ? "100%" : "-100%",
@@ -100,15 +113,16 @@ export default function HeroCarousel() {
     }),
   };
 
-  const currentBanner = banners[currentIndex];
+  const currentBanner = banners[currentIndex] ?? banners[0];
 
-  // Helper function to resolve image rendering
   const renderSlideImage = (imgSrc: string, alt: string) => {
-    const isUrl = imgSrc.startsWith("http://") || imgSrc.startsWith("https://") || imgSrc.startsWith("/");
-    if (isUrl) {
+    const fallbackImage = FALLBACK_BANNERS[currentIndex % FALLBACK_BANNERS.length].imagePublicId;
+    const safeImgSrc = imgSrc.includes("images.unsplash.com") ? fallbackImage : imgSrc;
+    const isLocalOrRemoteUrl = safeImgSrc.startsWith("http://") || safeImgSrc.startsWith("https://") || safeImgSrc.startsWith("/");
+    if (isLocalOrRemoteUrl) {
       return (
         <Image
-          src={imgSrc}
+          src={safeImgSrc}
           alt={alt}
           fill
           priority
@@ -119,7 +133,7 @@ export default function HeroCarousel() {
     }
     return (
       <CldImage
-        src={imgSrc}
+        src={safeImgSrc}
         alt={alt}
         fill
         crop="fill"
@@ -134,11 +148,7 @@ export default function HeroCarousel() {
   return (
     <section className="relative w-full overflow-hidden bg-[#F2F0F1] pt-6 pb-12 sm:py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Carousel Container */}
         <div className="relative min-h-[460px] sm:min-h-[500px] md:min-h-[450px] lg:min-h-[500px] flex flex-col md:grid md:grid-cols-12 md:items-center gap-8 md:gap-12">
-          
-          {/* Left Text Block */}
           <div className="md:col-span-6 flex flex-col justify-center text-left space-y-4 sm:space-y-6 max-w-xl">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -159,16 +169,18 @@ export default function HeroCarousel() {
                 >
                   {currentBanner.title}
                 </motion.h1>
-                
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
-                  className="text-sm sm:text-base text-black/60 leading-relaxed font-light"
-                >
-                  {currentBanner.subtitle}
-                </motion.p>
-                
+
+                {currentBanner.subtitle ? (
+                  <motion.p
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="text-sm sm:text-base text-black/60 leading-relaxed font-light"
+                  >
+                    {currentBanner.subtitle}
+                  </motion.p>
+                ) : null}
+
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -187,7 +199,6 @@ export default function HeroCarousel() {
             </AnimatePresence>
           </div>
 
-          {/* Right Image Block */}
           <div className="md:col-span-6 relative aspect-square md:aspect-[4/3] lg:aspect-[4/3] w-full min-h-[300px] sm:min-h-[400px] md:min-h-[360px]">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -204,17 +215,16 @@ export default function HeroCarousel() {
               </motion.div>
             </AnimatePresence>
           </div>
-
         </div>
 
-        {/* Carousel Controls */}
         <div className="mt-8 md:mt-12 flex items-center justify-between">
-          {/* Progress Indicators / Dots */}
           <div className="flex items-center space-x-2">
-            {banners.map((_: any, index: number) => (
+            {banners.map((banner, index) => (
               <button
-                key={index}
+                key={banner.id}
+                type="button"
                 onClick={() => setSlide(index)}
+                aria-label={`Go to banner ${index + 1}`}
                 className={`h-2.5 rounded-full transition-all duration-300 ${
                   index === currentIndex ? "w-8 bg-black" : "w-2.5 bg-black/20"
                 }`}
@@ -222,23 +232,25 @@ export default function HeroCarousel() {
             ))}
           </div>
 
-          {/* Nav Arrows */}
           <div className="flex items-center space-x-2">
             <button
+              type="button"
               onClick={prevSlide}
               className="p-2.5 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs focus:outline-none"
+              aria-label="Previous banner"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
+              type="button"
               onClick={nextSlide}
               className="p-2.5 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs focus:outline-none"
+              aria-label="Next banner"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
-
       </div>
     </section>
   );
