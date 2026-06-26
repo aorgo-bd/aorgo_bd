@@ -8,7 +8,8 @@ import {
   updateProfile,
   signInWithPopup,
   GoogleAuthProvider,
-  FacebookAuthProvider
+  FacebookAuthProvider,
+  sendEmailVerification
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { createOrGetUserDocument } from "@/lib/firebase/auth-helpers";
@@ -26,6 +27,7 @@ function RegisterForm() {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
+  const [isVerificationSent, setIsVerificationSent] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,8 +66,15 @@ function RegisterForm() {
       // Create user document in Firestore with role='customer' by default
       await createOrGetUserDocument(user, { displayName });
 
-      toast.success("Successfully registered account!");
-      router.push(redirectPath);
+      try {
+        await sendEmailVerification(user);
+        setIsVerificationSent(true);
+        toast.success("Successfully registered account! Verification email sent.");
+      } catch (emailError: any) {
+        console.error("Error sending verification email:", emailError);
+        toast.success("Account registered, but failed to send verification email automatically.");
+        router.push(redirectPath);
+      }
     } catch (error: any) {
       console.error(error);
       let errorMsg = "Registration failed. Please try again.";
@@ -121,6 +130,38 @@ function RegisterForm() {
   };
 
   const isAnyLoading = registerLoading || googleLoading || facebookLoading;
+
+  if (isVerificationSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 bg-white/70 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-gray-150/50 text-center animate-fade-in">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100">
+            <span className="text-3xl">📧</span>
+          </div>
+          <h2 className="mt-4 text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+            Verify your email
+          </h2>
+          <p className="mt-2 text-sm text-gray-650">
+            We&apos;ve sent a verification link to your email address. Please check your inbox and click the link to activate your account.
+          </p>
+          <div className="mt-6 flex flex-col space-y-4">
+            <Link
+              href="/login"
+              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-md active:scale-98"
+            >
+              Sign In to Your Account
+            </Link>
+            <button
+              onClick={() => setIsVerificationSent(false)}
+              className="text-sm font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Back to registration
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">

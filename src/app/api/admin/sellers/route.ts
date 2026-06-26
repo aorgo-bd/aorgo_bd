@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebase/admin";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 
 export async function PUT(request: NextRequest) {
@@ -19,6 +19,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const beforeData = storeSnap.data();
+    const ownerUid = beforeData?.ownerUid;
+
     const afterData = {
       ...beforeData,
       status,
@@ -32,6 +34,14 @@ export async function PUT(request: NextRequest) {
         updatedAt: Date.now(),
         ...(status === "approved" && !beforeData?.approvedAt ? { approvedAt: Date.now() } : {}),
       });
+
+      if (ownerUid) {
+        const userRef = adminDb.collection("users").doc(ownerUid);
+        transaction.update(userRef, {
+          role: status === "approved" ? "seller" : "customer",
+          updatedAt: Date.now(),
+        });
+      }
 
       // Write audit log inside transaction
       const auditRef = adminDb.collection("audit_logs").doc();
@@ -47,6 +57,11 @@ export async function PUT(request: NextRequest) {
         at: Date.now(),
       });
     });
+
+    if (ownerUid) {
+      const targetRole = status === "approved" ? "seller" : "customer";
+      await adminAuth.setCustomUserClaims(ownerUid, { role: targetRole });
+    }
 
     return NextResponse.json({ success: true, status });
   } catch (error: any) {

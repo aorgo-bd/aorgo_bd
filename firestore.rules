@@ -6,9 +6,9 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
     function uid() { return request.auth.uid; }
     function role() {
-      return get(/databases/$(database)/documents/users/$(uid())).data.role;
+      return request.auth.token.role;
     }
-    function isCustomer() { return isSignedIn() && role() == 'customer'; }
+    function isCustomer() { return isSignedIn() && (role() == 'customer' || role() == null); }
     function isSeller()   { return isSignedIn() && role() == 'seller'; }
     function isAdmin()    { return isSignedIn() && role() == 'admin'; }
 
@@ -67,6 +67,11 @@ service cloud.firestore {
 
     // ===== WISHLISTS =====
     match /wishlists/{userId} {
+      allow read, write: if uid() == userId;
+    }
+
+    // ===== CARTS =====
+    match /carts/{userId} {
       allow read, write: if uid() == userId;
     }
 

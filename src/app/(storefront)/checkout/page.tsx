@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totals, clear } = useCartStore();
-  const { user, isAuthenticated, isLoading: isLoadingUser } = useUser();
+  const { user, isAuthenticated, isLoading: isLoadingUser, firebaseUser } = useUser();
 
   const [activeTab, setActiveTab] = useState("cart");
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -208,6 +208,30 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-extrabold tracking-tight">Checkout</h1>
         <p className="text-muted-foreground text-sm">Complete your multi-vendor fashion order</p>
       </div>
+
+      {firebaseUser && !firebaseUser.emailVerified && (
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm">
+          <div>
+            ⚠️ <strong>Email Verification Warning:</strong> Your email address (<strong>{firebaseUser.email}</strong>) is not verified. Please verify it to ensure you receive order status updates.
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-white border-amber-300 hover:bg-amber-100 text-amber-900 shrink-0 self-start sm:self-center"
+            onClick={async () => {
+              try {
+                const { sendEmailVerification } = await import("firebase/auth");
+                await sendEmailVerification(firebaseUser);
+                toast.success("Verification email sent! Check your inbox.");
+              } catch (err: any) {
+                toast.error(err.message || "Failed to send verification email");
+              }
+            }}
+          >
+            Resend Verification Email
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Checkout Steps Form */}

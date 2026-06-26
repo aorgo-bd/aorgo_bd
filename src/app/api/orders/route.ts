@@ -82,6 +82,12 @@ export async function POST(request: NextRequest) {
         storeDocs[storeId] = { ...storeData, id: docSnap.id };
       }
 
+      // Check if it's the customer's first order
+      const customerOrdersSnap = await transaction.get(
+        adminDb.collection("orders").where("customerUid", "==", uid).limit(1)
+      );
+      const isFirstOrder = customerOrdersSnap.empty;
+
       // C. Stock Verification and Totals Recomputation
       // Group checkout items by store to create separated orders
       const itemsByStore: {
@@ -134,8 +140,8 @@ export async function POST(request: NextRequest) {
           0
         );
 
-        // Shipping fee logic: free shipping if store order subtotal > 3000, otherwise 100
-        const shippingFee = subtotal > 3000 ? 0 : 100;
+        // Shipping fee logic: free shipping if store order subtotal > 3000, OR first order over 1500, otherwise 100
+        const shippingFee = (subtotal > 3000 || (isFirstOrder && subtotal > 1500)) ? 0 : 100;
         const total = subtotal + shippingFee; // COD discount = 0 for MVP
 
         const orderId = adminDb.collection("orders").doc().id;

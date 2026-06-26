@@ -109,6 +109,9 @@ export async function POST(request: NextRequest) {
       });
     });
 
+    // Set custom claim for seller role (BUG-U10)
+    await adminAuth.setCustomUserClaims(uid, { role: "seller" });
+
     // 7. Return success and update cookies
     const response = NextResponse.json({
       success: true,

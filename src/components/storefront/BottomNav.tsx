@@ -7,11 +7,13 @@ import { Home, Heart, ShoppingBag, User, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/stores/cart";
 import { useWishlistStore } from "@/lib/stores/wishlist";
+import { useUser } from "@/lib/hooks/useUser";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const cartItems = useCartStore((state) => state.items);
   const wishlistIds = useWishlistStore((state) => state.ids);
+  const { isAuthenticated, role } = useUser();
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
@@ -24,12 +26,21 @@ export default function BottomNav() {
     return null;
   }
 
+  const accountHref =
+    role === "admin"
+      ? "/admin/dashboard"
+      : role === "seller"
+      ? "/seller/dashboard"
+      : isAuthenticated
+      ? "/profile"
+      : "/login";
+
   const navItems = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Shop", href: "/category/all", icon: LayoutGrid },
+    { label: "Shop", href: "/products", icon: LayoutGrid },
     { label: "Wishlist", href: "/wishlist", icon: Heart, badge: wishlistIds.length },
     { label: "Cart", href: "/cart", icon: ShoppingBag, badge: totalCartCount },
-    { label: "Account", href: "/seller/dashboard", icon: User },
+    { label: "Account", href: accountHref, icon: User },
   ];
 
   return (

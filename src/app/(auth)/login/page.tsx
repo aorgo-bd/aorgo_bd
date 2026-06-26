@@ -18,6 +18,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { useUser } from "@/lib/hooks/useUser";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
+import { Role } from "@/lib/types";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,12 +37,16 @@ function LoginForm() {
   const redirectPath = searchParams.get("redirect") || "/";
 
   // Check if already authenticated and redirect
-  const { isAuthenticated, isLoading } = useUser();
+  const { isAuthenticated, isLoading, role } = useUser();
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.push(redirectPath);
+      const target =
+        role === "admin" ? "/admin/dashboard" :
+        role === "seller" ? "/seller/dashboard" :
+        redirectPath;
+      router.push(target);
     }
-  }, [isAuthenticated, isLoading, redirectPath, router]);
+  }, [isAuthenticated, isLoading, role, redirectPath, router]);
 
   const {
     register,
@@ -57,12 +64,27 @@ function LoginForm() {
         data.email,
         data.password
       );
-      
-      // Ensure Firestore document exists (or fetch details)
+
+      // 1. Force-refresh the ID token
+      const idToken = await user.getIdToken(true);
+      document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
+
+      // 2. Fetch user doc to read role
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      const roleVal = userSnap.exists() ? (userSnap.data().role as Role) : "customer";
+      document.cookie = `user-role=${roleVal}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
+      // 3. Ensure user doc exists
       await createOrGetUserDocument(user);
 
       toast.success("Successfully logged in!");
-      router.push(redirectPath);
+
+      // 4. Role-aware redirect
+      const target =
+        roleVal === "admin" ? "/admin/dashboard" :
+        roleVal === "seller" ? "/seller/dashboard" :
+        (redirectPath || "/");
+      router.push(target);
     } catch (error: any) {
       console.error(error);
       let errorMsg = "Failed to log in. Please check your credentials.";
@@ -82,12 +104,26 @@ function LoginForm() {
     try {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
-      
-      // Ensure Firestore user document exists on first login
+
+      // 1. Force-refresh the ID token
+      const idToken = await user.getIdToken(true);
+      document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
+
+      // 2. Fetch user doc to read role
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      const roleVal = userSnap.exists() ? (userSnap.data().role as Role) : "customer";
+      document.cookie = `user-role=${roleVal}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
       await createOrGetUserDocument(user);
 
       toast.success("Successfully signed in with Google!");
-      router.push(redirectPath);
+
+      // 3. Role-aware redirect
+      const target =
+        roleVal === "admin" ? "/admin/dashboard" :
+        roleVal === "seller" ? "/seller/dashboard" :
+        (redirectPath || "/");
+      router.push(target);
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Google login failed.");
@@ -101,12 +137,26 @@ function LoginForm() {
     try {
       const provider = new FacebookAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
-      
-      // Ensure Firestore user document exists on first login
+
+      // 1. Force-refresh the ID token
+      const idToken = await user.getIdToken(true);
+      document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
+
+      // 2. Fetch user doc to read role
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      const roleVal = userSnap.exists() ? (userSnap.data().role as Role) : "customer";
+      document.cookie = `user-role=${roleVal}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
       await createOrGetUserDocument(user);
 
       toast.success("Successfully signed in with Facebook!");
-      router.push(redirectPath);
+
+      // 3. Role-aware redirect
+      const target =
+        roleVal === "admin" ? "/admin/dashboard" :
+        roleVal === "seller" ? "/seller/dashboard" :
+        (redirectPath || "/");
+      router.push(target);
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Facebook login failed.");
@@ -205,6 +255,18 @@ function LoginForm() {
             </Link>
           </p>
         </div>
+
+        {redirectPath.startsWith("/seller") && (
+          <div className="rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-3 text-sm text-indigo-800">
+            🛍️ <strong>Seller login</strong> — your credentials are the same as your customer account.
+            New here? <Link href="/seller/register" className="underline font-semibold">Register as a Seller</Link>
+          </div>
+        )}
+        {redirectPath.startsWith("/admin") && (
+          <div className="rounded-lg bg-violet-50 border border-violet-100 px-4 py-3 text-sm text-violet-800">
+            🛡️ <strong>Admin login</strong> — restricted access only.
+          </div>
+        )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">

@@ -25,12 +25,12 @@ import ReviewList from "@/components/storefront/ReviewList";
 import ProductRail from "@/components/storefront/ProductRail";
 import ProductCard from "@/components/storefront/ProductCard";
 
-export default function ProductDetailClient() {
+export default function ProductDetailClient({ initialProduct }: { initialProduct: Product }) {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
 
-  const { data: product, isLoading, error } = useProductBySlug(slug);
+  const { data: product = initialProduct, isLoading, error } = useProductBySlug(slug);
   const { data: allProducts = [] } = useProducts();
   const { data: categoriesList = [] } = useCategories();
 
@@ -82,7 +82,7 @@ export default function ProductDetailClient() {
     setQuantity(1);
   }, [slug]);
 
-  if (isLoading) {
+  if (isLoading && !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-pulse">
         {/* Breadcrumb skeleton */}

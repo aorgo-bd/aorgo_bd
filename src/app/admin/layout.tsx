@@ -17,6 +17,7 @@ import {
   X,
   LogOut,
   ShieldCheck,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -85,6 +86,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Banners", href: "/admin/banners", icon: ImageIcon },
     { label: "Categories", href: "/admin/categories", icon: Layers },
     { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+    { label: "Audit Logs", href: "/admin/audit", icon: ClipboardList },
   ];
 
   const SidebarContent = () => (
@@ -135,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="border-t border-slate-900 p-4 bg-slate-950">
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar className="h-9 w-9 border border-violet-500/30">
-            <AvatarImage src={user?.photoURL} />
+            {user?.photoURL ? <AvatarImage src={user.photoURL} alt={user.displayName || ""} /> : null}
             <AvatarFallback className="bg-violet-950 text-violet-200 uppercase">
               {user?.displayName?.substring(0, 2) || user?.email?.substring(0, 2) || "AD"}
             </AvatarFallback>

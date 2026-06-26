@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { db, auth } from "@/lib/firebase/client";
+import { doc, setDoc } from "firebase/firestore";
 
 export interface CartItem {
   productId: string;
@@ -28,6 +30,7 @@ interface CartStore {
   remove: (variantSku: string) => void;
   updateQty: (variantSku: string, qty: number) => void;
   clear: () => void;
+  setItems: (items: CartItem[]) => void;
 }
 
 const calculateTotals = (items: CartItem[]): CartTotals => {
@@ -39,6 +42,34 @@ const calculateTotals = (items: CartItem[]): CartTotals => {
     total: subtotal + shipping,
   };
 };
+
+async function syncCartToFirestore(items: CartItem[]) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
+  try {
+    const cartRef = doc(db, "carts", currentUser.uid);
+    await setDoc(
+      cartRef,
+      {
+        items: items.map((item) => ({
+          productId: item.productId,
+          variantSku: item.variantSku,
+          title: item.title,
+          imagePublicId: item.imagePublicId,
+          size: item.size,
+          color: item.color,
+          qty: item.qty,
+          price: item.price,
+          brand: item.brand,
+        })),
+        updatedAt: Date.now(),
+      },
+      { merge: true }
+    );
+  } catch (error) {
+    console.error("Error syncing cart to Firestore:", error);
+  }
+}
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -62,6 +93,7 @@ export const useCartStore = create<CartStore>()(
           } else {
             updatedItems = [...state.items, newItem];
           }
+          syncCartToFirestore(updatedItems);
           return {
             items: updatedItems,
             totals: calculateTotals(updatedItems),
@@ -72,6 +104,7 @@ export const useCartStore = create<CartStore>()(
           const updatedItems = state.items.filter(
             (item) => item.variantSku !== variantSku
           );
+          syncCartToFirestore(updatedItems);
           return {
             items: updatedItems,
             totals: calculateTotals(updatedItems),
@@ -84,16 +117,20 @@ export const useCartStore = create<CartStore>()(
               ? { ...item, qty: Math.max(1, qty) }
               : item
           );
+          syncCartToFirestore(updatedItems);
           return {
             items: updatedItems,
             totals: calculateTotals(updatedItems),
           };
         }),
-      clear: () =>
+      clear: () => {
+        syncCartToFirestore([]);
         set({
           items: [],
           totals: { subtotal: 0, shipping: 0, total: 0 },
-        }),
+        });
+      },
+      setItems: (items) => set({ items, totals: calculateTotals(items) }),
     }),
     {
       name: "aorgo-cart-store",

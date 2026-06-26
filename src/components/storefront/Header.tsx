@@ -96,7 +96,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-xs">
       {/* Top Banner Ribbon */}
       <div className="w-full bg-black text-white text-center py-2 px-4 text-xs font-light tracking-wide flex items-center justify-center gap-1">
-        <span>Sign up and get 20% off your first order.</span>
+        <span>Free delivery on your first order over ৳1500!</span>
         {!isAuthenticated && (
           <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className="font-semibold underline hover:text-gray-200 transition-colors">
             Sign Up Now

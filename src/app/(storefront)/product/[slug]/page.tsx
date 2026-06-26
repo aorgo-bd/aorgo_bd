@@ -1,56 +1,44 @@
-import { Metadata } from 'next';
-import { adminDb } from '@/lib/firebase/admin';
-import { Product } from '@/lib/types';
-import { cloudinaryUrl } from '@/lib/cloudinary';
-import ProductDetailClient from './ProductDetailClient';
+import { notFound } from "next/navigation";
+import { adminDb } from "@/lib/firebase/admin";
+import type { Product } from "@/lib/types";
+import ProductDetailClient from "./ProductDetailClient";
 
 interface Props {
   params: { slug: string };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
-
+async function getProductBySlug(slug: string): Promise<Product | null> {
+  if (!adminDb) return null;
   try {
-    if (!adminDb) {
-      throw new Error("adminDb is not initialized");
-    }
-    const productsSnap = await adminDb.collection('products')
-      .where('slug', '==', slug)
+    const snap = await adminDb
+      .collection("products")
+      .where("slug", "==", slug)
+      .where("status", "==", "approved")
       .limit(1)
       .get();
-
-    if (productsSnap.empty) {
-      return {
-        title: 'Product Not Found | AORGO',
-        description: 'The requested product could not be found.',
-      };
-    }
-
-    const product = productsSnap.docs[0].data() as Product;
-    const ogImage = product.images?.[0]
-      ? cloudinaryUrl(product.images[0], { w: 1200, h: 630 })
-      : 'https://aorgo-bd.vercel.app/default-og-image.jpg';
-
-    return {
-      title: `${product.title} | ${product.brand} | AORGO`,
-      description: product.description?.substring(0, 160) || `Buy ${product.title} on AORGO.`,
-      openGraph: {
-        title: `${product.title} | ${product.brand} | AORGO`,
-        description: product.description?.substring(0, 160) || `Buy ${product.title} on AORGO.`,
-        images: [{ url: ogImage, width: 1200, height: 630, alt: product.title }],
-        type: 'website',
-      },
-    };
-  } catch (error) {
-    console.error('Error generating metadata:', error);
-    return {
-      title: 'AORGO Fashion & Lifestyle',
-      description: 'Multi-vendor fashion & lifestyle marketplace for Bangladesh',
-    };
+    if (snap.empty) return null;
+    const doc = snap.docs[0];
+    return JSON.parse(JSON.stringify({ id: doc.id, ...doc.data() })); // serialize timestamps
+  } catch (err) {
+    console.error("Error fetching product by slug on server:", err);
+    return null;
   }
 }
 
-export default function ProductDetailPage() {
-  return <ProductDetailClient />;
+export async function generateMetadata({ params }: Props) {
+  const product = await getProductBySlug(params.slug);
+  if (!product) return { title: "Product not found | AORGO" };
+  return {
+    title: `${product.title} | ${product.brand} | AORGO`,
+    description: (product.description || "").substring(0, 160),
+    openGraph: {
+      images: product.images?.length ? [product.images[0]] : [],
+    },
+  };
+}
+
+export default async function ProductPage({ params }: Props) {
+  const product = await getProductBySlug(params.slug);
+  if (!product) notFound();
+  return <ProductDetailClient initialProduct={product} />;
 }

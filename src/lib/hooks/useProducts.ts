@@ -141,7 +141,11 @@ export function useProducts(filter?: ProductFilter, initialData?: Product[]) {
           id: doc.id,
           ...doc.data(),
         })) as Product[];
-      } catch {
+      } catch (err) {
+        console.error("[useProducts] primary query failed, falling back:", err);
+        if (process.env.NODE_ENV !== "production") {
+          throw err;
+        }
         const fallbackQuery = query(
           productsRef,
           where("status", "==", "approved"),
