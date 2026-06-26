@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
 
 export default function AdminBannersPage() {
   const { data: banners = [], isLoading, refetch } = useAdminBanners();
@@ -89,6 +90,7 @@ export default function AdminBannersPage() {
   const onSubmit = async (data: BannerFormData) => {
     setSubmitLoading(true);
     try {
+      const idToken = await getFreshIdToken();
       const url = "/api/admin/banners";
       const method = editingBanner ? "PUT" : "POST";
       const body = editingBanner
@@ -97,7 +99,10 @@ export default function AdminBannersPage() {
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify(body),
       });
 
@@ -122,8 +127,12 @@ export default function AdminBannersPage() {
     if (!confirm("Are you sure you want to delete this banner permanently?")) return;
     setIsDeletingId(id);
     try {
+      const idToken = await getFreshIdToken();
       const res = await fetch(`/api/admin/banners?id=${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
       });
 
       const responseData = await res.json();
@@ -144,9 +153,13 @@ export default function AdminBannersPage() {
   // Quick Toggle Active State
   const handleToggleActive = async (banner: Banner) => {
     try {
+      const idToken = await getFreshIdToken();
       const res = await fetch("/api/admin/banners", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           id: banner.id,
           title: banner.title,

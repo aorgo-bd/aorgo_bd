@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@/lib/hooks/useUser";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -31,6 +31,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    if (role !== "admin") {
+      router.replace("/");
+    }
+  }, [isAuthenticated, isLoading, pathname, role, router]);
+
   // Handle Loading State
   if (isLoading) {
     return (
@@ -45,13 +58,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Handle Authentication Guard
   if (!isAuthenticated) {
-    router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     return null;
   }
 
   // Guard for Admin role check
   if (role !== "admin") {
-    router.replace("/");
     return null;
   }
 

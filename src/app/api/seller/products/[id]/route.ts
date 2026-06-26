@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { productFormSchema } from "@/lib/schemas";
 import { Product } from "@/lib/types";
@@ -131,7 +132,7 @@ export async function PUT(
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "");
-      updatedProduct.slug = `${slugify(data.title)}-${Math.random().toString(36).substring(2, 6)}`;
+      updatedProduct.slug = `${slugify(data.title)}-${randomUUID().slice(0, 6)}`;
     }
 
     // 6. Save update

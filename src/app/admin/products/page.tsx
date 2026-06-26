@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { Search, ShieldAlert, CheckCircle2, AlertOctagon, Ban, Archive, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProductImage } from "@/components/ProductImage";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
 
 export default function AdminProductsPage() {
   const { data: products = [], isLoading: loadingProducts, refetch } = useAdminProducts();
@@ -63,10 +64,12 @@ export default function AdminProductsPage() {
   const handleUpdateStatus = async (productId: string, newStatus: ProductStatus, reason?: string) => {
     setActionLoading(productId);
     try {
+      const idToken = await getFreshIdToken();
       const res = await fetch("/api/admin/products", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({
           productId,

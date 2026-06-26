@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { productFormSchema } from "@/lib/schemas";
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
         .replace(/(^-|-$)/g, "");
     
     // Append a short random string to product slug to avoid overlap
-    const slug = `${slugify(data.title)}-${Math.random().toString(36).substring(2, 6)}`;
+    const slug = `${slugify(data.title)}-${randomUUID().slice(0, 6)}`;
 
     const newProduct: Omit<Product, "id"> = {
       storeId,

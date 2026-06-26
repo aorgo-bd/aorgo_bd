@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useUser } from "@/lib/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Order } from "@/lib/types";
 import Link from "next/link";
@@ -71,15 +71,17 @@ export default function SellerOrdersPage() {
     queryFn: async () => {
       if (!user?.storeId) return [];
       const ordersRef = collection(db, "orders");
-      const q = query(ordersRef, where("storeId", "==", user.storeId));
+      const q = query(
+        ordersRef,
+        where("storeId", "==", user.storeId),
+        orderBy("createdAt", "desc"),
+        limit(50)
+      );
       const snapshot = await getDocs(q);
-      const list = snapshot.docs.map((doc) => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Order[];
-
-      // Sort by newest
-      return list.sort((a, b) => b.createdAt - a.createdAt);
     },
     enabled: !!user?.storeId,
   });

@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { Search, ShieldAlert, CheckCircle2, AlertOctagon, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cloudinaryDocumentUrl } from "@/lib/cloudinary";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
 
 export default function AdminSellersPage() {
   const { data: sellers = [], isLoading, refetch } = useAdminSellers();
@@ -44,10 +45,12 @@ export default function AdminSellersPage() {
   const handleUpdateStatus = async (storeId: string, newStatus: StoreStatus) => {
     setActionLoading(storeId);
     try {
+      const idToken = await getFreshIdToken();
       const res = await fetch("/api/admin/sellers", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({ storeId, status: newStatus }),
       });

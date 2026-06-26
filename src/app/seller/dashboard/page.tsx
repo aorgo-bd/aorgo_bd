@@ -3,11 +3,10 @@
 import React from "react";
 import { useUser } from "@/lib/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
-import { doc, getDoc, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Store, Order } from "@/lib/types";
 import {
-  Currency,
   ShoppingBag,
   TrendingUp,
   Star,
@@ -46,16 +45,15 @@ export default function SellerDashboard() {
       const ordersRef = collection(db, "orders");
       const q = query(
         ordersRef,
-        where("storeId", "==", user.storeId)
+        where("storeId", "==", user.storeId),
+        orderBy("createdAt", "desc"),
+        limit(50)
       );
       const snapshot = await getDocs(q);
-      const list = snapshot.docs.map((doc) => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Order[];
-      
-      // Sort client-side by newest first
-      return list.sort((a, b) => b.createdAt - a.createdAt);
     },
     enabled: !!user?.storeId,
   });
@@ -91,7 +89,7 @@ export default function SellerDashboard() {
   
   // Format price helper
   const formatBDT = (amount: number) => {
-    return new Intl.NumberFormat("en-BD", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "BDT",
       minimumFractionDigits: 0,

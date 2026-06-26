@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 
@@ -51,6 +52,15 @@ export async function PUT(request: NextRequest) {
         at: Date.now(),
       });
     });
+
+    revalidatePath("/");
+    if (beforeData?.slug) {
+      revalidatePath(`/product/${beforeData.slug}`);
+    }
+    if (beforeData?.category) {
+      revalidatePath(`/category/${beforeData.category}`);
+    }
+    revalidatePath("/search");
 
     return NextResponse.json({ success: true, status });
   } catch (error: any) {

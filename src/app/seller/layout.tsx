@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@/lib/hooks/useUser";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -32,6 +32,24 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
 
   const isRegisterPage = pathname === "/seller/register";
 
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    if (isRegisterPage && (role === "seller" || role === "admin")) {
+      router.replace("/seller/dashboard");
+      return;
+    }
+
+    if (!isRegisterPage && role !== "seller" && role !== "admin") {
+      router.replace("/seller/register");
+    }
+  }, [isAuthenticated, isLoading, isRegisterPage, pathname, role, router]);
+
   // Handle Loading State
   if (isLoading) {
     return (
@@ -46,18 +64,14 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
 
   // Handle Authentication Guard
   if (!isAuthenticated) {
-    router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     return null;
   }
 
   // Guard for Seller Registration Page
   if (isRegisterPage) {
-    // If they are already a seller, redirect them to dashboard
     if (role === "seller" || role === "admin") {
-      router.replace("/seller/dashboard");
       return null;
     }
-    // Render full-page register flow without sidebar
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 dark:from-slate-950 dark:to-slate-900">
         {children}
@@ -67,7 +81,6 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
 
   // Guard for all other seller routes
   if (role !== "seller" && role !== "admin") {
-    router.replace("/seller/register");
     return null;
   }
 

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Order, OrderStatus } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
 
 function getStatusBadgeClass(status: string) {
   switch (status) {
@@ -98,37 +99,28 @@ export default function SellerOrderDetailPage() {
 
     setIsUpdating(true);
     try {
-      const docRef = doc(db, "orders", order.id);
-
-      // Append status history entry
-      const historyEntry = {
-        status,
-        at: Date.now(),
-        by: "seller",
-        note: note.trim() || `Status updated to ${status} by seller.`,
-      };
-
-      const updatedHistory = [...(order.statusHistory || []), historyEntry];
-
-      // Safe update to preserve shipping.fee
-      const updatedShipping = {
-        ...order.shipping,
-        courier: (courier as any) || null,
-        trackingId: trackingId.trim() || null,
-      };
-
-      // Perform update
-      await updateDoc(docRef, {
-        status,
-        shipping: updatedShipping,
-        statusHistory: updatedHistory,
-        updatedAt: Date.now(),
+      const idToken = await getFreshIdToken();
+      const res = await fetch(`/api/seller/orders/${order.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          status,
+          courier: courier || null,
+          trackingId,
+          note,
+        }),
       });
 
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update order fulfillment details.");
+      }
+
       toast.success("Fulfillment details updated successfully!");
-      setNote(""); // clear note field
-      
-      // Invalidate query to trigger visual refresh
+      setNote("");
       queryClient.invalidateQueries({ queryKey: ["order-detail", id] });
     } catch (err: any) {
       console.error("Fulfillment update failed:", err);

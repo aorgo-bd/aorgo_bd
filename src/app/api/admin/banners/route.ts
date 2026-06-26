@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 import { bannerFormSchema } from "@/lib/schemas";
@@ -37,6 +38,8 @@ export async function POST(request: NextRequest) {
         at: Date.now(),
       });
     });
+
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, banner: newBanner });
   } catch (error: any) {
@@ -94,6 +97,8 @@ export async function PUT(request: NextRequest) {
       });
     });
 
+    revalidatePath("/");
+
     return NextResponse.json({ success: true, banner: afterData });
   } catch (error: any) {
     console.error("Failed to update banner:", error);
@@ -135,6 +140,8 @@ export async function DELETE(request: NextRequest) {
         at: Date.now(),
       });
     });
+
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
