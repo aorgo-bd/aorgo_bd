@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronRight, Loader2, ArrowRight, X } from "lucide-react";
 import { useCategories } from "@/lib/hooks/useCategories";
@@ -10,7 +10,7 @@ import CategoryFilter from "@/components/storefront/CategoryFilter";
 import SortDropdown from "@/components/storefront/SortDropdown";
 import Link from "next/link";
 
-export default function SearchPage() {
+function SearchInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -276,5 +276,13 @@ export default function SearchPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchInner />
+    </Suspense>
   );
 }

@@ -1,8 +1,10 @@
 rules_version = '2';
+// Firebase Storage is no longer used; all file uploads go to Cloudinary.
+// Rules retained as an empty placeholder so the deploy tooling doesn't error.
 service firebase.storage {
   match /b/{bucket}/o {
-    match /seller-docs/{uid}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

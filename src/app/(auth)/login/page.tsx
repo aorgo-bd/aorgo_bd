@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { 
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   FacebookAuthProvider,
   sendPasswordResetEmail
 } from "firebase/auth";
@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { useUser } from "@/lib/hooks/useUser";
 
-export default function LoginPage() {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -332,5 +332,13 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

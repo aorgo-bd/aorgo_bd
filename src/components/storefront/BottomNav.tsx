@@ -26,10 +26,10 @@ export default function BottomNav() {
 
   const navItems = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Shop", href: "/products", icon: LayoutGrid },
+    { label: "Shop", href: "/category/all", icon: LayoutGrid },
     { label: "Wishlist", href: "/wishlist", icon: Heart, badge: wishlistIds.length },
     { label: "Cart", href: "/cart", icon: ShoppingBag, badge: totalCartCount },
-    { label: "Profile", href: "/profile", icon: User },
+    { label: "Account", href: "/seller/dashboard", icon: User },
   ];
 
   return (
