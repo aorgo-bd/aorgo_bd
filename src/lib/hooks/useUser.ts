@@ -6,12 +6,9 @@ import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/client";
 import { doc, getDoc } from "firebase/firestore";
 import { User } from "@/lib/types";
-import { useDispatch } from "react-redux";
-import { setUser } from "@/fetures/user/userSlice";
 
 export function useUser() {
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
@@ -33,37 +30,11 @@ export function useUser() {
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data() as User;
             const role = userData.role || "customer";
-            
+
             // Set user role cookie for role-based middleware check
             document.cookie = `user-role=${role}; path=/; max-age=${
               60 * 60 * 24 * 7
             }; SameSite=Lax`;
-
-            const parseDate = (val: any): string => {
-              if (!val) return new Date().toISOString();
-              if (typeof val.toDate === "function") {
-                return val.toDate().toISOString();
-              }
-              const date = new Date(val);
-              if (!isNaN(date.getTime())) {
-                return date.toISOString();
-              }
-              return new Date().toISOString();
-            };
-
-            // Keep Redux auth slice synced for reverse compatibility
-            dispatch(
-              setUser({
-                uid: userData.uid,
-                email: userData.email,
-                displayName: userData.displayName || null,
-                photoURL: userData.photoURL || null,
-                role: userData.role === "admin" ? "admin" : "user",
-                isActive: true,
-                createdAt: parseDate(userData.createdAt),
-                updatedAt: parseDate(userData.updatedAt),
-              })
-            );
           } else {
             // Default role is customer
             document.cookie = `user-role=customer; path=/; max-age=${
@@ -80,15 +51,13 @@ export function useUser() {
         document.cookie =
           "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 
-        // Clear Redux auth state
-        dispatch(setUser(null));
         // Clear React Query cache
         queryClient.setQueryData(["user"], null);
       }
     });
 
     return () => unsubscribe();
-  }, [queryClient, dispatch]);
+  }, [queryClient]);
 
   const {
     data: user,

@@ -6,10 +6,50 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { sellerRegisterSchema, SellerRegisterFormData } from "@/lib/schemas";
 import { useUser } from "@/lib/hooks/useUser";
 import { useRouter } from "next/navigation";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebase/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Cloudinary unsigned upload (replaces Firebase Storage)
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+async function uploadToCloudinary(
+  file: File,
+  folder: string,
+  onProgress: (pct: number) => void
+): Promise<string> {
+  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+    throw new Error("Cloudinary env vars missing (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME / NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)");
+  }
+
+  const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`;
+  const form = new FormData();
+  form.append("file", file);
+  form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  form.append("folder", folder);
+
+  return await new Promise<string>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          resolve(data.secure_url as string);
+        } catch {
+          reject(new Error("Invalid Cloudinary response"));
+        }
+      } else {
+        reject(new Error(`Cloudinary upload failed: ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error during upload"));
+    xhr.send(form);
+  });
+}
 import {
   Store,
   Upload,
@@ -119,32 +159,11 @@ export default function SellerRegisterPage() {
     setProgress(0);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const storagePath = `seller-docs/${user.uid}/${type}_${Date.now()}.${fileExt}`;
-      const fileRef = ref(storage, storagePath);
-
-      const uploadTask = uploadBytesResumable(fileRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          setProgress(progress);
-        },
-        (error) => {
-          console.error("Storage upload error:", error);
-          toast.error(`Upload failed: ${error.message}`);
-          setUploading(false);
-        },
-        async () => {
-          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-          setValue(fieldName, downloadUrl, { shouldValidate: true });
-          toast.success(`${type === "tradeLicense" ? "Trade License" : "NID"} uploaded successfully!`);
-          setUploading(false);
-        }
-      );
+      const folder = `seller-docs/${user.uid}`;
+      const secureUrl = await uploadToCloudinary(file, folder, setProgress);
+      setValue(fieldName, secureUrl, { shouldValidate: true });
+      toast.success(`${type === "tradeLicense" ? "Trade License" : "NID"} uploaded successfully!`);
+      setUploading(false);
     } catch (err: any) {
       console.error(err);
       toast.error("File upload failed: " + err.message);

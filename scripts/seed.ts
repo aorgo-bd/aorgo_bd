@@ -11,7 +11,7 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
-import firebaseApp from "../src/firebase/firebase.config";
+import { app as firebaseApp } from "../src/lib/firebase/client";
 
 // Check if Firebase is properly configured
 function checkFirebaseConfig() {

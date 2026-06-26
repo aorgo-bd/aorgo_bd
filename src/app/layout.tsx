@@ -1,28 +1,25 @@
-"use client";
 import { Inter } from "next/font/google";
-import { usePathname } from "next/navigation";
-import { Toaster } from "react-hot-toast";
-import Header from "@/components/storefront/Header";
-import Footer from "@/components/storefront/Footer";
-import BottomNav from "@/components/storefront/BottomNav";
-import Providers from "./_components/providers";
-import "./globals.css";
 import { cn } from "@/lib/utils";
+import Providers from "./_components/providers";
+import ClientShell from "./_components/ClientShell";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+export const metadata = {
+  title: "AORGO — Bangladesh Marketplace",
+  description: "Shop curated fashion, electronics and home goods from verified Bangladeshi sellers.",
+};
+
+export const viewport = {
+  themeColor: "#000000",
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
-  const isDashboardRoute =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/seller") ||
-    pathname.startsWith("/admin");
-
   return (
     <html lang="en" className={cn("font-sans", inter.variable)}>
       <head>
@@ -32,13 +29,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          <Toaster />
-          {!isDashboardRoute && <Header />}
-          <div className={cn("min-h-screen", !isDashboardRoute && "pb-16 md:pb-0")}>
-            {children}
-          </div>
-          <BottomNav />
-          {!isDashboardRoute && <Footer />}
+          <ClientShell>{children}</ClientShell>
         </Providers>
       </body>
     </html>
