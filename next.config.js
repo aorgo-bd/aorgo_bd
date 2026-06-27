@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   productionBrowserSourceMaps: false,
+  serverExternalPackages: ['firebase-admin', 'jwks-rsa', 'jose', '@google-cloud/firestore'],
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
@@ -13,7 +14,6 @@ const nextConfig = {
     ],
   },
   experimental: {
-    serverExternalPackages: ['firebase-admin'],
     optimizePackageImports: ['lucide-react', 'react-icons', 'framer-motion'],
     workerThreads: false,
     cpus: 1,
