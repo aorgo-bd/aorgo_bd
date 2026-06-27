@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   productionBrowserSourceMaps: false,
-  serverExternalPackages: ['firebase-admin', '@google-cloud/firestore'],
+
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
@@ -13,10 +13,13 @@ const nextConfig = {
       { protocol: 'https', hostname: 'platform-lookaside.fbsbx.com' },
     ],
   },
+
   experimental: {
+    serverComponentsExternalPackages: ['firebase-admin', '@google-cloud/firestore'],
     optimizePackageImports: ['lucide-react', 'react-icons', 'framer-motion'],
     workerThreads: false,
     cpus: 1,
   },
 };
+
 module.exports = nextConfig;

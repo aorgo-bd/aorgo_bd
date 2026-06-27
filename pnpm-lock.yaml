@@ -54,8 +54,8 @@ importers:
         specifier: ^10.1.0
         version: 10.14.1
       firebase-admin:
-        specifier: ^14.0.0
-        version: 14.0.0
+        specifier: 13.5.0
+        version: 13.5.0
       framer-motion:
         specifier: ^12.41.0
         version: 12.41.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -820,9 +820,9 @@ packages:
     resolution: {integrity: sha512-pYFURu8H4Jr5O2KjrN0MdBLKkrChOPiQt+J/KT/DIRwa9cWhFVf2EB6MQxYYv3vQvkB5vEBpTi+TUp4DHZPi6Q==}
     engines: {node: '>=22'}
 
-  '@google-cloud/firestore@8.6.0':
-    resolution: {integrity: sha512-TdvZHfwQj5B5CSDEgDqyrhdVqtOSupmBXDQPasMAJiC64tjsGvyMooNiC43fdk1TsUHeklyoZ6/vQ1TjWKVMbg==}
-    engines: {node: '>=18'}
+  '@google-cloud/firestore@7.11.6':
+    resolution: {integrity: sha512-EW/O8ktzwLfyWBOsNuhRoMi8lrC3clHM5LVFhGvO1HCsLozCOOXRAlHrYBoE6HL42Sc8yYMuCb2XqcnJ4OOEpw==}
+    engines: {node: '>=14.0.0'}
 
   '@google-cloud/paginator@5.0.2':
     resolution: {integrity: sha512-DJS3s0OVH4zFDB1PzjxAsHqJT6sKVbRwwML0ZBP9PbU7Yebtu/7SWMRzvO2J3nUi9pRNITCfu4LJeooM2w4pjg==}
@@ -1351,11 +1351,17 @@ packages:
   '@types/jsonwebtoken@9.0.10':
     resolution: {integrity: sha512-asx5hIG9Qmf/1oStypjanR7iKTv0gXQ1Ov/jfrX6kS/EO0OFni8orbmGCn0672NHR3kXHwpAwR+B368ZGN/2rA==}
 
+  '@types/long@4.0.2':
+    resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
+
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
   '@types/node@20.4.2':
     resolution: {integrity: sha512-Dd0BYtWgnWJKwO1jkmTrzofjK2QXXcai0dmtzvIBhcA+RsG5h8R3xlyta0kGOZRNfL9GuRtb1knmPEhQrePCEw==}
+
+  '@types/node@22.20.0':
+    resolution: {integrity: sha512-QWlFW2wf3nTjC13/DqRnBpR4ZO36VJH/JVBkA/vcnmbTBNQIlnObqyqZE1tUR7+Ni23Lda8R1BxMfbXRpCUx5g==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -2834,9 +2840,9 @@ packages:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
 
-  firebase-admin@14.0.0:
-    resolution: {integrity: sha512-U88/r6VWiBQ05+UlLaF1A1AN4Y3SAGQKcQWawzafEAnXVaCZ21+2KclMPdlIQAAF5pUtN+FkXCSQnJEpc6QDZA==}
-    engines: {node: '>=22'}
+  firebase-admin@13.5.0:
+    resolution: {integrity: sha512-QZOpv1DJRJpH8NcWiL1xXE10tw3L/bdPFlgjcWrqU3ufyOJDYfxB1MMtxiVTwxK16NlybQbEM6ciSich2uWEIQ==}
+    engines: {node: '>=18'}
 
   firebase-tools@15.22.1:
     resolution: {integrity: sha512-Dx3Pz2h7c2C50tgolw9YrOh3LqPuoDuOG7XWIwhf9fAgBDWevQdcDBEysnIbNqhRcgIM1zyX2z+N+zkJGoj2Kg==}
@@ -3073,6 +3079,10 @@ packages:
 
   google-auth-library@9.15.1:
     resolution: {integrity: sha512-Jb6Z0+nvECVz+2lzSMt9u98UsoakXxA2HGHMCxh+so3n90XgYWkq5dur19JAJV7ONiJY22yBTyJB1TSkvPq9Ng==}
+    engines: {node: '>=14'}
+
+  google-gax@4.6.1:
+    resolution: {integrity: sha512-V6eky/xz2mcKfAd1Ioxyd6nmA61gao3n01C+YeuIwu3vzM9EDR6wcVzMSIbLMDXWeoi9SHYctXuKYC5uJUT3eQ==}
     engines: {node: '>=14'}
 
   google-gax@5.0.7:
@@ -3543,6 +3553,9 @@ packages:
   join-path@1.1.1:
     resolution: {integrity: sha512-jnt9OC34sLXMLJ6YfPQ2ZEKrR9mB5ZbSnQb4LPaOx1c5rTzxpR33L18jjp0r75mGGTJmsil3qwN1B5IBeTnSSA==}
 
+  jose@4.15.9:
+    resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
+
   jose@6.2.3:
     resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
 
@@ -3616,9 +3629,9 @@ packages:
   jwa@2.0.1:
     resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
 
-  jwks-rsa@4.1.0:
-    resolution: {integrity: sha512-sbkByqyATKYJP5F4RXj03N5TUNC0QLTjCAZvwTzC4BwJZ8e0/cWxN8YROnyUth2g1/ONWi4eSFHeu6oYalrc3Q==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >= 23.0.0}
+  jwks-rsa@3.2.2:
+    resolution: {integrity: sha512-BqTyEDV+lS8F2trk3A+qJnxV5Q9EqKCBJOPti3W97r7qTympCZjb7h2X6f2kc+0K3rsSTY1/6YG2eaXKoj497w==}
+    engines: {node: '>=14'}
 
   jws@4.0.1:
     resolution: {integrity: sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA==}
@@ -3744,19 +3757,19 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
-  lru-cache@11.5.1:
-    resolution: {integrity: sha512-RPimw/7aMdv2oqRrxKwvZXcPfwBrn/JZ2xYcY9Hus/6LaS3VOAKVWKWgNLCFSiOm1ESXinjsDlidVU7JlnCN2A==}
-    engines: {node: 20 || >=22}
-
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lru-cache@6.0.0:
+    resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
+    engines: {node: '>=10'}
 
   lru-cache@7.18.3:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
 
-  lru-memoizer@3.0.0:
-    resolution: {integrity: sha512-m83w/cYXLdUIboKSPxzPAGfYnk+vqeDYXuoSrQRw1q+yVEd8IXhvMufN8Q5TIPe7e2jyX4SRNrDJI2Skw1yznQ==}
+  lru-memoizer@2.3.0:
+    resolution: {integrity: sha512-GXn7gyHAMhO13WSKrIiNfztwxodVsP8IoZ3XfrJV4yH2x0/OeTO/FIaAHTY5YekdGgW94njfuKmyyt1E0mR6Ug==}
 
   lsofi@2.0.0:
     resolution: {integrity: sha512-XTFlOBHeuXnUGuUQI0kBb4O4oQW7qCV7MRGQja1xNpxgrI/jptlly+/5126RiRold1zgyxY520qOZUZ31V0I2A==}
@@ -4011,6 +4024,10 @@ packages:
   node-fetch@3.3.2:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  node-forge@1.4.0:
+    resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
+    engines: {node: '>= 6.13.0'}
 
   node-gyp@13.0.0:
     resolution: {integrity: sha512-FYYyBDWdc+kzoyPd5PqHUgM9DGs1C/Z4jxBZAOnA2GRUVXPivKRREq5q+VVPXVr9aGVqGMaMqyFHbviy/yb7Hg==}
@@ -4437,6 +4454,10 @@ packages:
 
   proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
+
+  proto3-json-serializer@2.0.2:
+    resolution: {integrity: sha512-SAzp/O4Yh02jGdRc+uIrGoe87dkN/XtwxfZ4ZyafJHymd79ozp5VG5nyZ7ygqPM5+cpLDjjGnYFUkngonyDPOQ==}
+    engines: {node: '>=14.0.0'}
 
   proto3-json-serializer@3.0.4:
     resolution: {integrity: sha512-E1sbAYg3aEbXrq0n1ojJkRHQJGE1kaE/O6GLA94y8rnJBfgvOPTOd1b9hOceQK1FFZI9qMh1vBERCyO2ifubcw==}
@@ -5163,6 +5184,9 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
   undici@5.28.3:
     resolution: {integrity: sha512-3ItfzbrhDlINjaP0duwnNsKpDQk3acHI3gVJ1z4fmwMK31k5G9OVIAMLSIaP6w4FaGkaAkN6zaQO9LUvZ1t7VA==}
     engines: {node: '>=14.0'}
@@ -5230,6 +5254,10 @@ packages:
   utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+
+  uuid@11.1.1:
+    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
+    hasBin: true
 
   uuid@14.0.1:
     resolution: {integrity: sha512-6ZxzVpzDXDa3bJWaHilVayA+BH/1zmxCJoVgvmqJnid/gPoKHxUrS/aC/T6LGQtNHT+XHG9fXPJB4d+IrU30Ew==}
@@ -5377,6 +5405,9 @@ packages:
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
+
+  yallist@4.0.0:
+    resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
 
   yallist@5.0.0:
     resolution: {integrity: sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==}
@@ -6280,14 +6311,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@google-cloud/firestore@8.6.0':
+  '@google-cloud/firestore@7.11.6':
     dependencies:
       '@opentelemetry/api': 1.9.1
       fast-deep-equal: 3.1.3
       functional-red-black-tree: 1.0.1
-      google-gax: 5.0.7
+      google-gax: 4.6.1
       protobufjs: 7.6.4
     transitivePeerDependencies:
+      - encoding
       - supports-color
     optional: true
 
@@ -6805,9 +6837,16 @@ snapshots:
       '@types/ms': 2.1.0
       '@types/node': 20.4.2
 
+  '@types/long@4.0.2':
+    optional: true
+
   '@types/ms@2.1.0': {}
 
   '@types/node@20.4.2': {}
+
+  '@types/node@22.20.0':
+    dependencies:
+      undici-types: 6.21.0
 
   '@types/parse-json@4.0.2':
     optional: true
@@ -8087,8 +8126,8 @@ snapshots:
       '@typescript-eslint/parser': 5.62.0(eslint@8.45.0)(typescript@5.1.6)
       eslint: 8.45.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0))(eslint@8.45.0)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.45.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-typescript@3.10.1)(eslint@8.45.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.45.0)
       eslint-plugin-react: 7.37.5(eslint@8.45.0)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.45.0)
@@ -8107,7 +8146,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.45.0):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -8118,22 +8157,22 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0))(eslint@8.45.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-typescript@3.10.1)(eslint@8.45.0)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0))(eslint@8.45.0):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.45.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 5.62.0(eslint@8.45.0)(typescript@5.1.6)
       eslint: 8.45.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.45.0)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0))(eslint@8.45.0):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-typescript@3.10.1)(eslint@8.45.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -8144,7 +8183,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.45.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint@8.45.0))(eslint@8.45.0))(eslint@8.45.0)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@5.62.0(eslint@8.45.0)(typescript@5.1.6))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.45.0)
       hasown: 2.0.4
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -8554,18 +8593,21 @@ snapshots:
       locate-path: 6.0.0
       path-exists: 4.0.0
 
-  firebase-admin@14.0.0:
+  firebase-admin@13.5.0:
     dependencies:
       '@fastify/busboy': 3.2.0
       '@firebase/database-compat': 2.1.4
       '@firebase/database-types': 1.0.20
+      '@types/node': 22.20.0
       farmhash-modern: 1.1.0
       fast-deep-equal: 3.1.3
-      google-auth-library: 10.7.0
+      google-auth-library: 9.15.1
       jsonwebtoken: 9.0.3
-      jwks-rsa: 4.1.0
+      jwks-rsa: 3.2.2
+      node-forge: 1.4.0
+      uuid: 11.1.1
     optionalDependencies:
-      '@google-cloud/firestore': 8.6.0
+      '@google-cloud/firestore': 7.11.6
       '@google-cloud/storage': 7.21.0
     transitivePeerDependencies:
       - encoding
@@ -8998,6 +9040,25 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
+
+  google-gax@4.6.1:
+    dependencies:
+      '@grpc/grpc-js': 1.14.4
+      '@grpc/proto-loader': 0.7.15
+      '@types/long': 4.0.2
+      abort-controller: 3.0.0
+      duplexify: 4.1.3
+      google-auth-library: 9.15.1
+      node-fetch: 2.7.0
+      object-hash: 3.0.0
+      proto3-json-serializer: 2.0.2
+      protobufjs: 7.6.4
+      retry-request: 7.0.2
+      uuid: 9.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    optional: true
 
   google-gax@5.0.7:
     dependencies:
@@ -9437,6 +9498,8 @@ snapshots:
       url-join: 0.0.1
       valid-url: 1.0.9
 
+  jose@4.15.9: {}
+
   jose@6.2.3: {}
 
   js-tokens@4.0.0: {}
@@ -9513,14 +9576,13 @@ snapshots:
       ecdsa-sig-formatter: 1.0.11
       safe-buffer: 5.2.1
 
-  jwks-rsa@4.1.0:
+  jwks-rsa@3.2.2:
     dependencies:
       '@types/jsonwebtoken': 9.0.10
       debug: 4.4.3
-      jose: 6.2.3
+      jose: 4.15.9
       limiter: 1.1.5
-      lru-cache: 11.5.1
-      lru-memoizer: 3.0.0
+      lru-memoizer: 2.3.0
     transitivePeerDependencies:
       - supports-color
 
@@ -9634,18 +9696,20 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lru-cache@11.5.1: {}
-
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
 
+  lru-cache@6.0.0:
+    dependencies:
+      yallist: 4.0.0
+
   lru-cache@7.18.3: {}
 
-  lru-memoizer@3.0.0:
+  lru-memoizer@2.3.0:
     dependencies:
       lodash.clonedeep: 4.5.0
-      lru-cache: 11.5.1
+      lru-cache: 6.0.0
 
   lsofi@2.0.0: {}
 
@@ -9859,6 +9923,8 @@ snapshots:
       data-uri-to-buffer: 4.0.1
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
+
+  node-forge@1.4.0: {}
 
   node-gyp@13.0.0:
     dependencies:
@@ -10286,6 +10352,11 @@ snapshots:
       react-is: 16.13.1
 
   proto-list@1.2.4: {}
+
+  proto3-json-serializer@2.0.2:
+    dependencies:
+      protobufjs: 7.6.4
+    optional: true
 
   proto3-json-serializer@3.0.4:
     dependencies:
@@ -11279,6 +11350,8 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
+  undici-types@6.21.0: {}
+
   undici@5.28.3:
     dependencies:
       '@fastify/busboy': 2.1.1
@@ -11374,6 +11447,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   utils-merge@1.0.1: {}
+
+  uuid@11.1.1: {}
 
   uuid@14.0.1: {}
 
@@ -11549,6 +11624,8 @@ snapshots:
   y18n@5.0.8: {}
 
   yallist@3.1.1: {}
+
+  yallist@4.0.0: {}
 
   yallist@5.0.0: {}
 
