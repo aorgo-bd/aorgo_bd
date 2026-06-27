@@ -13,6 +13,7 @@ const nextConfig = {
     ],
   },
   experimental: {
+    serverExternalPackages: ['firebase-admin'],
     optimizePackageImports: ['lucide-react', 'react-icons', 'framer-motion'],
     workerThreads: false,
     cpus: 1,
