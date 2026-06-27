@@ -1,11 +1,16 @@
-import type { Query } from "firebase-admin/firestore";
+import React from "react";
+import Link from "next/link";
 import HeroCarousel from "@/components/storefront/HeroCarousel";
 import ProductRail from "@/components/storefront/ProductRail";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Banner, Product } from "@/lib/types";
 import type { ProductFilter } from "@/lib/hooks/useProducts";
+import { MOCK_PRODUCTS, MOCK_BANNERS, MOCK_CATEGORIES } from "@/lib/data/mock-db";
+import { Star, ShieldCheck, RefreshCw, Truck, Heart } from "lucide-react";
+import Image from "next/image";
+import { DealCountdown } from "@/components/ui/myntra/DealCountdown";
 
-export const revalidate = 300;
+export const revalidate = 0; // Disable static cache to allow instant updates
 
 function toPlainValue(value: any): any {
   if (value == null) return value;
@@ -30,26 +35,6 @@ function applyProductFilter(products: Product[], filter: ProductFilter) {
 
   if (filter.category) {
     filtered = filtered.filter((product) => product.category === filter.category);
-  } else if (filter.subcategories?.length) {
-    filtered = filtered.filter((product) => filter.subcategories!.includes(product.category));
-  }
-
-  if (filter.search) {
-    const tokens = filter.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    filtered = filtered.filter((product) => {
-      const haystack = [product.title, product.brand, product.description, ...(product.keywords ?? [])]
-        .join(" ")
-        .toLowerCase();
-      return tokens.every((token) => haystack.includes(token));
-    });
-  }
-
-  if (filter.minPrice !== undefined) {
-    filtered = filtered.filter((product) => product.price >= filter.minPrice!);
-  }
-
-  if (filter.maxPrice !== undefined) {
-    filtered = filtered.filter((product) => product.price <= filter.maxPrice!);
   }
 
   const sortBy = filter.sortBy ?? "createdAt";
@@ -64,33 +49,8 @@ function applyProductFilter(products: Product[], filter: ProductFilter) {
   return filtered.slice(0, filter.limit ?? 8);
 }
 
-async function getFallbackHeroBanners(): Promise<Banner[]> {
-  if (!adminDb) return [];
-
-  const snap = await adminDb.collection("banners").where("active", "==", true).limit(20).get();
-  return snap.docs
-    .map((doc) => ({ id: doc.id, ...toPlainValue(doc.data()) }) as Banner)
-    .filter((banner) => banner.position === "hero")
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-}
-
-async function getFallbackApprovedProducts(filter: ProductFilter): Promise<Product[]> {
-  if (!adminDb) return [];
-
-  const snap = await adminDb
-    .collection("products")
-    .where("status", "==", "approved")
-    .limit(100)
-    .get();
-  const products = snap.docs.map((doc) => ({
-    id: doc.id,
-    ...toPlainValue(doc.data()),
-  })) as Product[];
-
-  return applyProductFilter(products, filter);
-}
 async function getHeroBanners(): Promise<Banner[]> {
-  if (!adminDb) return [];
+  if (!adminDb) return MOCK_BANNERS;
 
   try {
     const snap = await adminDb
@@ -99,21 +59,24 @@ async function getHeroBanners(): Promise<Banner[]> {
       .where("position", "==", "hero")
       .orderBy("order", "asc")
       .get();
+    
+    if (snap.empty) return MOCK_BANNERS;
 
     return snap.docs.map((doc) => ({
       id: doc.id,
       ...toPlainValue(doc.data()),
     })) as Banner[];
-  } catch {
-    return getFallbackHeroBanners();
+  } catch (err) {
+    console.warn("[getHeroBanners] server error, falling back to mock banners:", err);
+    return MOCK_BANNERS;
   }
 }
 
 async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
-  if (!adminDb) return [];
+  if (!adminDb) return applyProductFilter(MOCK_PRODUCTS, filter);
 
   try {
-    let productQuery: Query = adminDb
+    let productQuery = adminDb
       .collection("products")
       .where("status", "==", "approved");
 
@@ -123,83 +86,283 @@ async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
 
     if (filter.category) {
       productQuery = productQuery.where("category", "==", filter.category);
-    } else if (filter.subcategories?.length) {
-      productQuery = productQuery.where("category", "in", filter.subcategories.slice(0, 10));
     }
-
-    if (filter.search) {
-      const primaryToken = filter.search.trim().toLowerCase().split(/\s+/).filter(Boolean)[0];
-      if (primaryToken) {
-        productQuery = productQuery.where("keywords", "array-contains", primaryToken);
-      }
-    }
-
-    const sortBy = filter.sortBy ?? "createdAt";
-    const sortOrder = filter.sortOrder ?? "desc";
-    productQuery = productQuery.orderBy(sortBy, sortOrder).limit(filter.limit ?? 8);
 
     const snap = await productQuery.get();
-    return snap.docs.map((doc) => ({
+    if (snap.empty) return applyProductFilter(MOCK_PRODUCTS, filter);
+
+    const dbProducts = snap.docs.map((doc) => ({
       id: doc.id,
       ...toPlainValue(doc.data()),
     })) as Product[];
-  } catch {
-    return getFallbackApprovedProducts(filter);
+
+    return applyProductFilter(dbProducts, filter);
+  } catch (err) {
+    console.warn("[getApprovedProducts] server error, falling back to mock products:", err);
+    return applyProductFilter(MOCK_PRODUCTS, filter);
   }
 }
 
-function Separator() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <hr className="border-t border-gray-100" />
-    </div>
-  );
+// Client Countdown cell component placeholder
+function CountdownWrapper() {
+  const endsAt = Date.now() + 1000 * 60 * 60 * 4; // Ticks for 4 hours
+  return <DealCountdown endsAt={endsAt} />;
 }
 
 export default async function StorefrontHomePage() {
-  const newArrivalsFilter: ProductFilter = {
-    limit: 8,
-    sortBy: "createdAt",
-    sortOrder: "desc",
-  };
-  const topSellingFilter: ProductFilter = {
-    limit: 8,
-    sortBy: "totalSold",
-    sortOrder: "desc",
-  };
-  const featuredFilter: ProductFilter = {
-    limit: 8,
-    featured: true,
-    sortBy: "createdAt",
-    sortOrder: "desc",
-  };
-  const trendingFilter: ProductFilter = {
-    limit: 8,
-    sortBy: "rating",
-    sortOrder: "desc",
-  };
+  const dealOfTheDayFilter: ProductFilter = { limit: 8, sortBy: "totalSold", sortOrder: "desc" };
+  const newArrivalsFilter: ProductFilter = { limit: 8, sortBy: "createdAt", sortOrder: "desc" };
+  const topSellingFilter: ProductFilter = { limit: 8, sortBy: "totalSold", sortOrder: "desc" };
+  const ethnicForHerFilter: ProductFilter = { limit: 8, category: "women-ethnic", sortBy: "createdAt", sortOrder: "desc" };
+  const menTshirtsFilter: ProductFilter = { limit: 8, category: "men-tops", sortBy: "createdAt", sortOrder: "desc" };
+  const highRatedFilter: ProductFilter = { limit: 8, sortBy: "rating", sortOrder: "desc" };
 
-  const [banners, newArrivals, topSelling, featured, trending] = await Promise.all([
+  const [banners, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
     getHeroBanners(),
+    getApprovedProducts(dealOfTheDayFilter),
     getApprovedProducts(newArrivalsFilter),
     getApprovedProducts(topSellingFilter),
-    getApprovedProducts(featuredFilter),
-    getApprovedProducts(trendingFilter),
+    getApprovedProducts(ethnicForHerFilter),
+    getApprovedProducts(menTshirtsFilter),
+    getApprovedProducts(highRatedFilter),
   ]);
 
   return (
-    <div className="bg-white min-h-screen pb-12 flex flex-col">
+    <div className="bg-[#FAFBFC] min-h-screen pb-16">
+      
+      {/* 2. Mobile Category Circles Strip (<lg) */}
+      <div className="lg:hidden w-full bg-white border-b border-ink-200 py-3 px-4 overflow-x-auto scrollbar-hide flex items-center gap-4 snap-x snap-mandatory">
+        {MOCK_CATEGORIES.filter((c) => !c.parent).map((cat) => (
+          <Link
+            key={cat.slug}
+            href={`/category/${cat.slug}`}
+            className="flex-shrink-0 flex flex-col items-center gap-1.5 w-14 snap-start cursor-pointer"
+          >
+            <div className="w-14 h-14 rounded-full bg-ink-100 border border-ink-200 overflow-hidden relative shadow-2xs">
+              <Image
+                src={cat.image || "/images/products/placeholder.webp"}
+                alt={cat.name}
+                fill
+                sizes="64px"
+                className="object-cover object-center"
+              />
+            </div>
+            <span className="text-[10px] font-bold text-ink-700 text-center truncate w-full uppercase tracking-wider">{cat.name}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* 3. Hero Banners Carousel */}
       <HeroCarousel initialBanners={banners} />
 
-      <div className="space-y-6 sm:space-y-12 py-8 sm:py-16">
-        <ProductRail title="New Arrivals" filter={newArrivalsFilter} initialProducts={newArrivals} />
-        <Separator />
-        <ProductRail title="Top Selling" filter={topSellingFilter} initialProducts={topSelling} />
-        <Separator />
-        <ProductRail title="Featured Collection" filter={featuredFilter} initialProducts={featured} />
-        <Separator />
-        <ProductRail title="Trending Deals" filter={trendingFilter} initialProducts={trending} />
+      {/* 4. Mid-page Promo Strip (4 tiles) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-gradient-to-br from-pink-500 to-brand-orange text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+            <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">NEW USER</span>
+            <div>
+              <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">৳500 OFF</p>
+              <p className="text-[10px] text-white/95 leading-normal">On your first order</p>
+            </div>
+          </div>
+          <div className="bg-ink-900 text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+            <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">SHIPPING</span>
+            <div>
+              <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">FREE SHIPPING</p>
+              <p className="text-[10px] text-ink-300 leading-normal">On orders above ৳1500</p>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-pink-600 to-pink-400 text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+            <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">EID COLLECTION</span>
+            <div>
+              <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">Heritage Sarees</p>
+              <p className="text-[10px] text-white/95 leading-normal">Exclusive prints now live</p>
+            </div>
+          </div>
+          <div className="bg-white border border-ink-200 text-ink-900 rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+            <span className="text-[9px] font-extrabold tracking-widest uppercase text-pink-500">PAYMENT</span>
+            <div>
+              <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">COD AVAILABLE</p>
+              <p className="text-[10px] text-ink-500 leading-normal">Cash on Delivery across BD</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* 5. Section: DEAL OF THE DAY */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Deal of the Day
+          </h2>
+          <CountdownWrapper />
+        </div>
+        <ProductRail title="" filter={dealOfTheDayFilter} initialProducts={dealOfTheDay} />
+      </section>
+
+      {/* 6. Section: EXCLUSIVE BRANDS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Exclusive Brands
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
+          {[
+            { name: "Aarong", label: "Heritage Prints", slug: "aarong", bg: "from-[#FDFBF7] to-[#F5EFE6]" },
+            { name: "Yellow", label: "Contemporary Chic", slug: "yellow", bg: "from-[#F6F8F9] to-[#E9ECEF]" },
+            { name: "Sailor", label: "Casual Everyday", slug: "sailor", bg: "from-[#FAF9F6] to-[#EAE6DF]" },
+            { name: "Ecstasy", label: "Western Edits", slug: "ecstasy", bg: "from-[#FBF8F9] to-[#EFE5E7]" }
+          ].map((brand) => (
+            <a
+              href={`/products?search=${brand.slug}`}
+              key={brand.name}
+              className={`block bg-gradient-to-br ${brand.bg} border border-ink-200 hover:border-pink-500 rounded-md p-6 text-center shadow-2xs hover:shadow-sm transition-all group`}
+            >
+              <h3 className="text-lg sm:text-2xl font-display font-black tracking-wider text-ink-900 uppercase group-hover:text-pink-500 transition-colors">
+                {brand.name}
+              </h3>
+              <p className="text-[10px] text-ink-500 font-bold uppercase tracking-wider mt-1">{brand.label}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* 7. Section: NEW ARRIVALS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            New Arrivals
+          </h2>
+        </div>
+        <ProductRail title="" filter={newArrivalsFilter} initialProducts={newArrivals} />
+      </section>
+
+      {/* 8. Section: SHOP BY CATEGORY */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Shop By Category
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          {MOCK_CATEGORIES.filter((c) => !c.parent).slice(0, 6).map((cat) => (
+            <a
+              href={`/category/${cat.slug}`}
+              key={cat.slug}
+              className="block bg-white border border-ink-200 hover:border-pink-500 rounded-md overflow-hidden shadow-2xs hover:shadow-sm transition-all group"
+            >
+              <div className="aspect-square relative w-full bg-ink-100">
+                <Image
+                  src={cat.image || "/images/products/placeholder.webp"}
+                  alt={cat.name}
+                  fill
+                  sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 180px"
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-3 text-center border-t border-ink-200 bg-ink-50">
+                <h3 className="text-xs font-bold text-ink-900 uppercase tracking-widest group-hover:text-pink-500 transition-colors truncate">
+                  {cat.name}
+                </h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* 9. Section: TOP SELLING */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Top Selling
+          </h2>
+        </div>
+        <ProductRail title="" filter={topSellingFilter} initialProducts={topSelling} />
+      </section>
+
+      {/* 10. Section: TRENDING ETHNIC FOR HER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Trending Ethnic for Her
+          </h2>
+        </div>
+        <ProductRail title="" filter={ethnicForHerFilter} initialProducts={ethnicForHer} />
+      </section>
+
+      {/* 11. Section: TRENDING MEN'S WEAR */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Trending Men&apos;s Tops
+          </h2>
+        </div>
+        <ProductRail title="" filter={menTshirtsFilter} initialProducts={menTshirts} />
+      </section>
+
+      {/* 12. Section: CUSTOMERS LOVE THESE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            Customers Love These
+          </h2>
+        </div>
+        <ProductRail title="" filter={highRatedFilter} initialProducts={highRated} />
+      </section>
+
+      {/* 13. Full-width Promo Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <a
+          href="/products"
+          className="relative block w-full aspect-[21/9] sm:aspect-[21/6] rounded-md overflow-hidden group shadow-2xs border border-ink-200"
+        >
+          <Image
+            src="/images/banners/banner-1.webp"
+            alt="Festival Offer"
+            fill
+            sizes="1280px"
+            className="object-cover object-center group-hover:scale-[1.01] transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent flex flex-col justify-center px-6 sm:px-12 text-white">
+            <span className="text-[10px] font-bold tracking-widest uppercase bg-pink-500 text-white w-fit px-2.5 py-0.5 rounded-sm mb-2">FESTIVE EXCLUSIVE</span>
+            <h3 className="text-xl sm:text-3xl font-display font-black tracking-wide uppercase leading-tight max-w-sm sm:max-w-md">
+              Flat 20% Cash Back on bKash Payment
+            </h3>
+            <p className="text-[11px] sm:text-xs text-white/80 leading-normal max-w-xs mt-1 sm:mt-2">
+              Valid on all purchases above ৳3000 during this festive season.
+            </p>
+          </div>
+        </a>
+      </div>
+
+      {/* 14. Section: WHY SHOP AT AORGO */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 border-t border-ink-200 pt-12 sm:pt-16">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          <div className="flex flex-col items-center text-center p-4 space-y-3">
+            <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-500">
+              <ShieldCheck className="h-6 w-6 stroke-[1.8]" />
+            </div>
+            <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest">100% Authentic Products</h3>
+            <p className="text-xs text-ink-500 max-w-[240px] leading-relaxed">Directly from verified manufacturers and official distributors.</p>
+          </div>
+          <div className="flex flex-col items-center text-center p-4 space-y-3">
+            <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-500">
+              <RefreshCw className="h-6 w-6 stroke-[1.8]" />
+            </div>
+            <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest">7-Day Easy Returns</h3>
+            <p className="text-xs text-ink-500 max-w-[240px] leading-relaxed">Not happy with your product? Return it within 7 days for a hassle-free refund.</p>
+          </div>
+          <div className="flex flex-col items-center text-center p-4 space-y-3">
+            <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-500">
+              <Truck className="h-6 w-6 stroke-[1.8]" />
+            </div>
+            <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest">Pan-Bangladesh Shipping</h3>
+            <p className="text-xs text-ink-500 max-w-[240px] leading-relaxed">Fast and secure delivery to all districts and divisions.</p>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

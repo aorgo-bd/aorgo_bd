@@ -10,6 +10,48 @@
     --font-sans: var(--font-sans)
   }
   :root {
+    --font-sans: 'Assistant', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Bebas Neue', 'Impact', sans-serif;
+    --font-bangla: 'Hind Siliguri', 'Bangla', sans-serif;
+
+    /* === AORGO Brand (Myntra-inspired) === */
+    --color-brand-pink: #FF3F6C;
+    --color-brand-pink-dark: #E51F4D;
+    --color-brand-pink-light: #FFE6EE;
+    --color-brand-orange: #FF905A;
+    --color-brand-yellow: #FFD93D;
+    --color-brand-green: #03A685;
+    --color-ink-900: #14133B;
+    --color-ink-700: #282C3F;
+    --color-ink-500: #535766;
+    --color-ink-400: #94969F;
+    --color-ink-300: #D4D5D9;
+    --color-ink-200: #EAEAEC;
+    --color-ink-100: #F5F5F6;
+    --color-ink-50:  #FAFBFC;
+    --color-discount: #FF3333;
+    --color-rating-green: #03A685;
+    --color-success: #14958F;
+    --color-error: #FF3838;
+    --color-warning: #F79E1B;
+
+    --radius-none: 0;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    --shadow-card: 0 1px 4px rgba(40, 44, 63, 0.04);
+    --shadow-card-hover: 0 8px 24px rgba(40, 44, 63, 0.12);
+    --shadow-modal: 0 24px 48px rgba(20, 19, 59, 0.16);
+
+    --ease-myntra: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --duration-fast: 150ms;
+    --duration-base: 200ms;
+    --duration-slow: 320ms;
+
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -158,5 +200,15 @@
   img, 
   .card {
     page-break-inside: avoid;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 }

@@ -41,13 +41,18 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
     queryKey: ["orders-pdp-check", user?.uid],
     queryFn: async () => {
       if (!user?.uid) return [];
-      const ordersRef = collection(db, "orders");
-      const q = query(ordersRef, where("customerUid", "==", user.uid));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Order[];
+      try {
+        const ordersRef = collection(db, "orders");
+        const q = query(ordersRef, where("customerUid", "==", user.uid));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Order[];
+      } catch (err) {
+        console.warn("[orders-pdp-check] query failed, falling back to empty orders:", err);
+        return [];
+      }
     },
     enabled: !!user?.uid,
   });

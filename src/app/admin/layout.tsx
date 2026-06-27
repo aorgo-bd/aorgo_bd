@@ -90,14 +90,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col justify-between bg-slate-950 text-slate-100">
+    <div className="flex h-full flex-col justify-between bg-ink-950 text-ink-50">
       <div className="px-6 py-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-md shadow-violet-500/30 text-white font-bold text-lg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-md shadow-violet-500/30 text-white font-bold text-lg font-display">
             A
           </div>
           <div>
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-violet-200 to-fuchsia-400 bg-clip-text text-transparent">
+            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-violet-200 to-violet-300 bg-clip-text text-transparent">
               AORGO
             </span>
             <span className="block text-xs font-semibold uppercase tracking-wider text-violet-400">
@@ -106,7 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        <nav className="mt-8 space-y-1.5">
+        <nav className="mt-8 space-y-1.5 font-sans">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -119,7 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 group relative",
                   isActive
                     ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20"
-                    : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                    : "text-ink-400 hover:bg-ink-900 hover:text-white"
                 )}
               >
                 <Icon className={cn("h-5 w-5 transition-transform duration-200", !isActive && "group-hover:scale-110")} />
@@ -134,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* User Footer Profile info */}
-      <div className="border-t border-slate-900 p-4 bg-slate-950">
+      <div className="border-t border-ink-800 p-4 bg-ink-950">
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar className="h-9 w-9 border border-violet-500/30">
             {user?.photoURL ? <AvatarImage src={user.photoURL} alt={user.displayName || ""} /> : null}
@@ -212,7 +212,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               onClick={() => setIsMobileOpen(false)}
             />
             {/* Drawer */}
-            <div className="relative flex w-64 max-w-xs flex-col bg-slate-950 shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="relative flex w-64 max-w-xs flex-col bg-ink-950 shadow-2xl animate-in slide-in-from-left duration-200">
               <button
                 className="absolute top-4 right-4 text-slate-400 hover:text-white"
                 onClick={() => setIsMobileOpen(false)}

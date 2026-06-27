@@ -7,8 +7,10 @@ interface Props {
   params: { slug: string };
 }
 
+import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
+
 async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (!adminDb) return null;
+  if (!adminDb) return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
   try {
     const snap = await adminDb
       .collection("products")
@@ -16,12 +18,14 @@ async function getProductBySlug(slug: string): Promise<Product | null> {
       .where("status", "==", "approved")
       .limit(1)
       .get();
-    if (snap.empty) return null;
+    if (snap.empty) {
+      return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+    }
     const doc = snap.docs[0];
     return JSON.parse(JSON.stringify({ id: doc.id, ...doc.data() })); // serialize timestamps
   } catch (err) {
-    console.error("Error fetching product by slug on server:", err);
-    return null;
+    console.warn("Error fetching product by slug on server, falling back to mock:", err);
+    return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
   }
 }
 

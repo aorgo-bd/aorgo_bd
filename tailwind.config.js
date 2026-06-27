@@ -40,6 +40,23 @@ module.exports = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
+        pink: {
+          50: "#FFE6EE",
+          500: "#FF3F6C",
+          600: "#E51F4D",
+        },
+        ink: {
+          50: "#FAFBFC",
+          100: "#F5F5F6",
+          200: "#EAEAEC",
+          300: "#D4D5D9",
+          400: "#94969F",
+          500: "#535766",
+          700: "#282C3F",
+          900: "#14133B",
+        },
+        discount: "#FF3333",
+        ratingGreen: "#03A685",
         gray: {
           150: "#e5e7eb",
           250: "#d9dde3",
@@ -110,6 +127,13 @@ module.exports = {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "Assistant", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Whitney", "Inter", "sans-serif"],
+      },
+      transitionTimingFunction: {
+        myntra: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       },
       borderRadius: {
         lg: "var(--radius)",

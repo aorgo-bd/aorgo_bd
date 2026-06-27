@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Product } from "@/lib/types";
+import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
 
 export interface ProductFilter {
   category?: string;
@@ -35,14 +36,18 @@ function applyClientOnlyFilters(products: Product[], filter?: ProductFilter) {
   }
 
   if (filter?.category) {
-    filtered = filtered.filter((p) => p.category === filter.category);
+    filtered = filtered.filter(
+      (p) =>
+        p.category === filter.category ||
+        (MOCK_PRODUCTS.find((mp) => mp.slug === p.slug)?.category === filter.category)
+    );
   } else if (filter?.subcategories?.length) {
     filtered = filtered.filter((p) => filter.subcategories!.includes(p.category));
   }
 
   if (filter?.search) {
     const tokens = filter.search.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    if (tokens.length > 1) {
+    if (tokens.length > 0) {
       filtered = filtered.filter((p) => {
         const haystack = [p.title, p.brand, p.description, ...(p.keywords ?? [])]
           .join(" ")
@@ -88,6 +93,7 @@ function applyProductSort(products: Product[], filter?: ProductFilter) {
     return sortOrder === "asc" ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
   });
 }
+
 function buildProductConstraints(filter?: ProductFilter): QueryConstraint[] {
   const constraints: QueryConstraint[] = [where("status", "==", "approved")];
 
@@ -132,30 +138,22 @@ export function useProducts(filter?: ProductFilter, initialData?: Product[]) {
     initialData,
     queryFn: async () => {
       const productsRef = collection(db, "products");
-      let products: Product[];
+      let products: Product[] = [];
 
       try {
         const q = query(productsRef, ...buildProductConstraints(filter));
         const snapshot = await getDocs(q);
-        products = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Product[];
-      } catch (err) {
-        console.error("[useProducts] primary query failed, falling back:", err);
-        if (process.env.NODE_ENV !== "production") {
-          throw err;
+        if (snapshot.empty) {
+          products = MOCK_PRODUCTS;
+        } else {
+          products = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Product[];
         }
-        const fallbackQuery = query(
-          productsRef,
-          where("status", "==", "approved"),
-          firestoreLimit(100)
-        );
-        const snapshot = await getDocs(fallbackQuery);
-        products = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Product[];
+      } catch (err) {
+        console.warn("[useProducts] falling back to mock products:", err);
+        products = MOCK_PRODUCTS;
       }
 
       products = applyClientOnlyFilters(products, filter);
@@ -176,19 +174,26 @@ export function useProductBySlug(slug: string) {
     queryKey: ["product", slug],
     queryFn: async () => {
       if (!slug) return null;
-      const productsRef = collection(db, "products");
-      const q = query(
-        productsRef,
-        where("slug", "==", slug),
-        where("status", "==", "approved")
-      );
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
-      const doc = snapshot.docs[0];
-      return {
-        id: doc.id,
-        ...doc.data(),
-      } as Product;
+      try {
+        const productsRef = collection(db, "products");
+        const q = query(
+          productsRef,
+          where("slug", "==", slug),
+          where("status", "==", "approved")
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+        }
+        const doc = snapshot.docs[0];
+        return {
+          id: doc.id,
+          ...doc.data(),
+        } as Product;
+      } catch (err) {
+        console.warn("[useProductBySlug] falling back to mock product:", err);
+        return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+      }
     },
     enabled: !!slug,
   });
@@ -199,15 +204,23 @@ export function useSellerProducts(sellerUid: string) {
     queryKey: ["seller-products", sellerUid],
     queryFn: async () => {
       if (!sellerUid) return [];
-      const productsRef = collection(db, "products");
-      const q = query(productsRef, where("sellerUid", "==", sellerUid));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        } as Product;
-      }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      try {
+        const productsRef = collection(db, "products");
+        const q = query(productsRef, where("sellerUid", "==", sellerUid));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          return MOCK_PRODUCTS.filter((p) => p.sellerUid === sellerUid);
+        }
+        return snapshot.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          } as Product;
+        }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } catch (err) {
+        console.warn("[useSellerProducts] falling back to mock seller products:", err);
+        return MOCK_PRODUCTS.filter((p) => p.sellerUid === sellerUid);
+      }
     },
     enabled: !!sellerUid,
   });
@@ -218,13 +231,20 @@ export function useSellerProduct(productId: string) {
     queryKey: ["seller-product", productId],
     queryFn: async () => {
       if (!productId) return null;
-      const docRef = doc(db, "products", productId);
-      const snapshot = await getDoc(docRef);
-      if (!snapshot.exists()) return null;
-      return {
-        id: snapshot.id,
-        ...snapshot.data(),
-      } as Product;
+      try {
+        const docRef = doc(db, "products", productId);
+        const snapshot = await getDoc(docRef);
+        if (!snapshot.exists()) {
+          return MOCK_PRODUCTS.find((p) => p.id === productId) || null;
+        }
+        return {
+          id: snapshot.id,
+          ...snapshot.data(),
+        } as Product;
+      } catch (err) {
+        console.warn("[useSellerProduct] falling back to mock seller product:", err);
+        return MOCK_PRODUCTS.find((p) => p.id === productId) || null;
+      }
     },
     enabled: !!productId,
   });

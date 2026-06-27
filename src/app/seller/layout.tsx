@@ -104,23 +104,23 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   ];
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col justify-between bg-slate-900 text-slate-100 dark:bg-slate-950">
+    <div className="flex h-full flex-col justify-between bg-ink-950 text-ink-50">
       <div className="px-6 py-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-md shadow-indigo-500/30 text-white font-bold text-lg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 shadow-md shadow-pink-500/30 text-white font-bold text-lg font-display">
             A
           </div>
           <div>
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
+            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-pink-100 to-pink-300 bg-clip-text text-transparent">
               AORGO
             </span>
-            <span className="block text-xs font-semibold uppercase tracking-wider text-indigo-400">
+            <span className="block text-xs font-semibold uppercase tracking-wider text-pink-400">
               Seller Hub
             </span>
           </div>
         </div>
 
-        <nav className="mt-8 space-y-1.5">
+        <nav className="mt-8 space-y-1.5 font-sans">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -132,8 +132,8 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 group relative",
                   isActive
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    ? "bg-pink-600 text-white shadow-lg shadow-pink-600/20"
+                    : "text-ink-400 hover:bg-ink-900 hover:text-white"
                 )}
               >
                 <Icon className={cn("h-5 w-5 transition-transform duration-200", !isActive && "group-hover:scale-110")} />
@@ -148,11 +148,11 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       </div>
 
       {/* User Footer Profile info */}
-      <div className="border-t border-slate-800 p-4 bg-slate-900/50">
+      <div className="border-t border-ink-800 p-4 bg-ink-950">
         <div className="flex items-center gap-3 px-2 py-2">
-          <Avatar className="h-9 w-9 border border-indigo-500/30">
+          <Avatar className="h-9 w-9 border border-pink-500/30">
             <AvatarImage src={user?.photoURL} />
-            <AvatarFallback className="bg-indigo-950 text-indigo-200 uppercase">
+            <AvatarFallback className="bg-pink-950 text-pink-200 uppercase">
               {user?.displayName?.substring(0, 2) || user?.email?.substring(0, 2) || "S"}
             </AvatarFallback>
           </Avatar>
@@ -198,7 +198,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
               <Menu className="h-5 w-5" />
             </Button>
             <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <StoreIcon className="h-5 w-5 text-indigo-500" />
+              <StoreIcon className="h-5 w-5 text-pink-500" />
               Seller Portal
             </h2>
           </div>
@@ -206,12 +206,12 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="hidden text-xs font-semibold text-indigo-600 hover:underline md:block dark:text-indigo-400"
+              className="hidden text-xs font-semibold text-pink-600 hover:underline md:block dark:text-pink-400"
             >
               View Storefront
             </Link>
             <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
-            <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/30 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 uppercase">
+            <span className="rounded-full bg-pink-50 dark:bg-pink-950/30 px-3 py-1 text-xs font-semibold text-pink-700 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50 uppercase">
               {role}
             </span>
           </div>

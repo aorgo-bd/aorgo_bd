@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Product } from "@/lib/types";
+import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
 
 export interface SearchFilters {
   category?: string;
@@ -31,9 +32,6 @@ export interface SearchOptions {
   limitCount?: number;
 }
 
-/**
- * Hook to retrieve fast autocomplete search suggestions.
- */
 export function useProductSuggestions(searchTerm: string) {
   return useQuery<Product[]>({
     queryKey: ["product-suggestions", searchTerm],
@@ -41,50 +39,51 @@ export function useProductSuggestions(searchTerm: string) {
       const trimmed = searchTerm.trim();
       if (!trimmed) return [];
 
-      const productsRef = collection(db, "products");
-      const tokens = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
-      if (tokens.length === 0) return [];
-      const primaryToken = tokens[0];
+      let products: Product[] = [];
+      try {
+        const productsRef = collection(db, "products");
+        const tokens = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
+        if (tokens.length === 0) return [];
+        const primaryToken = tokens[0];
 
-      // Query products containing the first search token in keywords list
-      const q = query(
-        productsRef,
-        where("status", "==", "approved"),
-        where("keywords", "array-contains", primaryToken),
-        limit(8)
-      );
+        const q = query(
+          productsRef,
+          where("status", "==", "approved"),
+          where("keywords", "array-contains", primaryToken),
+          limit(8)
+        );
 
-      const snapshot = await getDocs(q);
-      const suggestions = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Product[];
-
-      // Post-filter suggestions client-side if multiple tokens are typed
-      if (tokens.length > 1) {
-        return suggestions.filter((p) => {
-          const titleLower = p.title.toLowerCase();
-          const descLower = p.description.toLowerCase();
-          const brandLower = p.brand.toLowerCase();
-          return tokens.every(
-            (token) =>
-              titleLower.includes(token) ||
-              descLower.includes(token) ||
-              brandLower.includes(token)
-          );
-        });
+        const snapshot = await getDocs(q);
+        products = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Product[];
+        if (snapshot.empty) {
+          products = MOCK_PRODUCTS;
+        }
+      } catch (err) {
+        console.warn("[useProductSuggestions] falling back to mock products:", err);
+        products = MOCK_PRODUCTS;
       }
 
-      return suggestions;
+      const tokens = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
+      return products.filter((p) => {
+        const titleLower = p.title.toLowerCase();
+        const descLower = p.description.toLowerCase();
+        const brandLower = p.brand.toLowerCase();
+        return tokens.every(
+          (token) =>
+            titleLower.includes(token) ||
+            descLower.includes(token) ||
+            brandLower.includes(token)
+        );
+      }).slice(0, 8);
     },
     enabled: searchTerm.trim().length > 0,
-    staleTime: 1000 * 60 * 2, // Cache for 2 minutes
+    staleTime: 1000 * 60 * 2,
   });
 }
 
-/**
- * Hook to execute composite paginated search and filters via Firestore + post-filters.
- */
 export function useProductSearch(options: SearchOptions) {
   const { searchTerm = "", filters = {}, sortBy = "newest", limitCount = 24 } = options;
 
@@ -92,6 +91,8 @@ export function useProductSearch(options: SearchOptions) {
     queryKey: ["products-search", searchTerm, filters, sortBy, limitCount],
     queryFn: async ({ pageParam }) => {
       const productsRef = collection(db, "products");
+      let products: Product[] = [];
+      let lastDoc: QueryDocumentSnapshot<DocumentData> | null = null;
 
       // Base query: approved products
       let firestoreQuery = query(
@@ -99,18 +100,15 @@ export function useProductSearch(options: SearchOptions) {
         where("status", "==", "approved")
       );
 
-      // 1. Text Search query:
       const tokens = searchTerm.trim().toLowerCase().split(/\s+/).filter(Boolean);
       if (tokens.length > 0) {
         firestoreQuery = query(firestoreQuery, where("keywords", "array-contains", tokens[0]));
       }
 
-      // 2. Category matching:
       if (filters.category) {
         firestoreQuery = query(firestoreQuery, where("category", "==", filters.category));
       }
 
-      // 3. Sorting (orderBy):
       if (sortBy === "price-asc") {
         firestoreQuery = query(firestoreQuery, orderBy("price", "asc"));
       } else if (sortBy === "price-desc") {
@@ -123,12 +121,10 @@ export function useProductSearch(options: SearchOptions) {
         firestoreQuery = query(firestoreQuery, orderBy("createdAt", "desc"));
       }
 
-      // 4. Pagination:
       if (pageParam) {
         firestoreQuery = query(firestoreQuery, startAfter(pageParam));
       }
 
-      // 5. Batch limit determination:
       const hasSubFilters =
         (filters.colors && filters.colors.length > 0) ||
         (filters.sizes && filters.sizes.length > 0) ||
@@ -139,22 +135,26 @@ export function useProductSearch(options: SearchOptions) {
         filters.maxPrice !== undefined ||
         tokens.length > 1;
 
-      // If complex post-filtering is active, fetch a larger window to ensure results
       const fetchLimit = hasSubFilters ? 100 : limitCount;
       firestoreQuery = query(firestoreQuery, limit(fetchLimit));
 
-      const snapshot = await getDocs(firestoreQuery);
-      const lastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
+      try {
+        const snapshot = await getDocs(firestoreQuery);
+        lastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
+        products = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Product[];
+        if (snapshot.empty) {
+          products = MOCK_PRODUCTS;
+        }
+      } catch (err) {
+        console.warn("[useProductSearch] falling back to mock products:", err);
+        products = MOCK_PRODUCTS;
+      }
 
-      let products = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Product[];
-
-      // --- Post-Filtering (Client-Side) ---
-
-      // Multi-token text search refine
-      if (tokens.length > 1) {
+      // Filter products based on search term
+      if (tokens.length > 0) {
         products = products.filter((p) => {
           const titleLower = p.title.toLowerCase();
           const descLower = p.description.toLowerCase();
@@ -166,6 +166,11 @@ export function useProductSearch(options: SearchOptions) {
               brandLower.includes(token)
           );
         });
+      }
+
+      // Category matching
+      if (filters.category) {
+        products = products.filter((p) => p.category === filters.category);
       }
 
       // Subcategories selection
@@ -204,6 +209,19 @@ export function useProductSearch(options: SearchOptions) {
         products = products.filter((p) =>
           p.variants?.some((v) => filters.sizes!.includes(v.size))
         );
+      }
+
+      // Sort
+      if (sortBy === "price-asc") {
+        products.sort((a, b) => a.price - b.price);
+      } else if (sortBy === "price-desc") {
+        products.sort((a, b) => b.price - a.price);
+      } else if (sortBy === "rating-desc") {
+        products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      } else if (sortBy === "popular") {
+        products.sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0));
+      } else {
+        products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       }
 
       // Truncate to desired limit

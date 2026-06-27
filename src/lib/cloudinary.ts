@@ -2,7 +2,7 @@ export const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
 export const CLOUDINARY_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
 
 export function cloudinaryUrl(publicId: string, opts: { w?: number; h?: number; q?: string } = {}) {
-  if (!publicId || publicId.startsWith("http://") || publicId.startsWith("https://")) {
+  if (!publicId || publicId.startsWith("http://") || publicId.startsWith("https://") || publicId.startsWith("/")) {
     return publicId;
   }
 
@@ -11,7 +11,7 @@ export function cloudinaryUrl(publicId: string, opts: { w?: number; h?: number; 
 }
 
 export function cloudinaryDocumentUrl(publicId: string) {
-  if (!publicId || publicId.startsWith("http://") || publicId.startsWith("https://")) {
+  if (!publicId || publicId.startsWith("http://") || publicId.startsWith("https://") || publicId.startsWith("/")) {
     return publicId;
   }
 

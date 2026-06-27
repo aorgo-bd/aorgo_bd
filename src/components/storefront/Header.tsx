@@ -27,6 +27,8 @@ import SearchBar from "./SearchBar";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { toast } from "sonner";
+import { Logo } from "@/components/ui/myntra/Logo";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,12 +58,26 @@ export default function Header() {
 
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [promoMessageIndex, setPromoMessageIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const promoMessages = [
+    "🇧🇩 FREE DELIVERY ON ORDERS ABOVE ৳1500 • USE CODE: AORGOFRESH",
+    "💥 FIRST ORDER: GET ৳500 OFF • USE CODE: WELCOMEAORGO",
+    "✨ EID & PUJA COLLECTIONS LIVE • FLAT 20% CASHBACK ON bKASH"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPromoMessageIndex((prev) => (prev + 1) % promoMessages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Group categories into parent-child structure
-  const rootCategories = categories.filter((c: any) => !c.parent);
+  const rootCategories = categories.filter((c: any) => !c.parent).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   const getSubcategories = (parentSlug: string) =>
-    categories.filter((c: any) => c.parent === parentSlug);
+    categories.filter((c: any) => c.parent === parentSlug).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
   const handleLogout = async () => {
     try {
@@ -93,100 +109,121 @@ export default function Header() {
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-xs">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-ink-200 shadow-sm">
       {/* Top Banner Ribbon */}
-      <div className="w-full bg-black text-white text-center py-2 px-4 text-xs font-light tracking-wide flex items-center justify-center gap-1">
-        <span>Free delivery on your first order over ৳1500!</span>
-        {!isAuthenticated && (
-          <Link href={`/register?redirect=${encodeURIComponent(pathname)}`} className="font-semibold underline hover:text-gray-200 transition-colors">
-            Sign Up Now
-          </Link>
-        )}
+      <div className="w-full bg-gradient-to-r from-pink-500 to-brand-orange text-white text-center py-1.5 px-4 text-[11px] font-bold tracking-wider flex items-center justify-center gap-1 min-h-[28px] overflow-hidden select-none">
+        <motion.span
+          key={promoMessageIndex}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+        >
+          {promoMessages[promoMessageIndex]}
+        </motion.span>
       </div>
 
-      {/* Main Navigation Row */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      {/* Main Navigation Row (Desktop: 80px, Mobile: 56px) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 lg:h-20 flex items-center justify-between gap-4">
         
         {/* Left Side: Mobile Menu Drawer + Logo */}
         <div className="flex items-center gap-3">
-          {/* Mobile Hamburg Drawer */}
+          {/* Mobile Hamburger Drawer */}
           <div className="block lg:hidden">
             <Sheet>
               <SheetTrigger render={
-                <button className="p-2 -ml-2 text-gray-700 hover:text-black transition-colors rounded-full hover:bg-gray-50 focus:outline-none">
+                <button className="p-2 -ml-2 text-ink-700 hover:text-pink-500 transition-colors rounded-full hover:bg-ink-50 focus:outline-none">
                   <Menu className="h-6 w-6" />
                 </button>
               } />
               <SheetContent side="left" className="w-[300px] sm:w-[360px] p-0 flex flex-col bg-white">
-                <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 text-left">
-                  <SheetTitle className="text-2xl font-bold tracking-tight text-black">
-                    AORGO
+                <SheetHeader className="px-6 pt-6 pb-4 border-b border-ink-200 text-left">
+                  <SheetTitle className="flex items-center justify-between">
+                    <Logo className="h-7" />
                   </SheetTitle>
                 </SheetHeader>
                 
                 {/* Mobile Navigation List */}
                 <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-                  {rootCategories.map((parent: any) => {
-                    const subs = getSubcategories(parent.slug);
-                    return (
-                      <div key={parent.slug} className="space-y-3">
-                        <SheetClose render={
-                          <Link
-                            href={`/category/${parent.slug}`}
-                            className="block text-lg font-bold text-gray-900 hover:text-black"
-                          >
-                            {parent.name}
-                          </Link>
-                        } />
-                        {subs.length > 0 && (
-                          <div className="pl-4 space-y-2 border-l border-gray-100 flex flex-col">
-                            {subs.map((sub: any) => (
-                              <SheetClose key={sub.slug} render={
-                                <Link
-                                  href={`/category/${sub.slug}`}
-                                  className="text-sm font-medium text-gray-500 hover:text-black py-1"
-                                >
-                                  {sub.name}
-                                </Link>
-                              } />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {/* Become a Seller CTA card */}
+                  <div className="bg-gradient-to-br from-pink-50 to-ink-50 border border-pink-100 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-bold text-pink-500 uppercase tracking-widest">AORGO MERCHANT</p>
+                    <p className="text-sm font-bold text-ink-900">Start Selling on AORGO Today</p>
+                    <p className="text-xs text-ink-500">Reach millions of fashion buyers across Bangladesh.</p>
+                    <SheetClose render={
+                      <Link
+                        href="/seller/register"
+                        className="inline-flex items-center justify-center w-full mt-2 h-9 text-xs font-bold bg-ink-900 text-white rounded-md hover:bg-ink-700 transition-colors"
+                      >
+                        BECOME A SELLER
+                      </Link>
+                    } />
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest">SHOP CATEGORIES</p>
+                    {rootCategories.map((parent: any) => {
+                      const subs = getSubcategories(parent.slug);
+                      return (
+                        <div key={parent.slug} className="space-y-2">
+                          <SheetClose render={
+                            <Link
+                              href={`/category/${parent.slug}`}
+                              className="block text-base font-bold text-ink-900 hover:text-pink-500 transition-colors"
+                            >
+                              {parent.name.toUpperCase()}
+                            </Link>
+                          } />
+                          {subs.length > 0 && (
+                            <div className="pl-3 border-l border-ink-200 flex flex-col space-y-1.5">
+                              {subs.map((sub: any) => (
+                                <SheetClose key={sub.slug} render={
+                                  <Link
+                                    href={`/category/${sub.slug}`}
+                                    className="text-sm font-semibold text-ink-500 hover:text-pink-500 py-0.5 transition-colors"
+                                  >
+                                    {sub.name}
+                                  </Link>
+                                } />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                   
                   {/* Additional links */}
-                  <div className="pt-4 border-t border-gray-100 space-y-3 flex flex-col">
+                  <div className="pt-4 border-t border-ink-200 space-y-3 flex flex-col">
                     <SheetClose render={
-                      <Link href="/products" className="text-base font-medium text-gray-700 hover:text-black">
-                        Browse All Products
+                      <Link href="/products" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
+                        BROWSE ALL PRODUCTS
                       </Link>
                     } />
                     <SheetClose render={
-                      <Link href="/wishlist" className="text-base font-medium text-gray-700 hover:text-black">
-                        My Wishlist
+                      <Link href="/wishlist" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
+                        MY WISHLIST
                       </Link>
                     } />
                   </div>
                 </div>
 
                 {/* Mobile Footer Auth Section */}
-                <div className="p-6 border-t border-gray-100 bg-gray-50/50">
+                <div className="p-6 border-t border-ink-200 bg-ink-50">
                   {isAuthenticated && user ? (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-sm">
                           {user.displayName ? user.displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : "U")}
                         </div>
                         <div className="max-w-[140px]">
-                          <p className="text-sm font-semibold truncate text-gray-900">{user.displayName || "User"}</p>
-                          <p className="text-xs text-gray-400 capitalize">{user.role}</p>
+                          <p className="text-sm font-semibold truncate text-ink-900">{user.displayName || "User"}</p>
+                          <p className="text-xs text-ink-400 capitalize">{user.role}</p>
                         </div>
                       </div>
                       <button
                         onClick={handleLogout}
-                        className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-full hover:bg-gray-100"
+                        className="p-2 text-ink-400 hover:text-pink-500 transition-colors rounded-full hover:bg-white"
                       >
                         <LogOut className="h-5 w-5" />
                       </button>
@@ -195,9 +232,9 @@ export default function Header() {
                     <SheetClose render={
                       <Link
                         href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                        className="block w-full py-3 text-center bg-black text-white rounded-full font-semibold hover:bg-black/90 transition-colors text-sm"
+                        className="block w-full py-3 text-center bg-pink-500 text-white rounded-md font-bold hover:bg-pink-600 transition-colors text-xs tracking-wider"
                       >
-                        Log In / Register
+                        LOG IN / SIGN UP
                       </Link>
                     } />
                   )}
@@ -206,17 +243,19 @@ export default function Header() {
             </Sheet>
           </div>
 
-          {/* Logo */}
-          <Link
-            href="/"
-            className="text-2xl sm:text-3xl font-extrabold tracking-tighter text-black transition-opacity hover:opacity-90"
-          >
-            AORGO.
-          </Link>
+          {/* Logo (Centered on mobile, Left on desktop) */}
+          <div className="lg:block">
+            <Link
+              href="/"
+              className="flex items-center justify-center"
+            >
+              <Logo className="h-7 sm:h-8" />
+            </Link>
+          </div>
         </div>
 
         {/* Center: Desktop Mega-Menu Categories */}
-        <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+        <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 h-full">
           {rootCategories.map((parent: any) => {
             const subs = getSubcategories(parent.slug);
             const isMenuOpen = activeMegaMenu === parent.slug;
@@ -224,33 +263,36 @@ export default function Header() {
             return (
               <div
                 key={parent.slug}
-                className="relative py-6"
+                className="relative flex items-center h-full"
                 onMouseEnter={() => handleMouseEnter(parent.slug)}
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
                   href={`/category/${parent.slug}`}
-                  className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors"
+                  className={cn(
+                    "flex items-center gap-1 text-sm font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-4 border-transparent hover:border-pink-500 h-full transition-all duration-150 uppercase",
+                    isMenuOpen && "text-pink-500 border-pink-500"
+                  )}
                 >
                   {parent.name}
-                  <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown className="h-3.5 w-3.5" />
                 </Link>
 
                 {/* Animated Dropdown Mega-Menu Panel */}
                 <AnimatePresence>
                   {isMenuOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute left-1/2 -translate-x-1/2 top-full w-[540px] xl:w-[620px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 grid grid-cols-12 gap-6"
+                      exit={{ opacity: 0, y: 15 }}
+                      transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      className="absolute left-1/2 -translate-x-1/2 top-full w-[600px] bg-white rounded-md shadow-lg border border-ink-200 p-6 grid grid-cols-12 gap-6 z-50 mt-1"
                     >
                       {/* Left: Subcategory list */}
-                      <div className="col-span-7 grid grid-cols-2 gap-4 border-r border-gray-100 pr-4">
+                      <div className="col-span-8 grid grid-cols-2 gap-4 border-r border-ink-200 pr-4">
                         <div className="col-span-2">
-                          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-                            Browse by Type
+                          <h4 className="text-xs font-bold text-ink-400 uppercase tracking-widest mb-1">
+                            Browse Categories
                           </h4>
                         </div>
                         {subs.map((sub: any) => (
@@ -258,34 +300,34 @@ export default function Header() {
                             key={sub.slug}
                             href={`/category/${sub.slug}`}
                             onClick={() => setActiveMegaMenu(null)}
-                            className="group flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="group flex items-center justify-between p-2 rounded-sm hover:bg-ink-50 transition-colors"
                           >
-                            <span className="text-sm font-semibold text-gray-800 group-hover:text-black transition-colors">
+                            <span className="text-sm font-bold text-ink-700 group-hover:text-pink-500 transition-colors">
                               {sub.name}
                             </span>
-                            <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-black" />
+                            <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-pink-500" />
                           </Link>
                         ))}
                       </div>
 
                       {/* Right: Promotional Visual Section */}
-                      <div className="col-span-5 flex flex-col justify-between bg-gray-50 rounded-xl p-4 overflow-hidden relative">
+                      <div className="col-span-4 flex flex-col justify-between bg-ink-50 rounded-sm p-4 overflow-hidden relative">
                         <div className="space-y-1">
-                          <span className="text-[10px] font-bold text-red-600 bg-red-50 py-1 px-2 rounded-full uppercase tracking-wider">
-                            New Season
+                          <span className="text-[9px] font-bold text-white bg-pink-500 py-0.5 px-2 rounded-full uppercase tracking-wider">
+                            Trending Now
                           </span>
-                          <h3 className="text-base font-bold text-gray-900 pt-2 leading-snug">
-                            {parent.name} Essentials
+                          <h3 className="text-sm font-bold text-ink-900 pt-2 leading-snug">
+                            {parent.name.toUpperCase()} EDITS
                           </h3>
-                          <p className="text-xs text-gray-500 leading-normal">
-                            Discover carefully curated fashion edits.
+                          <p className="text-xs text-ink-500 leading-normal">
+                            Explore the most premium local collections.
                           </p>
                         </div>
                         
                         <Link
                           href={`/category/${parent.slug}`}
                           onClick={() => setActiveMegaMenu(null)}
-                          className="flex items-center gap-1.5 text-xs font-bold text-black group mt-4"
+                          className="flex items-center gap-1.5 text-xs font-bold text-pink-500 group mt-4 hover:underline"
                         >
                           <span>Shop Collection</span>
                           <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
@@ -300,14 +342,14 @@ export default function Header() {
         </nav>
 
         {/* Desktop Search Bar */}
-        <SearchBar className="hidden md:block flex-1 max-w-sm lg:max-w-md" />
+        <SearchBar className="hidden lg:block flex-1 max-w-xs xl:max-w-md" />
 
         {/* Right Side Icons: Search, Wishlist, Cart, Profile */}
-        <div className="flex items-center space-x-1.5 sm:space-x-3">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Mobile Search Trigger */}
           <button
             onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-            className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full transition-colors md:hidden"
+            className="p-2 text-ink-700 hover:text-pink-500 hover:bg-ink-50 rounded-full transition-colors lg:hidden"
           >
             <Search className="h-5.5 w-5.5" />
           </button>
@@ -315,63 +357,61 @@ export default function Header() {
           {/* Wishlist Icon */}
           <Link
             href="/wishlist"
-            className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full transition-colors relative group"
+            className="p-2 text-ink-700 hover:text-pink-500 hover:bg-ink-50 rounded-full transition-colors relative group"
+            aria-label="Wishlist"
           >
             <Heart className="h-5.5 w-5.5 group-hover:scale-105 transition-transform" />
             {wishlistIds.length > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 text-[9px] font-bold text-white bg-black rounded-full flex items-center justify-center animate-scale-in">
-                {wishlistIds.length}
-              </span>
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-pink-500 rounded-full animate-scale-in" />
             )}
           </Link>
 
           {/* Cart Icon */}
           <button
             onClick={() => setCartOpen(true)}
-            className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full transition-colors relative group focus:outline-none cursor-pointer"
+            className="p-2 text-ink-700 hover:text-pink-500 hover:bg-ink-50 rounded-full transition-colors relative group focus:outline-none cursor-pointer"
+            aria-label="Shopping Bag"
           >
             <ShoppingCart className="h-5.5 w-5.5 group-hover:scale-105 transition-transform" />
             {totalCartCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 text-[9px] font-bold text-white bg-black rounded-full flex items-center justify-center animate-scale-in">
-                {totalCartCount}
-              </span>
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-pink-500 rounded-full animate-scale-in" />
             )}
           </button>
 
-          {/* User Profile Dropdown Menu */}
-          <div className="flex items-center">
+          {/* Desktop User Profile Dropdown Menu */}
+          <div className="hidden lg:flex items-center">
             {isLoading ? (
-              <div className="w-8 h-8 rounded-full bg-gray-100 animate-pulse" />
+              <div className="w-8 h-8 rounded-full bg-ink-100 animate-pulse" />
             ) : isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger render={
-                  <button className="flex items-center justify-center w-9 h-9 rounded-full bg-black text-white hover:bg-black/90 transition-colors font-bold text-sm focus:outline-none">
+                  <button className="flex items-center justify-center w-9 h-9 rounded-full bg-ink-900 text-white hover:bg-pink-500 transition-colors font-bold text-sm focus:outline-none cursor-pointer">
                     {user.displayName ? user.displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : "U")}
                   </button>
                 } />
-                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-100 shadow-xl rounded-xl p-1.5">
+                <DropdownMenuContent align="end" className="w-56 bg-white border border-ink-200 shadow-lg rounded-md p-1.5">
                   <DropdownMenuGroup>
                     <DropdownMenuLabel className="px-2.5 py-2">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{user.displayName || "My Profile"}</p>
-                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
-                      <p className="text-[10px] text-black font-semibold uppercase tracking-wider bg-gray-100 rounded-full w-fit px-2 py-0.5 mt-1">
+                      <p className="text-sm font-semibold text-ink-900 truncate">{user.displayName || "My Profile"}</p>
+                      <p className="text-xs text-ink-400 truncate">{user.email}</p>
+                      <p className="text-[9px] text-white font-bold uppercase tracking-wider bg-pink-500 rounded-sm w-fit px-2 py-0.5 mt-1.5">
                         {user.role}
                       </p>
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator className="bg-gray-100" />
+                  <DropdownMenuSeparator className="bg-ink-200" />
                   
                   <DropdownMenuItem render={
-                    <Link href="/profile" className="flex items-center gap-2 text-gray-700 font-medium rounded-lg px-2.5 py-2 hover:bg-gray-50 focus:bg-gray-50 transition-colors w-full">
-                      <UserIcon className="h-4 w-4 text-gray-500" />
+                    <Link href="/profile" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <UserIcon className="h-4 w-4 text-ink-400" />
                       <span>My Profile</span>
                     </Link>
                   } />
 
                   {user.role === "admin" && (
                     <DropdownMenuItem render={
-                      <Link href="/dashboard" className="flex items-center gap-2 text-gray-700 font-medium rounded-lg px-2.5 py-2 hover:bg-gray-50 focus:bg-gray-50 transition-colors w-full">
-                        <Shield className="h-4 w-4 text-gray-500" />
+                      <Link href="/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                        <Shield className="h-4 w-4 text-ink-400" />
                         <span>Admin Dashboard</span>
                       </Link>
                     } />
@@ -379,19 +419,19 @@ export default function Header() {
 
                   {user.role === "seller" && (
                     <DropdownMenuItem render={
-                      <Link href="/seller" className="flex items-center gap-2 text-gray-700 font-medium rounded-lg px-2.5 py-2 hover:bg-gray-50 focus:bg-gray-50 transition-colors w-full">
-                        <ShoppingBag className="h-4 w-4 text-gray-500" />
+                      <Link href="/seller" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                        <ShoppingBag className="h-4 w-4 text-ink-400" />
                         <span>Seller Dashboard</span>
                       </Link>
                     } />
                   )}
 
-                  <DropdownMenuSeparator className="bg-gray-100" />
+                  <DropdownMenuSeparator className="bg-ink-200" />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="rounded-lg px-2.5 py-2 hover:bg-red-50 focus:bg-red-50 transition-colors text-red-600 font-medium"
+                    className="rounded-sm px-2.5 py-2 hover:bg-pink-50 focus:bg-pink-50 transition-colors text-pink-500 font-bold text-xs uppercase tracking-wider cursor-pointer"
                   >
-                    <LogOut className="h-4 w-4 text-red-500" />
+                    <LogOut className="h-4 w-4 text-pink-500" />
                     <span>Log Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -399,9 +439,9 @@ export default function Header() {
             ) : (
               <Link
                 href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                className="hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold bg-black hover:bg-black/90 text-white rounded-full transition-colors"
+                className="inline-flex items-center justify-center h-10 px-5 text-xs font-bold uppercase tracking-wider bg-ink-900 hover:bg-pink-500 text-white rounded-sm transition-colors"
               >
-                Login
+                Login / Signup
               </Link>
             )}
           </div>
@@ -415,7 +455,7 @@ export default function Header() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="w-full bg-white border-b border-gray-100 md:hidden overflow-hidden"
+            className="w-full bg-white border-b border-ink-200 lg:hidden overflow-hidden"
           >
             <div className="p-4 flex gap-2 items-center">
               <SearchBar
@@ -425,7 +465,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setIsMobileSearchOpen(false)}
-                className="px-3 text-sm font-bold text-gray-500 hover:text-black cursor-pointer"
+                className="px-3 text-xs font-bold uppercase tracking-wider text-ink-500 hover:text-pink-500 cursor-pointer"
               >
                 Cancel
               </button>
