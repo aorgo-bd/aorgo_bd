@@ -11,6 +11,22 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+let appInstance: FirebaseApp | null = null;
+let authInstance: Auth | null = null;
+let dbInstance: Firestore | null = null;
+
+try {
+  if (firebaseConfig.apiKey) {
+    appInstance = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    authInstance = getAuth(appInstance);
+    dbInstance = getFirestore(appInstance);
+  } else {
+    console.warn("Firebase client configuration apiKey is missing.");
+  }
+} catch (error) {
+  console.error("Firebase client initialization failed:", error);
+}
+
+export const app: FirebaseApp = appInstance as FirebaseApp;
+export const auth: Auth = authInstance as Auth;
+export const db: Firestore = dbInstance as Firestore;
