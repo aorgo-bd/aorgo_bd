@@ -1,37 +1,54 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function decodeJwt(token: string) {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  const firebaseToken = request.cookies.get("firebase-token")?.value;
-  const userRole = request.cookies.get("user-role")?.value;
+  const session = request.cookies.get("session")?.value;
 
   const isSellerRoute = pathname.startsWith("/seller");
-  const isSellerRegister = pathname === "/seller/register";
-  // Protect /admin routes as well as /dashboard (the admin dashboard)
-  const isAdminRoute = pathname.startsWith("/admin") || pathname.startsWith("/dashboard");
+  const isAdminRoute = pathname.startsWith("/admin");
 
-  // If trying to access a protected route and not signed in
-  if ((isSellerRoute || isAdminRoute) && !firebaseToken) {
+  if ((isSellerRoute || isAdminRoute) && !session) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin and dashboard route check: only 'admin' role can access
-  if (isAdminRoute && userRole !== "admin") {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  if (session) {
+    const payload = decodeJwt(session);
+    if (!payload) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
 
-  // Seller route check: only 'seller' or 'admin' role can access, except /seller/register which is open to all logged in users
-  if (isSellerRoute && !isSellerRegister && userRole !== "seller" && userRole !== "admin") {
-    return NextResponse.redirect(new URL("/", request.url));
+    const userRole = payload.role || "customer";
+
+    if (isAdminRoute && userRole !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    if (isSellerRoute && userRole !== "seller" && userRole !== "admin") {
+      if (pathname !== "/seller/register") {
+        return NextResponse.redirect(new URL("/seller/register", request.url));
+      }
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/seller/:path*", "/admin/:path*", "/dashboard/:path*"],
+  matcher: ["/seller/:path*", "/admin/:path*"],
 };

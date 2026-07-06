@@ -17,8 +17,6 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['firebase-admin', '@google-cloud/firestore'],
     optimizePackageImports: ['lucide-react', 'react-icons', 'framer-motion'],
-    workerThreads: false,
-    cpus: 1,
   },
 };
 

@@ -193,7 +193,12 @@ export default function CheckoutPage() {
 
       toast.success("Order placed successfully via Cash on Delivery!");
       clear(); // Clear local storage cart
-      router.push(`/orders/${data.orderId}`);
+      
+      if (data.orderIds && data.orderIds.length > 1) {
+        router.push(`/profile/orders?placed=${data.orderIds.join(",")}`);
+      } else {
+        router.push(`/orders/${data.orderId}`);
+      }
     } catch (err: any) {
       console.error("Checkout order error:", err);
       toast.error(err.message || "Checkout failed. Please try again.");

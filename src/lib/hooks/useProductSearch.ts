@@ -14,6 +14,8 @@ import { db } from "@/lib/firebase/client";
 import { Product } from "@/lib/types";
 import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
 
+const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+
 export interface SearchFilters {
   category?: string;
   subcategories?: string[];
@@ -59,11 +61,11 @@ export function useProductSuggestions(searchTerm: string) {
           ...doc.data(),
         })) as Product[];
         if (snapshot.empty) {
-          products = MOCK_PRODUCTS;
+          products = USE_MOCKS ? MOCK_PRODUCTS : [];
         }
       } catch (err) {
-        console.warn("[useProductSuggestions] falling back to mock products:", err);
-        products = MOCK_PRODUCTS;
+        console.warn("[useProductSuggestions] product query failed:", err);
+        products = USE_MOCKS ? MOCK_PRODUCTS : [];
       }
 
       const tokens = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
@@ -146,11 +148,11 @@ export function useProductSearch(options: SearchOptions) {
           ...doc.data(),
         })) as Product[];
         if (snapshot.empty) {
-          products = MOCK_PRODUCTS;
+          products = USE_MOCKS ? MOCK_PRODUCTS : [];
         }
       } catch (err) {
-        console.warn("[useProductSearch] falling back to mock products:", err);
-        products = MOCK_PRODUCTS;
+        console.warn("[useProductSearch] product query failed:", err);
+        products = USE_MOCKS ? MOCK_PRODUCTS : [];
       }
 
       // Filter products based on search term

@@ -5,27 +5,40 @@ service cloud.firestore {
     // ===== Helpers =====
     function isSignedIn() { return request.auth != null; }
     function uid() { return request.auth.uid; }
+    function userPath() { return /databases/$(database)/documents/users/$(uid()); }
+    function isNotSuspended() {
+      return isSignedIn()
+        && (!exists(userPath()) || get(userPath()).data.suspended != true);
+    }
     function role() {
       return request.auth.token.role;
     }
-    function isCustomer() { return isSignedIn() && (role() == 'customer' || role() == null); }
-    function isSeller()   { return isSignedIn() && role() == 'seller'; }
-    function isAdmin()    { return isSignedIn() && role() == 'admin'; }
+    function isCustomer() { return isNotSuspended() && (role() == 'customer' || role() == null); }
+    function isSeller()   { return isNotSuspended() && role() == 'seller'; }
+    function isAdmin()    { return isNotSuspended() && role() == 'admin'; }
+    function hasApprovedStore(storeId) {
+      return exists(/databases/$(database)/documents/stores/$(storeId))
+        && get(/databases/$(database)/documents/stores/$(storeId)).data.ownerUid == uid()
+        && get(/databases/$(database)/documents/stores/$(storeId)).data.status == 'approved';
+    }
 
     // ===== USERS =====
     match /users/{userId} {
-      allow read:   if isAdmin() || uid() == userId;
-      allow create: if uid() == userId
+      allow read:   if isAdmin() || (isSignedIn() && uid() == userId);
+      allow create: if isSignedIn()
+                    && uid() == userId
                     && request.resource.data.role in ['customer', 'seller'];
-      allow update: if (uid() == userId
-                       && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
+      allow update: if (isNotSuspended()
+                       && uid() == userId
+                       && !('role' in request.resource.data.diff(resource.data).affectedKeys())
+                       && !('suspended' in request.resource.data.diff(resource.data).affectedKeys()))
                     || isAdmin();
       allow delete: if isAdmin();
     }
 
     // ===== STORES =====
     match /stores/{storeId} {
-      allow read: if true;                              // public
+      allow read: if isAdmin() || (isSeller() && resource.data.ownerUid == uid());
       allow create: if isSeller()
                     && request.resource.data.ownerUid == uid()
                     && request.resource.data.status == 'pending';
@@ -43,12 +56,14 @@ service cloud.firestore {
                   || (isSeller() && resource.data.sellerUid == uid());
       allow create: if isSeller()
                     && request.resource.data.sellerUid == uid()
-                    && request.resource.data.status in ['draft', 'pending'];
+                    && request.resource.data.status in ['draft', 'pending']
+                    && hasApprovedStore(request.resource.data.storeId);
       allow update: if (isSeller() && resource.data.sellerUid == uid()
+                       && hasApprovedStore(resource.data.storeId)
                        && !('status' in request.resource.data.diff(resource.data).affectedKeys()))
                     || isAdmin();
       allow delete: if isAdmin()
-                    || (isSeller() && resource.data.sellerUid == uid());
+                    || (isSeller() && resource.data.sellerUid == uid() && hasApprovedStore(resource.data.storeId));
     }
 
     // ===== ORDERS =====
@@ -56,32 +71,26 @@ service cloud.firestore {
       allow read: if isAdmin()
                   || (isCustomer() && resource.data.customerUid == uid())
                   || (isSeller()   && resource.data.storeOwnerUid == uid());
-      allow create: if isCustomer()
-                    && request.resource.data.customerUid == uid()
-                    && request.resource.data.status == 'pending'
-                    && request.resource.data.payment.method == 'cod';
+      allow create: if false;
       allow update: if isAdmin()
                     || (isSeller() && resource.data.storeOwnerUid == uid());
-      allow delete: if false; // no hard delete
+      allow delete: if false;
     }
 
     // ===== WISHLISTS =====
     match /wishlists/{userId} {
-      allow read, write: if uid() == userId;
+      allow read, write: if isNotSuspended() && uid() == userId;
     }
 
     // ===== CARTS =====
     match /carts/{userId} {
-      allow read, write: if uid() == userId;
+      allow read, write: if isNotSuspended() && uid() == userId;
     }
 
     // ===== REVIEWS =====
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isCustomer()
-                    && request.resource.data.customerUid == uid();
-      allow update, delete: if isAdmin()
-                            || (isCustomer() && resource.data.customerUid == uid());
+      allow create, update, delete: if false;
     }
 
     // ===== CATEGORIES, BANNERS, SETTINGS =====
@@ -94,22 +103,21 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /settings/{key} {
-      allow read: if true;
+      allow read: if key in ['public', 'storefront', 'shipping', 'promos'];
       allow write: if isAdmin();
     }
 
     // ===== NOTIFICATIONS =====
     match /notifications/{id} {
-      allow read, update: if isSignedIn() && resource.data.recipientUid == uid();
-      allow create: if isAdmin() || isSignedIn();
+      allow read, update: if isNotSuspended() && resource.data.recipientUid == uid();
+      allow create: if isAdmin();
       allow delete: if isAdmin();
     }
 
     // ===== AUDIT LOGS =====
     match /audit_logs/{id} {
       allow read: if isAdmin();
-      allow create: if isSignedIn();
-      allow update, delete: if false;
+      allow create, update, delete: if false;
     }
   }
 }

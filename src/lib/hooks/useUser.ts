@@ -2,102 +2,103 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { User } from "@/lib/types";
 import { useWishlistStore } from "@/lib/stores/wishlist";
 import { useCartStore, CartItem } from "@/lib/stores/cart";
 
-function clearAuthCookies() {
-  document.cookie = "firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-  document.cookie = "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+async function clearServerSession() {
+  try {
+    await fetch("/api/auth/session", { method: "DELETE" });
+  } catch {
+    // Best effort: Firebase sign-out still clears the client session.
+  }
+}
+
+async function refreshServerSession(user: FirebaseUser) {
+  const idToken = await user.getIdToken(true);
+  const response = await fetch("/api/auth/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.error || "Failed to refresh session");
+  }
 }
 
 export function useUser() {
   const queryClient = useQueryClient();
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const hasResolvedOnce = useRef(false);
+  const lastSyncedUid = useRef<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onIdTokenChanged(auth, async (user) => {
-      hasResolvedOnce.current = true;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
 
       if (!user) {
-        clearAuthCookies();
+        lastSyncedUid.current = null;
+        await clearServerSession();
         queryClient.setQueryData(["user"], null);
+        useWishlistStore.getState().setIds([]);
         setLoadingAuth(false);
         return;
       }
 
       try {
-        const idToken = await user.getIdToken();
-        document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
+        await refreshServerSession(user);
 
         const userDocRef = doc(db, "users", user.uid);
         const userDocSnap = await getDoc(userDocRef);
-        const userData = userDocSnap.exists() ? (userDocSnap.data() as User) : null;
-        const role = userData?.role || "customer";
+        const userData = userDocSnap.exists() ? (userDocSnap.data() as User & { suspended?: boolean }) : null;
 
-        document.cookie = `user-role=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        if (userData?.suspended) {
+          await signOut(auth);
+          throw new Error("Account suspended");
+        }
+
         queryClient.invalidateQueries({ queryKey: ["user", user.uid] });
 
-        // ===== SYNC WISHLIST (BUG-U17) =====
-        const wishlistRef = doc(db, "wishlists", user.uid);
-        const wishlistSnap = await getDoc(wishlistRef);
-        let mergedWishlistIds: string[] = [];
-        if (wishlistSnap.exists()) {
-          const cloudIds = wishlistSnap.data().productIds || [];
+        if (lastSyncedUid.current !== user.uid) {
+          lastSyncedUid.current = user.uid;
+
+          const wishlistRef = doc(db, "wishlists", user.uid);
+          const wishlistSnap = await getDoc(wishlistRef);
           const localIds = useWishlistStore.getState().ids;
-          mergedWishlistIds = Array.from(new Set([...localIds, ...cloudIds]));
-        } else {
-          mergedWishlistIds = useWishlistStore.getState().ids;
-        }
-        useWishlistStore.getState().setIds(mergedWishlistIds);
-        if (mergedWishlistIds.length > 0) {
+          const cloudIds = wishlistSnap.exists() ? wishlistSnap.data().productIds || [] : [];
+          const mergedWishlistIds = Array.from(new Set([...localIds, ...cloudIds]));
+          useWishlistStore.getState().setIds(mergedWishlistIds);
           await setDoc(wishlistRef, {
             userId: user.uid,
             productIds: mergedWishlistIds,
             updatedAt: Date.now()
           }, { merge: true });
-        }
 
-        // ===== SYNC CART (BUG-U17) =====
-        const cartRef = doc(db, "carts", user.uid);
-        const cartSnap = await getDoc(cartRef);
-        let mergedCartItems: CartItem[] = [];
-        if (cartSnap.exists()) {
-          const cloudItems = (cartSnap.data().items || []) as CartItem[];
+          const cartRef = doc(db, "carts", user.uid);
+          const cartSnap = await getDoc(cartRef);
           const localItems = useCartStore.getState().items;
-
+          const cloudItems = cartSnap.exists() ? ((cartSnap.data().items || []) as CartItem[]) : [];
           const mergedItemsMap = new Map<string, CartItem>();
           localItems.forEach(item => mergedItemsMap.set(item.variantSku, item));
-          cloudItems.forEach(cItem => {
-            const existing = mergedItemsMap.get(cItem.variantSku);
-            if (existing) {
-              mergedItemsMap.set(cItem.variantSku, {
-                ...existing,
-                qty: Math.max(existing.qty, cItem.qty)
-              });
-            } else {
-              mergedItemsMap.set(cItem.variantSku, cItem);
-            }
+          cloudItems.forEach(cloudItem => {
+            const existing = mergedItemsMap.get(cloudItem.variantSku);
+            mergedItemsMap.set(cloudItem.variantSku, existing ? {
+              ...existing,
+              qty: Math.max(existing.qty, cloudItem.qty)
+            } : cloudItem);
           });
-          mergedCartItems = Array.from(mergedItemsMap.values());
-        } else {
-          mergedCartItems = useCartStore.getState().items;
-        }
-        useCartStore.getState().setItems(mergedCartItems);
-        if (mergedCartItems.length > 0) {
+          const mergedCartItems = Array.from(mergedItemsMap.values());
+          useCartStore.getState().setItems(mergedCartItems);
           await setDoc(cartRef, {
             items: mergedCartItems,
             updatedAt: Date.now()
           }, { merge: true });
         }
-      } catch (error) {
-        console.error("Error syncing auth cookies and state:", error);
       } finally {
         setLoadingAuth(false);
       }

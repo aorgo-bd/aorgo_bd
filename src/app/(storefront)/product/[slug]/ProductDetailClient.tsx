@@ -377,11 +377,11 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
             {/* Pricing Details */}
             <div className="flex items-end gap-3.5">
               <span className="text-2xl sm:text-4xl font-black text-black leading-none">
-                ৳{product.price}
+                ৳{product.price.toLocaleString("en-BD")}
               </span>
               {product.comparePrice && product.comparePrice > product.price && (
                 <span className="text-sm sm:text-lg text-gray-400 line-through leading-none">
-                  ৳{product.comparePrice}
+                  ৳{product.comparePrice.toLocaleString("en-BD")}
                 </span>
               )}
               {discount > 0 && (

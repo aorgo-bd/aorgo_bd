@@ -1,35 +1,11 @@
 import "server-only";
 import { NextRequest } from "next/server";
-import { adminAuth, adminDb } from "./admin";
+import { adminDb } from "./admin";
 import { Role } from "../types";
+import { requireRole } from "./server-auth";
 
 export async function verifyAdmin(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  let token = "";
-  if (authHeader?.startsWith("Bearer ")) {
-    token = authHeader.substring(7);
-  } else {
-    token = request.cookies.get("firebase-token")?.value || "";
-  }
-
-  if (!token) {
-    throw new Error("Unauthorized: Missing token");
-  }
-
-  const decodedToken = await adminAuth.verifyIdToken(token);
-  const uid = decodedToken.uid;
-
-  const userSnap = await adminDb.collection("users").doc(uid).get();
-  if (!userSnap.exists) {
-    throw new Error("Unauthorized: User not found");
-  }
-
-  const userData = userSnap.data();
-  if (userData?.role !== "admin") {
-    throw new Error("Unauthorized: Admin privileges required");
-  }
-
-  return { uid, userData };
+  return requireRole(request, ["admin"]);
 }
 
 export async function writeAuditLog({

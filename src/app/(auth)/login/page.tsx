@@ -8,7 +8,8 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  User as FirebaseUser
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { createOrGetUserDocument } from "@/lib/firebase/auth-helpers";
@@ -18,8 +19,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { useUser } from "@/lib/hooks/useUser";
-import { getDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
 import { Role } from "@/lib/types";
 
 function LoginForm() {
@@ -35,6 +34,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "/";
+  const safeRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//") ? redirectPath : "/";
 
   // Check if already authenticated and redirect
   const { isAuthenticated, isLoading, role } = useUser();
@@ -43,10 +43,26 @@ function LoginForm() {
       const target =
         role === "admin" ? "/admin/dashboard" :
         role === "seller" ? "/seller/dashboard" :
-        redirectPath;
+        safeRedirectPath;
       router.push(target);
     }
-  }, [isAuthenticated, isLoading, role, redirectPath, router]);
+  }, [isAuthenticated, isLoading, role, safeRedirectPath, router]);
+
+  const createServerSession = async (user: FirebaseUser): Promise<Role> => {
+    const idToken = await user.getIdToken(true);
+    const response = await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Failed to create a secure session.");
+    }
+
+    return (payload.role || "customer") as Role;
+  };
 
   const {
     register,
@@ -65,17 +81,9 @@ function LoginForm() {
         data.password
       );
 
-      // 1. Force-refresh the ID token
-      const idToken = await user.getIdToken(true);
-      document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-
-      // 2. Fetch user doc to read role
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      const roleVal = userSnap.exists() ? (userSnap.data().role as Role) : "customer";
-      document.cookie = `user-role=${roleVal}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-
-      // 3. Ensure user doc exists
+      // Ensure user doc exists before the server derives role/session state.
       await createOrGetUserDocument(user);
+      const roleVal = await createServerSession(user);
 
       toast.success("Successfully logged in!");
 
@@ -83,7 +91,7 @@ function LoginForm() {
       const target =
         roleVal === "admin" ? "/admin/dashboard" :
         roleVal === "seller" ? "/seller/dashboard" :
-        (redirectPath || "/");
+        safeRedirectPath;
       router.push(target);
     } catch (error: any) {
       console.error(error);
@@ -105,16 +113,9 @@ function LoginForm() {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
 
-      // 1. Force-refresh the ID token
-      const idToken = await user.getIdToken(true);
-      document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-
-      // 2. Fetch user doc to read role
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      const roleVal = userSnap.exists() ? (userSnap.data().role as Role) : "customer";
-      document.cookie = `user-role=${roleVal}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-
+      // Ensure user doc exists before the server derives role/session state.
       await createOrGetUserDocument(user);
+      const roleVal = await createServerSession(user);
 
       toast.success("Successfully signed in with Google!");
 
@@ -122,7 +123,7 @@ function LoginForm() {
       const target =
         roleVal === "admin" ? "/admin/dashboard" :
         roleVal === "seller" ? "/seller/dashboard" :
-        (redirectPath || "/");
+        safeRedirectPath;
       router.push(target);
     } catch (error: any) {
       console.error(error);
@@ -138,16 +139,9 @@ function LoginForm() {
       const provider = new FacebookAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
 
-      // 1. Force-refresh the ID token
-      const idToken = await user.getIdToken(true);
-      document.cookie = `firebase-token=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-
-      // 2. Fetch user doc to read role
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      const roleVal = userSnap.exists() ? (userSnap.data().role as Role) : "customer";
-      document.cookie = `user-role=${roleVal}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-
+      // Ensure user doc exists before the server derives role/session state.
       await createOrGetUserDocument(user);
+      const roleVal = await createServerSession(user);
 
       toast.success("Successfully signed in with Facebook!");
 
@@ -155,7 +149,7 @@ function LoginForm() {
       const target =
         roleVal === "admin" ? "/admin/dashboard" :
         roleVal === "seller" ? "/seller/dashboard" :
-        (redirectPath || "/");
+        safeRedirectPath;
       router.push(target);
     } catch (error: any) {
       console.error(error);
@@ -256,13 +250,13 @@ function LoginForm() {
           </p>
         </div>
 
-        {redirectPath.startsWith("/seller") && (
+        {safeRedirectPath.startsWith("/seller") && (
           <div className="rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-3 text-sm text-indigo-800">
             🛍️ <strong>Seller login</strong> — your credentials are the same as your customer account.
             New here? <Link href="/seller/register" className="underline font-semibold">Register as a Seller</Link>
           </div>
         )}
-        {redirectPath.startsWith("/admin") && (
+        {safeRedirectPath.startsWith("/admin") && (
           <div className="rounded-lg bg-violet-50 border border-violet-100 px-4 py-3 text-sm text-violet-800">
             🛡️ <strong>Admin login</strong> — restricted access only.
           </div>

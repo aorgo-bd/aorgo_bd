@@ -78,10 +78,16 @@ import { cn } from "@/lib/utils";
 import { cloudinaryDocumentUrl } from "@/lib/cloudinary";
 
 export default function SellerRegisterPage() {
-  const { user, firebaseUser, refetch } = useUser();
+  const { user, firebaseUser, refetch, role } = useUser();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (role === "seller" || role === "admin") {
+      router.replace("/seller/dashboard");
+    }
+  }, [role, router]);
 
   // File upload state
   const [licenseUploading, setLicenseUploading] = useState(false);
@@ -224,6 +230,15 @@ export default function SellerRegisterPage() {
       const result = await res.json();
       if (!res.ok) {
         throw new Error(result.error || "Failed to submit application");
+      }
+
+      const refreshedToken = await firebaseUser?.getIdToken(true);
+      if (refreshedToken) {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: refreshedToken }),
+        });
       }
 
       toast.success(result.message || "Registration submitted!");

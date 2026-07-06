@@ -3,7 +3,7 @@ import Link from "next/link";
 import HeroCarousel from "@/components/storefront/HeroCarousel";
 import ProductRail from "@/components/storefront/ProductRail";
 import { adminDb } from "@/lib/firebase/admin";
-import type { Banner, Product } from "@/lib/types";
+import type { Banner, Category, Product } from "@/lib/types";
 import type { ProductFilter } from "@/lib/hooks/useProducts";
 import { MOCK_PRODUCTS, MOCK_BANNERS, MOCK_CATEGORIES } from "@/lib/data/mock-db";
 import { Star, ShieldCheck, RefreshCw, Truck, Heart } from "lucide-react";
@@ -11,6 +11,7 @@ import Image from "next/image";
 import { DealCountdown } from "@/components/ui/myntra/DealCountdown";
 
 export const revalidate = 0; // Disable static cache to allow instant updates
+const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
 
 function toPlainValue(value: any): any {
   if (value == null) return value;
@@ -50,7 +51,7 @@ function applyProductFilter(products: Product[], filter: ProductFilter) {
 }
 
 async function getHeroBanners(): Promise<Banner[]> {
-  if (!adminDb) return MOCK_BANNERS;
+  if (!adminDb) return USE_MOCKS ? MOCK_BANNERS : [];
 
   try {
     const snap = await adminDb
@@ -60,7 +61,7 @@ async function getHeroBanners(): Promise<Banner[]> {
       .orderBy("order", "asc")
       .get();
     
-    if (snap.empty) return MOCK_BANNERS;
+    if (snap.empty) return USE_MOCKS ? MOCK_BANNERS : [];
 
     return snap.docs.map((doc) => ({
       id: doc.id,
@@ -73,7 +74,7 @@ async function getHeroBanners(): Promise<Banner[]> {
 }
 
 async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
-  if (!adminDb) return applyProductFilter(MOCK_PRODUCTS, filter);
+  if (!adminDb) return USE_MOCKS ? applyProductFilter(MOCK_PRODUCTS, filter) : [];
 
   try {
     let productQuery = adminDb
@@ -89,7 +90,7 @@ async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
     }
 
     const snap = await productQuery.get();
-    if (snap.empty) return applyProductFilter(MOCK_PRODUCTS, filter);
+    if (snap.empty) return USE_MOCKS ? applyProductFilter(MOCK_PRODUCTS, filter) : [];
 
     const dbProducts = snap.docs.map((doc) => ({
       id: doc.id,
@@ -103,6 +104,30 @@ async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
   }
 }
 
+
+async function getCategories(): Promise<Category[]> {
+  if (!adminDb) return USE_MOCKS ? MOCK_CATEGORIES : [];
+
+  try {
+    const snap = await adminDb.collection("categories").orderBy("order", "asc").get();
+    if (snap.empty) return USE_MOCKS ? MOCK_CATEGORIES : [];
+    return snap.docs.map((doc) => {
+      const data = toPlainValue(doc.data());
+      return {
+        slug: doc.id,
+        name: data.name,
+        nameBn: data.nameBn,
+        parent: data.parent || null,
+        image: data.image,
+        order: data.order ?? 0,
+        productCount: data.productCount ?? 0,
+      } as Category;
+    });
+  } catch (err) {
+    console.warn("[getCategories] server error:", err);
+    return USE_MOCKS ? MOCK_CATEGORIES : [];
+  }
+}
 // Client Countdown cell component placeholder
 function CountdownWrapper() {
   const endsAt = Date.now() + 1000 * 60 * 60 * 4; // Ticks for 4 hours
@@ -117,8 +142,9 @@ export default async function StorefrontHomePage() {
   const menTshirtsFilter: ProductFilter = { limit: 8, category: "men-tops", sortBy: "createdAt", sortOrder: "desc" };
   const highRatedFilter: ProductFilter = { limit: 8, sortBy: "rating", sortOrder: "desc" };
 
-  const [banners, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
+  const [banners, categories, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
     getHeroBanners(),
+    getCategories(),
     getApprovedProducts(dealOfTheDayFilter),
     getApprovedProducts(newArrivalsFilter),
     getApprovedProducts(topSellingFilter),
@@ -132,7 +158,7 @@ export default async function StorefrontHomePage() {
       
       {/* 2. Mobile Category Circles Strip (<lg) */}
       <div className="lg:hidden w-full bg-white border-b border-ink-200 py-3 px-4 overflow-x-auto scrollbar-hide flex items-center gap-4 snap-x snap-mandatory">
-        {MOCK_CATEGORIES.filter((c) => !c.parent).map((cat) => (
+        {categories.filter((c) => !c.parent).map((cat) => (
           <Link
             key={cat.slug}
             href={`/category/${cat.slug}`}
@@ -169,7 +195,7 @@ export default async function StorefrontHomePage() {
             <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">SHIPPING</span>
             <div>
               <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">FREE SHIPPING</p>
-              <p className="text-[10px] text-ink-300 leading-normal">On orders above ৳1500</p>
+              <p className="text-[10px] text-ink-300 leading-normal">Per-store shipping is calculated at checkout</p>
             </div>
           </div>
           <div className="bg-gradient-to-br from-pink-600 to-pink-400 text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
@@ -246,7 +272,7 @@ export default async function StorefrontHomePage() {
           </h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {MOCK_CATEGORIES.filter((c) => !c.parent).slice(0, 6).map((cat) => (
+          {categories.filter((c) => !c.parent).slice(0, 6).map((cat) => (
             <a
               href={`/category/${cat.slug}`}
               key={cat.slug}
@@ -327,10 +353,10 @@ export default async function StorefrontHomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent flex flex-col justify-center px-6 sm:px-12 text-white">
             <span className="text-[10px] font-bold tracking-widest uppercase bg-pink-500 text-white w-fit px-2.5 py-0.5 rounded-sm mb-2">FESTIVE EXCLUSIVE</span>
             <h3 className="text-xl sm:text-3xl font-display font-black tracking-wide uppercase leading-tight max-w-sm sm:max-w-md">
-              Flat 20% Cash Back on bKash Payment
+              New Season Fashion Picks
             </h3>
             <p className="text-[11px] sm:text-xs text-white/80 leading-normal max-w-xs mt-1 sm:mt-2">
-              Valid on all purchases above ৳3000 during this festive season.
+              Cash on Delivery available across Bangladesh.
             </p>
           </div>
         </a>

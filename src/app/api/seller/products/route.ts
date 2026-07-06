@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { adminDb } from "@/lib/firebase/admin";
+import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { productFormSchema } from "@/lib/schemas";
 import { Product } from "@/lib/types";
@@ -8,37 +9,10 @@ import { Product } from "@/lib/types";
 export async function POST(request: NextRequest) {
   try {
     // 1. Authenticate user
-    const authHeader = request.headers.get("authorization");
-    let token = "";
-    if (authHeader?.startsWith("Bearer ")) {
-      token = authHeader.substring(7);
-    } else {
-      token = request.cookies.get("firebase-token")?.value || "";
-    }
+    const { uid, role, userData } = await verifyRequestUser(request);
 
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
-    }
-
-    let uid = "";
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      uid = decodedToken.uid;
-    } catch (err) {
-      console.error("Token verification failed:", err);
-      return NextResponse.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
-    }
-
-    // 2. Fetch User Profile
-    const userRef = adminDb.collection("users").doc(uid);
-    const userSnap = await userRef.get();
-    if (!userSnap.exists) {
-      return NextResponse.json({ error: "User profile not found." }, { status: 404 });
-    }
-    const userData = userSnap.data();
-
-    // Guard role
-    if (userData?.role !== "seller" && userData?.role !== "admin") {
+    // 2. Verify seller capability
+    if (role !== "seller" && role !== "admin") {
       return NextResponse.json({ error: "Forbidden: Only sellers can create products." }, { status: 403 });
     }
 
@@ -47,6 +21,11 @@ export async function POST(request: NextRequest) {
     }
 
     const storeId = userData.storeId;
+    const storeSnap = await adminDb.collection("stores").doc(storeId).get();
+    const storeData = storeSnap.data();
+    if (!storeSnap.exists || storeData?.status !== "approved") {
+      return NextResponse.json({ error: "Your store must be approved before creating products." }, { status: 403 });
+    }
 
     // 3. Validate request body
     const body = await request.json();

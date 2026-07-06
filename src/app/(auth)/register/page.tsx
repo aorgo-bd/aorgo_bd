@@ -9,7 +9,8 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
-  sendEmailVerification
+  sendEmailVerification,
+  User as FirebaseUser
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { createOrGetUserDocument } from "@/lib/firebase/auth-helpers";
@@ -19,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { useUser } from "@/lib/hooks/useUser";
+import { Role } from "@/lib/types";
 
 function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,15 +34,31 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "/";
+  const safeRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//") ? redirectPath : "/";
 
   // Check if already authenticated and redirect
   const { isAuthenticated, isLoading } = useUser();
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.push(redirectPath);
+      router.push(safeRedirectPath);
     }
-  }, [isAuthenticated, isLoading, redirectPath, router]);
+  }, [isAuthenticated, isLoading, safeRedirectPath, router]);
 
+  const createServerSession = async (user: FirebaseUser): Promise<Role> => {
+    const idToken = await user.getIdToken(true);
+    const response = await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Failed to create a secure session.");
+    }
+
+    return (payload.role || "customer") as Role;
+  };
   const {
     register,
     handleSubmit,
@@ -65,6 +83,7 @@ function RegisterForm() {
 
       // Create user document in Firestore with role='customer' by default
       await createOrGetUserDocument(user, { displayName });
+      await createServerSession(user);
 
       try {
         await sendEmailVerification(user);
@@ -73,7 +92,7 @@ function RegisterForm() {
       } catch (emailError: any) {
         console.error("Error sending verification email:", emailError);
         toast.success("Account registered, but failed to send verification email automatically.");
-        router.push(redirectPath);
+        router.push(safeRedirectPath);
       }
     } catch (error: any) {
       console.error(error);
@@ -99,9 +118,10 @@ function RegisterForm() {
 
       // Create user document in Firestore if not existing (default role 'customer')
       await createOrGetUserDocument(user);
+      await createServerSession(user);
 
       toast.success("Successfully signed up with Google!");
-      router.push(redirectPath);
+      router.push(safeRedirectPath);
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Google signup failed.");
@@ -118,9 +138,10 @@ function RegisterForm() {
 
       // Create user document in Firestore if not existing (default role 'customer')
       await createOrGetUserDocument(user);
+      await createServerSession(user);
 
       toast.success("Successfully signed up with Facebook!");
-      router.push(redirectPath);
+      router.push(safeRedirectPath);
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Facebook signup failed.");

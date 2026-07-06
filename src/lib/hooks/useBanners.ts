@@ -4,6 +4,8 @@ import { db } from "@/lib/firebase/client";
 import { Banner } from "@/lib/types";
 import { MOCK_BANNERS } from "@/lib/data/mock-db";
 
+const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+
 export function useBanners(
   position: "hero" | "mid" | "footer" = "hero",
   initialData?: Banner[]
@@ -22,7 +24,7 @@ export function useBanners(
         );
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
-          return MOCK_BANNERS.filter((b) => b.position === position);
+          return USE_MOCKS ? MOCK_BANNERS.filter((b) => b.position === position) : [];
         }
 
         return snapshot.docs.map((doc) => ({
@@ -30,8 +32,8 @@ export function useBanners(
           ...doc.data(),
         })) as Banner[];
       } catch (err) {
-        console.warn("[useBanners] falling back to mock banners:", err);
-        return MOCK_BANNERS.filter((b) => b.position === position);
+        console.warn("[useBanners] banner query failed:", err);
+        return USE_MOCKS ? MOCK_BANNERS.filter((b) => b.position === position) : [];
       }
     },
     staleTime: 1000 * 60 * 5,

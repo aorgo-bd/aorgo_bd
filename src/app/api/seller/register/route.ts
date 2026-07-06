@@ -1,31 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { sellerRegisterSchema } from "@/lib/schemas";
 import { Store } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
     // 1. Authenticate user
-    const authHeader = request.headers.get("authorization");
-    let token = "";
-    if (authHeader?.startsWith("Bearer ")) {
-      token = authHeader.substring(7);
-    } else {
-      token = request.cookies.get("firebase-token")?.value || "";
-    }
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
-    }
-
-    let uid = "";
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      uid = decodedToken.uid;
-    } catch (err) {
-      console.error("Token verification failed:", err);
-      return NextResponse.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
-    }
+    const { uid, userData } = await verifyRequestUser(request);
 
     // 2. Validate request body
     const body = await request.json();
@@ -51,12 +33,6 @@ export async function POST(request: NextRequest) {
 
     // 4. Check if user already has a store
     const userRef = adminDb.collection("users").doc(uid);
-    const userSnap = await userRef.get();
-    if (!userSnap.exists) {
-      return NextResponse.json({ error: "User profile not found." }, { status: 404 });
-    }
-
-    const userData = userSnap.data();
     if (userData?.storeId) {
       return NextResponse.json(
         { error: "You are already registered as a seller with store ID " + userData.storeId },
@@ -119,12 +95,6 @@ export async function POST(request: NextRequest) {
       message: "Seller registration submitted successfully. Your store is pending approval.",
     });
 
-    // Set the user-role cookie to seller immediately for navigation
-    response.cookies.set("user-role", "seller", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-      sameSite: "lax",
-    });
 
     return response;
   } catch (error: any) {

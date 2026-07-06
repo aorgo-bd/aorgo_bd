@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
-import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { adminDb } from "@/lib/firebase/admin";
+import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { productFormSchema } from "@/lib/schemas";
 import { Product } from "@/lib/types";
 
@@ -15,26 +15,7 @@ export async function PUT(
     }
 
     // 1. Authenticate user
-    const authHeader = request.headers.get("authorization");
-    let token = "";
-    if (authHeader?.startsWith("Bearer ")) {
-      token = authHeader.substring(7);
-    } else {
-      token = request.cookies.get("firebase-token")?.value || "";
-    }
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
-    }
-
-    let uid = "";
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      uid = decodedToken.uid;
-    } catch (err) {
-      console.error("Token verification failed:", err);
-      return NextResponse.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
-    }
+    const { uid, role } = await verifyRequestUser(request);
 
     // 2. Fetch Product from db to verify ownership
     const prodRef = adminDb.collection("products").doc(productId);
@@ -46,15 +27,19 @@ export async function PUT(
     const existingProduct = prodSnap.data() as Product;
 
     // Verify ownership (or admin status)
-    const userRef = adminDb.collection("users").doc(uid);
-    const userSnap = await userRef.get();
-    const userData = userSnap.data();
-
     const isOwner = existingProduct.sellerUid === uid;
-    const isAdmin = userData?.role === "admin";
+    const isAdmin = role === "admin";
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Forbidden: You do not own this product." }, { status: 403 });
+    }
+
+    if (!isAdmin) {
+      const storeSnap = await adminDb.collection("stores").doc(existingProduct.storeId).get();
+      const storeData = storeSnap.data();
+      if (!storeSnap.exists || storeData?.status !== "approved") {
+        return NextResponse.json({ error: "Your store must be approved before editing products." }, { status: 403 });
+      }
     }
 
     // 3. Validate request body
@@ -125,15 +110,6 @@ export async function PUT(
       updatedAt: Date.now(),
     };
 
-    // If title changed, update slug
-    if (titleChanged) {
-      const slugify = (text: string) =>
-        text
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "");
-      updatedProduct.slug = `${slugify(data.title)}-${randomUUID().slice(0, 6)}`;
-    }
 
     // 6. Save update
     await prodRef.update(updatedProduct);

@@ -2,15 +2,17 @@ import { notFound } from "next/navigation";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Product } from "@/lib/types";
 import ProductDetailClient from "./ProductDetailClient";
+import { cloudinaryUrl } from "@/lib/cloudinary";
+import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
+
+const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
 
 interface Props {
   params: { slug: string };
 }
 
-import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
-
 async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (!adminDb) return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+  if (!adminDb) return USE_MOCKS ? MOCK_PRODUCTS.find((p) => p.slug === slug) || null : null;
   try {
     const snap = await adminDb
       .collection("products")
@@ -19,13 +21,13 @@ async function getProductBySlug(slug: string): Promise<Product | null> {
       .limit(1)
       .get();
     if (snap.empty) {
-      return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+      return USE_MOCKS ? MOCK_PRODUCTS.find((p) => p.slug === slug) || null : null;
     }
     const doc = snap.docs[0];
     return JSON.parse(JSON.stringify({ id: doc.id, ...doc.data() })); // serialize timestamps
   } catch (err) {
     console.warn("Error fetching product by slug on server, falling back to mock:", err);
-    return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+    return USE_MOCKS ? MOCK_PRODUCTS.find((p) => p.slug === slug) || null : null;
   }
 }
 
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
     title: `${product.title} | ${product.brand} | AORGO`,
     description: (product.description || "").substring(0, 160),
     openGraph: {
-      images: product.images?.length ? [product.images[0]] : [],
+      images: product.images?.length ? [cloudinaryUrl(product.images[0], { w: 1200, h: 630 })] : [],
     },
   };
 }

@@ -92,11 +92,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="pt-2 border-t border-gray-50 flex items-end justify-between">
           <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
             <span className="text-base sm:text-lg font-black text-black">
-              ৳{product.price}
+              ৳{product.price.toLocaleString("en-BD")}
             </span>
             {product.comparePrice && product.comparePrice > product.price && (
               <span className="text-xs sm:text-sm text-gray-400 line-through">
-                ৳{product.comparePrice}
+                ৳{product.comparePrice.toLocaleString("en-BD")}
               </span>
             )}
           </div>

@@ -187,7 +187,7 @@ export default function CartPage() {
                   </div>
                   {totals.shipping > 0 && (
                     <p className="text-[10px] text-gray-400 leading-normal">
-                      Spend ৳{3000 - totals.subtotal} more to unlock **FREE shipping** in Bangladesh!
+                      Spend ৳{3000 - totals.subtotal} more to unlock <span className="font-bold text-green-600">FREE shipping</span> in Bangladesh!
                     </p>
                   )}
                 </div>

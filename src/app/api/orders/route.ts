@@ -1,31 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { adminDb } from "@/lib/firebase/admin";
+import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { checkoutPayloadSchema } from "@/lib/schemas";
 import { Order, OrderItem, Product, Store } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
     // 1. Authenticate user
-    const authHeader = request.headers.get("authorization");
-    let token = "";
-    if (authHeader?.startsWith("Bearer ")) {
-      token = authHeader.substring(7);
-    } else {
-      token = request.cookies.get("firebase-token")?.value || "";
-    }
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized: Missing token" }, { status: 401 });
-    }
-
-    let uid = "";
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      uid = decodedToken.uid;
-    } catch (err) {
-      console.error("Token verification failed:", err);
-      return NextResponse.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
-    }
+    const { uid } = await verifyRequestUser(request);
 
     // 2. Validate request body
     const body = await request.json();

@@ -4,6 +4,8 @@ import { db } from "@/lib/firebase/client";
 import { Category } from "@/lib/types";
 import { MOCK_CATEGORIES } from "@/lib/data/mock-db";
 
+const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+
 export function useCategories() {
   return useQuery<Category[]>({
     queryKey: ["categories"],
@@ -12,7 +14,7 @@ export function useCategories() {
         const categoriesRef = collection(db, "categories");
         const q = query(categoriesRef, orderBy("order", "asc"));
         const snapshot = await getDocs(q);
-        if (snapshot.empty) return MOCK_CATEGORIES;
+        if (snapshot.empty) return USE_MOCKS ? MOCK_CATEGORIES : [];
         
         return snapshot.docs.map((doc) => {
           const data = doc.data();
@@ -27,8 +29,8 @@ export function useCategories() {
           } as Category;
         });
       } catch (err) {
-        console.warn("[useCategories] falling back to mock categories:", err);
-        return MOCK_CATEGORIES;
+        console.warn("[useCategories] category query failed:", err);
+        return USE_MOCKS ? MOCK_CATEGORIES : [];
       }
     },
     staleTime: 1000 * 60 * 60, // 1 hour cache since categories rarely change
