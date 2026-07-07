@@ -39,6 +39,12 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
+    // `/admin` has no landing view — send admins straight to the dashboard so
+    // typing/bookmarking the bare URL never dead-ends on a 404.
+    if (isAdminRoute && (pathname === "/admin" || pathname === "/admin/")) {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
+
     if (isSellerRoute && userRole !== "seller" && userRole !== "admin") {
       if (pathname !== "/seller/register") {
         return NextResponse.redirect(new URL("/seller/register", request.url));

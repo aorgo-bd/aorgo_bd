@@ -198,6 +198,24 @@ export interface Wishlist {
   updatedAt: number;
 }
 
+// settings/storefront — global marketplace customization (single doc)
+export interface StorefrontSettings {
+  siteName: string;
+  supportEmail: string;
+  supportPhone: string;
+  announcement: string;             // announcement bar text
+  announcementActive: boolean;
+  freeShippingThreshold: number;    // BDT; 0 disables
+  defaultShippingFee: number;       // BDT
+  defaultCommissionRate: number;    // percent 0-100
+  codEnabled: boolean;
+  maintenanceMode: boolean;
+  socialFacebook?: string;
+  socialInstagram?: string;
+  updatedAt?: number;
+  updatedBy?: string;
+}
+
 // audit_logs/{id}
 export interface AuditLog {
   id: string;

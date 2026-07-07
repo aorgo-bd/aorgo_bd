@@ -116,6 +116,23 @@ export const bannerFormSchema = z.object({
 
 export type BannerFormData = z.infer<typeof bannerFormSchema>;
 
+export const settingsSchema = z.object({
+  siteName: z.string().min(2, "Site name must be at least 2 characters"),
+  supportEmail: z.string().email("Invalid support email address"),
+  supportPhone: z.string().regex(bdPhoneRegex, "Invalid Bangladesh phone number"),
+  announcement: z.string().max(160, "Announcement cannot exceed 160 characters").optional().or(z.literal("")),
+  announcementActive: z.boolean().default(false),
+  freeShippingThreshold: z.coerce.number().int().nonnegative("Threshold must be 0 or more"),
+  defaultShippingFee: z.coerce.number().int().nonnegative("Shipping fee must be 0 or more"),
+  defaultCommissionRate: z.coerce.number().min(0, "Commission must be 0 or more").max(100, "Commission cannot exceed 100%"),
+  codEnabled: z.boolean().default(true),
+  maintenanceMode: z.boolean().default(false),
+  socialFacebook: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  socialInstagram: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+});
+
+export type SettingsFormData = z.infer<typeof settingsSchema>;
+
 export const reviewSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   orderId: z.string().min(1, "Order ID is required"),

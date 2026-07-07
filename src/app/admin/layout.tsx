@@ -18,6 +18,7 @@ import {
   LogOut,
   ShieldCheck,
   ClipboardList,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Categories", href: "/admin/categories", icon: Layers },
     { label: "Reports", href: "/admin/reports", icon: BarChart3 },
     { label: "Audit Logs", href: "/admin/audit", icon: ClipboardList },
+    { label: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   const SidebarContent = () => (
