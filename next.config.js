@@ -9,6 +9,8 @@ const nextConfig = {
     minimumCacheTTL: 60,
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'plus.unsplash.com' },
       { protocol: 'https', hostname: 'graph.facebook.com' },
       { protocol: 'https', hostname: 'platform-lookaside.fbsbx.com' },
     ],
