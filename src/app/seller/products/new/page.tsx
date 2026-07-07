@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { ProductForm } from "@/components/seller/ProductForm";
 import { ProductFormData } from "@/lib/schemas";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/hooks/useUser";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
 import toast from "react-hot-toast";
 import { PackagePlus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,12 @@ import Link from "next/link";
 
 export default function NewProductPage() {
   const router = useRouter();
-  const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
-      const idToken = await user?.getIdToken();
+      const idToken = await getFreshIdToken();
       const res = await fetch("/api/seller/products", {
         method: "POST",
         headers: {

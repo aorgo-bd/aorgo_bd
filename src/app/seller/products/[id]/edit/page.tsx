@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { ProductForm } from "@/components/seller/ProductForm";
 import { ProductFormData } from "@/lib/schemas";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/hooks/useUser";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
 import { useSellerProduct } from "@/lib/hooks/useProducts";
 import toast from "react-hot-toast";
 import { Edit, ArrowLeft, Loader2 } from "lucide-react";
@@ -20,8 +20,7 @@ interface EditProductPageProps {
 export default function EditProductPage({ params }: EditProductPageProps) {
   const router = useRouter();
   const productId = params.id;
-  const { user } = useUser();
-  
+
   // Query product data
   const { data: product, isLoading: isProductLoading, error } = useSellerProduct(productId);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +28,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const handleSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
-      const idToken = await user?.getIdToken();
+      const idToken = await getFreshIdToken();
       const res = await fetch(`/api/seller/products/${productId}`, {
         method: "PUT",
         headers: {

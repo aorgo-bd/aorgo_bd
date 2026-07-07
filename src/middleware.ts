@@ -50,6 +50,16 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/seller/register", request.url));
       }
     }
+
+    // `/seller` has no landing view — send sellers/admins to the dashboard so
+    // the bare URL never dead-ends on a 404.
+    if (
+      isSellerRoute &&
+      (pathname === "/seller" || pathname === "/seller/") &&
+      (userRole === "seller" || userRole === "admin")
+    ) {
+      return NextResponse.redirect(new URL("/seller/dashboard", request.url));
+    }
   }
 
   return NextResponse.next();

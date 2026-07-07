@@ -415,7 +415,7 @@ export default function Header() {
 
                   {user.role === "admin" && (
                     <DropdownMenuItem render={
-                      <Link href="/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <Link href="/admin/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
                         <Shield className="h-4 w-4 text-ink-400" />
                         <span>Admin Dashboard</span>
                       </Link>
@@ -424,7 +424,7 @@ export default function Header() {
 
                   {user.role === "seller" && (
                     <DropdownMenuItem render={
-                      <Link href="/seller" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <Link href="/seller/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
                         <ShoppingBag className="h-4 w-4 text-ink-400" />
                         <span>Seller Dashboard</span>
                       </Link>
