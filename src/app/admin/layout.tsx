@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated, role } = useUser();
@@ -90,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col justify-between bg-ink-950 text-ink-50">
+    <div className="flex h-full flex-col justify-between bg-ink-900 text-ink-50">
       <div className="px-6 py-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-md shadow-violet-500/30 text-white font-bold text-lg font-display">
@@ -134,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* User Footer Profile info */}
-      <div className="border-t border-ink-800 p-4 bg-ink-950">
+      <div className="border-t border-ink-700 p-4 bg-ink-900">
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar className="h-9 w-9 border border-violet-500/30">
             {user?.photoURL ? <AvatarImage src={user.photoURL} alt={user.displayName || ""} /> : null}
@@ -212,7 +212,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               onClick={() => setIsMobileOpen(false)}
             />
             {/* Drawer */}
-            <div className="relative flex w-64 max-w-xs flex-col bg-ink-950 shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="relative flex w-64 max-w-xs flex-col bg-ink-900 shadow-2xl animate-in slide-in-from-left duration-200">
               <button
                 className="absolute top-4 right-4 text-slate-400 hover:text-white"
                 onClick={() => setIsMobileOpen(false)}

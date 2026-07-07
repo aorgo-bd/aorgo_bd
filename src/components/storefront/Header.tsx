@@ -26,7 +26,7 @@ import CartDrawer from "./CartDrawer";
 import SearchBar from "./SearchBar";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Logo } from "@/components/ui/myntra/Logo";
 import { cn } from "@/lib/utils";
 import {
@@ -47,6 +47,15 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 
+// Promotional messages rotated in the top bar. Kept at module scope so the
+// rotation effect has a stable reference (no exhaustive-deps warning) and the
+// copy matches the app's real COD-only, per-store shipping policy.
+const PROMO_MESSAGES = [
+  "🇧🇩 CASH ON DELIVERY AVAILABLE ACROSS BANGLADESH",
+  "💥 FIRST ORDER: FREE SHIPPING ON ELIGIBLE ITEMS",
+  "✨ EID & PUJA COLLECTIONS NOW LIVE",
+];
+
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -61,15 +70,11 @@ export default function Header() {
   const [promoMessageIndex, setPromoMessageIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const promoMessages = [
-    "🇧🇩 FREE DELIVERY ON ORDERS ABOVE ৳1500 • USE CODE: AORGOFRESH",
-    "💥 FIRST ORDER: GET ৳500 OFF • USE CODE: WELCOMEAORGO",
-    "✨ EID & PUJA COLLECTIONS LIVE • FLAT 20% CASHBACK ON bKASH"
-  ];
+  const promoMessages = PROMO_MESSAGES;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPromoMessageIndex((prev) => (prev + 1) % promoMessages.length);
+      setPromoMessageIndex((prev) => (prev + 1) % PROMO_MESSAGES.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);

@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { checkoutPayloadSchema } from "@/lib/schemas";
 import { Order, OrderItem, Product, Store } from "@/lib/types";
+import { calculateShippingFee } from "@/lib/shipping";
 
 export async function POST(request: NextRequest) {
   try {
@@ -122,8 +123,10 @@ export async function POST(request: NextRequest) {
           0
         );
 
-        // Shipping fee logic: free shipping if store order subtotal > 3000, OR first order over 1500, otherwise 100
-        const shippingFee = (subtotal > 3000 || (isFirstOrder && subtotal > 1500)) ? 0 : 100;
+        // Shipping fee logic (shared source of truth with the client cart): free
+        // shipping if per-store subtotal exceeds the threshold, OR first order over
+        // the first-order threshold, otherwise a flat per-store fee.
+        const shippingFee = calculateShippingFee(subtotal, { isFirstOrder });
         const total = subtotal + shippingFee; // COD discount = 0 for MVP
 
         const orderId = adminDb.collection("orders").doc().id;

@@ -6,12 +6,16 @@ import { useQuery } from "@tanstack/react-query";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { useUser } from "@/lib/hooks/useUser";
-import { Order } from "@/lib/types";
+import { Order, OrderItem } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { ShoppingBag, ChevronRight, Calendar, Landmark, Truck, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatBDT } from "@/lib/utils";
+
+// Statuses that are genuinely "in flight" get the animated pulse dot; terminal
+// statuses show a static dot.
+const IN_FLIGHT_STATUSES = new Set(["pending", "confirmed", "processing", "shipped"]);
 
 // Status Badge Styling Helper
 function getStatusBadgeClass(status: string) {
@@ -142,7 +146,7 @@ export default function CustomerOrdersPage() {
               year: "numeric",
             });
 
-            const totalItemsCount = order.items.reduce((sum, item: any) => sum + item.qty, 0);
+            const totalItemsCount = order.items.reduce((sum, item: OrderItem) => sum + item.qty, 0);
 
             return (
               <Card
@@ -186,7 +190,7 @@ export default function CustomerOrdersPage() {
                       Total Cost
                     </p>
                     <span className="font-bold text-sm text-primary">
-                      ৳{order.totals.total}
+                      {formatBDT(order.totals.total)}
                     </span>
                   </div>
                 </div>
@@ -197,7 +201,7 @@ export default function CustomerOrdersPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-4 mb-4">
                         <div className="flex -space-x-3 overflow-hidden">
-                          {order.items.slice(0, 3).map((item: any) => (
+                          {order.items.slice(0, 3).map((item: OrderItem) => (
                             <div
                               key={item.variantSku}
                               className="relative h-12 w-10 rounded border-2 border-background overflow-hidden bg-zinc-100 shrink-0 shadow-sm"
@@ -240,7 +244,7 @@ export default function CustomerOrdersPage() {
                             getStatusBadgeClass(order.status)
                           )}
                         >
-                          <span className="h-1.5 w-1.5 rounded-full bg-current shrink-0 animate-pulse" />
+                          <span className={cn("h-1.5 w-1.5 rounded-full bg-current shrink-0", IN_FLIGHT_STATUSES.has(order.status) && "animate-pulse")} />
                           {order.status}
                         </span>
                       </div>

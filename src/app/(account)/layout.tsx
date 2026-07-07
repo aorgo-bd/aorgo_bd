@@ -7,7 +7,7 @@ import Link from "next/link";
 import { User as UserIcon, Package, MapPin, Heart, Settings, Store, LogOut } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {

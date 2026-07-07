@@ -10,7 +10,7 @@ This document details the architectural structure, database schemas, role guards
 - **Database:** Firebase Firestore (atomic transactions, custom rules).
 - **Authentication:** Firebase Auth (JWT idToken synchronization).
 - **Asset Storage:** Cloudinary (asset transformations, `next-cloudinary` uploads).
-- **State Management:** Zustand (for storefront Cart + Wishlist with LocalStorage persist) and Redux Toolkit.
+- **State Management:** Zustand (storefront Cart + Wishlist with LocalStorage persist). TanStack Query owns server state; there is **no Redux** in this project.
 - **Query Layer:** TanStack Query v5 (cache-wrapping Firestore reads).
 
 ---
@@ -25,7 +25,6 @@ src/
 │   ├── api/
 │   │   ├── orders/            # Checkout price-recalculation & inventory decrease
 │   │   └── reviews/           # Transactional review writing & ratings updating
-│   ├── dashboard/             # Admin control sub-panels
 │   ├── seller/                # Seller portal (products catalog, order fulfillment)
 │   ├── layout.tsx             # Global Root Layout with BottomNav & Header/Footer mounts
 │   └── middleware.ts          # Global middleware guarding roles and auth cookies
@@ -102,14 +101,19 @@ Tracks customer feedback.
 ---
 
 ## 4. Role Guards & Cookies Flow
-Authentication is managed via client-side cookie synchronization on state changes:
-1.  On auth state changes, client requests `getIdToken()` and sets:
-    *   `firebase-token` Cookie (session expiration checks).
-    *   `user-role` Cookie (middleware page locks).
-2.  `src/middleware.ts` runs on matching dashboard matches and enforces:
-    *   `/admin` and `/dashboard` access requires `user-role === "admin"`.
-    *   `/seller` access requires `user-role === "seller" || user-role === "admin"`.
-    *   Unauthorized actions result in redirects to `/login` or `/`.
+Authentication uses a server-set Firebase **session cookie**:
+1.  On login / auth state change, the client posts the `idToken` to
+    `POST /api/auth/session`, which verifies it with the Admin SDK and sets a
+    signed, `HttpOnly; Secure; SameSite=Strict` `session` cookie. Role is derived
+    from the verified token claims. `DELETE /api/auth/session` clears it on logout.
+2.  `src/middleware.ts` guards `/admin` and `/seller` (matcher: `/admin/:path*`,
+    `/seller/:path*`) using the `session` cookie:
+    *   `/admin` access requires role `"admin"`.
+    *   `/seller` access requires role `"seller"` or `"admin"` (else redirected to
+        `/seller/register`).
+    *   Missing/invalid session redirects to `/login`.
+3.  API routes and Firestore rules independently re-verify the session and reject
+    suspended users, so page-shell access alone never exposes protected data.
 
 ---
 

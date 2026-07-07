@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Store, StoreStatus } from "@/lib/types";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Search, ShieldAlert, CheckCircle2, AlertOctagon, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cloudinaryDocumentUrl } from "@/lib/cloudinary";

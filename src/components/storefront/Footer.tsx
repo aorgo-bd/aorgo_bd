@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, ArrowRight } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Logo } from "@/components/ui/myntra/Logo";
 
 export default function Footer() {

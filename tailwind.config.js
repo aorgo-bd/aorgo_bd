@@ -42,8 +42,16 @@ module.exports = {
       colors: {
         pink: {
           50: "#FFE6EE",
+          100: "#FFCCDC",
+          200: "#FF99B9",
+          300: "#FF6D97",
+          400: "#FF5482",
           500: "#FF3F6C",
           600: "#E51F4D",
+          700: "#C2143C",
+          800: "#8F0E2C",
+          900: "#5C091C",
+          950: "#3A0512",
         },
         ink: {
           50: "#FAFBFC",
@@ -57,6 +65,9 @@ module.exports = {
         },
         discount: "#FF3333",
         ratingGreen: "#03A685",
+        "brand-orange": "#FF905A",
+        "brand-yellow": "#FFD93D",
+        "brand-green": "#03A685",
         gray: {
           150: "#e5e7eb",
           250: "#d9dde3",
@@ -131,6 +142,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)", "Assistant", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "Whitney", "Inter", "sans-serif"],
+        bangla: ["var(--font-bangla)", "Hind Siliguri", "Assistant", "sans-serif"],
       },
       transitionTimingFunction: {
         myntra: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",

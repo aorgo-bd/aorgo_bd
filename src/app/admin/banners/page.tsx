@@ -8,7 +8,7 @@ import { bannerFormSchema, BannerFormData } from "@/lib/schemas";
 import { Banner } from "@/lib/types";
 import { CldUploadWidget, CldImage } from "next-cloudinary";
 import Image from "next/image";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import {
   Plus,
   Edit2,

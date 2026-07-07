@@ -1,26 +1,33 @@
+import { Assistant, Bebas_Neue, Hind_Siliguri } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Providers from "./_components/providers";
 import ClientShell from "./_components/ClientShell";
 import "./globals.css";
 
-const assistant = {
-  variable: "font-sans",
-  className: "font-sans",
-};
+const assistant = Assistant({
+  subsets: ["latin"],
+  weight: ["300", "400", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
-const bebas = {
-  variable: "font-display",
-  className: "font-display",
-};
+const bebas = Bebas_Neue({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display",
+  display: "swap",
+});
 
-const bangla = {
-  variable: "font-bangla",
-  className: "font-bangla",
-};
+const bangla = Hind_Siliguri({
+  subsets: ["latin", "bengali"],
+  weight: ["400", "600", "700"],
+  variable: "--font-bangla",
+  display: "swap",
+});
 
 export const metadata = {
-  title: "AORGO — Bangladesh Marketplace",
-  description: "Shop curated fashion, electronics and home goods from verified Bangladeshi sellers.",
+  title: "AORGO — Bangladesh Fashion Marketplace",
+  description: "Shop curated fashion from verified Bangladeshi sellers. Cash on Delivery across Bangladesh.",
 };
 
 export const viewport = {
@@ -38,11 +45,8 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#000000" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Bebas+Neue&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className={assistant.className}>
+      <body className="font-sans">
         <Providers>
           <ClientShell>{children}</ClientShell>
         </Providers>

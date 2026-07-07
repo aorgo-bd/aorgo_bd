@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Heart, ShoppingBag, User, LayoutGrid, Sparkles } from "lucide-react";
+import { Home, Heart, ShoppingBag, User, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/stores/cart";
 import { useWishlistStore } from "@/lib/stores/wishlist";
@@ -17,11 +17,10 @@ export default function BottomNav() {
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
-  // Hide on admin, seller, or dashboard pages
+  // Hide on admin and seller panel pages
   if (
     pathname.startsWith("/seller") ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/dashboard")
+    pathname.startsWith("/admin")
   ) {
     return null;
   }
@@ -38,9 +37,9 @@ export default function BottomNav() {
   const navItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Categories", href: "/products", icon: LayoutGrid },
-    { label: "Studio", href: "/studio", icon: Sparkles },
+    { label: "Wishlist", href: "/wishlist", icon: Heart, badge: wishlistIds.length },
     { label: "Bag", href: "/cart", icon: ShoppingBag, badge: totalCartCount },
-    { label: "Account", href: accountHref, icon: User, badge: wishlistIds.length },
+    { label: "Account", href: accountHref, icon: User },
   ];
 
   return (

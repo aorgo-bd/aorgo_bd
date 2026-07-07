@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { db, auth } from "@/lib/firebase/client";
 import { doc, setDoc } from "firebase/firestore";
+import { calculateShippingFee } from "@/lib/shipping";
 
 export interface CartItem {
   productId: string;
@@ -35,7 +36,9 @@ interface CartStore {
 
 const calculateTotals = (items: CartItem[]): CartTotals => {
   const subtotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const shipping = subtotal > 0 ? (subtotal > 3000 ? 0 : 100) : 0; // Free shipping over ৳3000
+  // Client-side estimate using the shared rule. The server recomputes shipping
+  // per store at checkout (see src/lib/shipping.ts and /api/orders).
+  const shipping = calculateShippingFee(subtotal);
   return {
     subtotal,
     shipping,

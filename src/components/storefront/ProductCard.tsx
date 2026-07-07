@@ -6,7 +6,7 @@ import { Heart } from "lucide-react";
 import { Product } from "@/lib/types";
 import { ProductImage } from "@/components/ProductImage";
 import { useWishlistStore } from "@/lib/stores/wishlist";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 interface ProductCardProps {
   product: Product;

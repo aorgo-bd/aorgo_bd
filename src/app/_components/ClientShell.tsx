@@ -11,7 +11,6 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   const isDashboardRoute =
-    pathname.startsWith("/dashboard") ||
     pathname.startsWith("/seller") ||
     pathname.startsWith("/admin");
 

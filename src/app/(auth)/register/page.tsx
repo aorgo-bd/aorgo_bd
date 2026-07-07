@@ -17,7 +17,7 @@ import { createOrGetUserDocument } from "@/lib/firebase/auth-helpers";
 import { registerSchema, RegisterFormData } from "@/lib/schemas";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { useUser } from "@/lib/hooks/useUser";
 import { Role } from "@/lib/types";

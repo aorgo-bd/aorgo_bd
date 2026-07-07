@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Star, Heart, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useProductBySlug, useProducts } from "@/lib/hooks/useProducts";

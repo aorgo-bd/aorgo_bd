@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { useUser } from "@/lib/hooks/useUser";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import {
   ArrowLeft,
   Calendar,

@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Product, ProductStatus, Store } from "@/lib/types";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Search, ShieldAlert, CheckCircle2, AlertOctagon, Ban, Archive, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProductImage } from "@/components/ProductImage";

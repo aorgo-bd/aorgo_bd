@@ -68,8 +68,8 @@ async function getHeroBanners(): Promise<Banner[]> {
       ...toPlainValue(doc.data()),
     })) as Banner[];
   } catch (err) {
-    console.warn("[getHeroBanners] server error, falling back to mock banners:", err);
-    return MOCK_BANNERS;
+    console.warn("[getHeroBanners] server error:", err);
+    return USE_MOCKS ? MOCK_BANNERS : [];
   }
 }
 
@@ -99,8 +99,8 @@ async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
 
     return applyProductFilter(dbProducts, filter);
   } catch (err) {
-    console.warn("[getApprovedProducts] server error, falling back to mock products:", err);
-    return applyProductFilter(MOCK_PRODUCTS, filter);
+    console.warn("[getApprovedProducts] server error:", err);
+    return USE_MOCKS ? applyProductFilter(MOCK_PRODUCTS, filter) : [];
   }
 }
 

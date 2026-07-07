@@ -11,7 +11,7 @@ import { Star, Camera, X, Loader2 } from "lucide-react";
 import { CldUploadWidget, CldImage } from "next-cloudinary";
 import { cn } from "@/lib/utils";
 import { auth } from "@/lib/firebase/client";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 interface ReviewFormProps {
   productId: string;

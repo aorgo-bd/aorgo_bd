@@ -16,7 +16,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductImage } from "@/components/ProductImage";
 import { ShoppingBag, MapPin, CreditCard, ChevronRight, ChevronLeft, Plus, Check, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatBDT } from "@/lib/utils";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -301,9 +302,9 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="font-bold text-sm">৳{item.price}</p>
+                        <p className="font-bold text-sm">{formatBDT(item.price)}</p>
                         <p className="text-xs text-muted-foreground">Qty: {item.qty}</p>
-                        <p className="text-xs font-semibold text-primary mt-1">Total: ৳{item.price * item.qty}</p>
+                        <p className="text-xs font-semibold text-primary mt-1">Total: {formatBDT(item.price * item.qty)}</p>
                       </div>
                     </div>
                   ))}
@@ -571,7 +572,7 @@ export default function CheckoutPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="font-bold text-zinc-700 dark:text-zinc-300">৳{item.price * item.qty}</span>
+                    <span className="font-bold text-zinc-700 dark:text-zinc-300">{formatBDT(item.price * item.qty)}</span>
                   </div>
                 ))}
               </div>
@@ -579,22 +580,25 @@ export default function CheckoutPage() {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold text-zinc-700 dark:text-zinc-300">৳{totals.subtotal}</span>
+                  <span className="font-semibold text-zinc-700 dark:text-zinc-300">{formatBDT(totals.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Shipping Fee</span>
+                  <span className="text-muted-foreground">Est. Shipping Fee</span>
                   <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                    {totals.shipping === 0 ? "FREE" : `৳${totals.shipping}`}
+                    {totals.shipping === 0 ? "FREE" : formatBDT(totals.shipping)}
                   </span>
                 </div>
-                {totals.subtotal > 0 && totals.subtotal <= 3000 && (
+                {totals.subtotal > 0 && totals.subtotal <= FREE_SHIPPING_THRESHOLD && (
                   <p className="text-[10px] text-primary bg-primary/5 rounded px-2 py-1 font-medium border border-primary/10">
-                    💡 Add items worth ৳{3000 - totals.subtotal} more to get free shipping!
+                    💡 Add items worth {formatBDT(FREE_SHIPPING_THRESHOLD - totals.subtotal)} more to get free shipping!
                   </p>
                 )}
+                <p className="text-[10px] text-muted-foreground leading-normal">
+                  Shipping is charged per store and finalized on the server when you place the order.
+                </p>
                 <div className="border-t pt-4 flex justify-between items-end">
                   <span className="font-bold text-sm">Estimated Total</span>
-                  <span className="font-extrabold text-lg text-primary">৳{totals.total}</span>
+                  <span className="font-extrabold text-lg text-primary">{formatBDT(totals.total)}</span>
                 </div>
               </div>
             </CardContent>

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { sellerRegisterSchema, SellerRegisterFormData } from "@/lib/schemas";
 import { useUser } from "@/lib/hooks/useUser";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Cloudinary unsigned upload for seller verification documents.

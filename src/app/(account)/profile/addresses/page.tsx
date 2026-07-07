@@ -4,7 +4,7 @@ import { useUser } from "@/lib/hooks/useUser";
 import { useState } from "react";
 import { doc, updateDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { MapPin, Plus, Trash2, Home, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Address } from "@/lib/types";

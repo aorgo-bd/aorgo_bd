@@ -177,7 +177,7 @@ export default function SearchClient() {
                   <button
                     key={color}
                     onClick={() => handleColorToggle(color)}
-                    className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-255 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-250 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     <span>Color: {color}</span>
                     <X className="h-3 w-3 text-gray-400" />
@@ -188,7 +188,7 @@ export default function SearchClient() {
                   <button
                     key={size}
                     onClick={() => handleSizeToggle(size)}
-                    className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-255 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-250 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     <span>Size: {size}</span>
                     <X className="h-3 w-3 text-gray-400" />
@@ -198,7 +198,7 @@ export default function SearchClient() {
                 {(minPrice > 0 || maxPrice < 50000) && (
                   <button
                     onClick={() => handlePriceChange(0, 50000)}
-                    className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-255 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-250 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     <span>
                       Price: ৳{minPrice} — ৳{maxPrice}

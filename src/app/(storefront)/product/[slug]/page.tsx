@@ -46,5 +46,42 @@ export async function generateMetadata({ params }: Props) {
 export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(params.slug);
   if (!product) notFound();
-  return <ProductDetailClient initialProduct={product} />;
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aorgo-bd.vercel.app";
+  const inStock = (product.variants ?? []).some((v) => (v.stock ?? 0) > 0);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: (product.description || "").substring(0, 500),
+    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    image: product.images?.length ? [cloudinaryUrl(product.images[0], { w: 1200, h: 1500 })] : undefined,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "BDT",
+      price: product.price,
+      availability: inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: `${baseUrl}/product/${product.slug}`,
+    },
+    aggregateRating:
+      product.reviewCount && product.reviewCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            reviewCount: product.reviewCount,
+          }
+        : undefined,
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProductDetailClient initialProduct={product} />
+    </>
+  );
 }

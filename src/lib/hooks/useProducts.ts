@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   collection,
   doc,
+  documentId,
   getDoc,
   getDocs,
   limit as firestoreLimit,
@@ -168,6 +169,50 @@ export function useProducts(filter?: ProductFilter, initialData?: Product[]) {
       return products;
     },
     staleTime: initialData ? 1000 * 60 * 5 : 0,
+  });
+}
+
+/**
+ * Fetch products by their document IDs (used by the wishlist so that saved
+ * items are shown regardless of whether they fall inside the default product
+ * query window). Firestore `in` queries are limited to 10 values, so IDs are
+ * fetched in batches of 10.
+ */
+export function useProductsByIds(ids: string[]) {
+  const sortedIds = [...ids].sort();
+  return useQuery<Product[]>({
+    queryKey: ["products-by-ids", sortedIds],
+    queryFn: async () => {
+      if (sortedIds.length === 0) return [];
+      try {
+        const productsRef = collection(db, "products");
+        const batches: string[][] = [];
+        for (let i = 0; i < sortedIds.length; i += 10) {
+          batches.push(sortedIds.slice(i, i + 10));
+        }
+
+        const results = await Promise.all(
+          batches.map(async (batch) => {
+            const q = query(productsRef, where(documentId(), "in", batch));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map((docSnap) => ({
+              id: docSnap.id,
+              ...docSnap.data(),
+            })) as Product[];
+          })
+        );
+
+        const found = results.flat();
+        if (found.length === 0 && USE_MOCKS) {
+          return MOCK_PRODUCTS.filter((p) => sortedIds.includes(p.id));
+        }
+        return found;
+      } catch (err) {
+        console.warn("[useProductsByIds] product query failed:", err);
+        return USE_MOCKS ? MOCK_PRODUCTS.filter((p) => sortedIds.includes(p.id)) : [];
+      }
+    },
+    enabled: sortedIds.length > 0,
   });
 }
 

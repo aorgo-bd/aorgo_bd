@@ -5,7 +5,7 @@ import { useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase/client";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Settings, ShieldAlert, KeyRound, User as UserIcon, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 

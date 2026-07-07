@@ -14,7 +14,7 @@ import {
 import { Search, Users, ShieldAlert, Award, Power, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { User } from "@/lib/types";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { useUser } from "@/lib/hooks/useUser";
 
 export default function AdminUsersPage() {

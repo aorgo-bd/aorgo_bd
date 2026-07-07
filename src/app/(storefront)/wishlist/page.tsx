@@ -3,17 +3,16 @@
 import React from "react";
 import Link from "next/link";
 import { useWishlistStore } from "@/lib/stores/wishlist";
-import { useProducts } from "@/lib/hooks/useProducts";
+import { useProductsByIds } from "@/lib/hooks/useProducts";
 import ProductCard from "@/components/storefront/ProductCard";
 import { Heart, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import { Product } from "@/lib/types";
 
 export default function WishlistPage() {
   const { ids, setIds } = useWishlistStore();
-  const { data: allProducts = [], isLoading } = useProducts();
-
-  // Filter products that exist in our wishlist ids
-  const wishlistProducts = allProducts.filter((product: Product) => ids.includes(product.id));
+  // Fetch wishlisted products directly by their IDs so saved items always show,
+  // even when outside the default product query window.
+  const { data: wishlistProducts = [], isLoading } = useProductsByIds(ids);
 
   const handleClearWishlist = () => {
     setIds([]);

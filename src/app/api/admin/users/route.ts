@@ -48,6 +48,9 @@ export async function PUT(request: NextRequest) {
 
       // Set admin custom claims
       await adminAuth.setCustomUserClaims(targetUid, { role: "admin" });
+      // Force the target's tokens to refresh so the new role claim propagates on
+      // their next request instead of after the (up to 1h) natural token refresh.
+      await adminAuth.revokeRefreshTokens(targetUid);
 
       return NextResponse.json({ success: true, message: "User promoted to Admin successfully" });
     }
@@ -76,6 +79,11 @@ export async function PUT(request: NextRequest) {
           at: Date.now(),
         });
       });
+
+      // Revoke refresh tokens so a suspended user is forced to re-authenticate
+      // (and is then blocked at login/session creation) rather than continuing
+      // on a still-valid token.
+      await adminAuth.revokeRefreshTokens(targetUid);
 
       return NextResponse.json({
         success: true,

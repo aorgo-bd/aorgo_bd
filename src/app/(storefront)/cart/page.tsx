@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useCartStore } from "@/lib/stores/cart";
 import { ProductImage } from "@/components/ProductImage";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, HelpCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatBDT } from "@/lib/utils";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 export default function CartPage() {
   const { items, totals, updateQty, remove, clear } = useCartStore();
@@ -33,7 +34,7 @@ export default function CartPage() {
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
             <p className="text-gray-500 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-              Looks like you haven&apos;t added any approved items yet. Head back to the store to explore Bangladesh&apos;s finest fashion.
+              Looks like you haven&apos;t added anything yet. Head back to the store to explore Bangladesh&apos;s finest fashion.
             </p>
             <Link
               href="/products"
@@ -99,7 +100,7 @@ export default function CartPage() {
                       {/* Unit Price */}
                       <div className="col-span-1 md:col-span-2 text-left md:text-center">
                         <span className="text-xs text-gray-400 font-semibold md:hidden">Price: </span>
-                        <span className="text-sm font-black text-black">৳{item.price}</span>
+                        <span className="text-sm font-black text-black">{formatBDT(item.price)}</span>
                       </div>
 
                       {/* Quantity Selector */}
@@ -130,7 +131,7 @@ export default function CartPage() {
                       <div className="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-4">
                         <div>
                           <span className="text-xs text-gray-400 font-semibold md:hidden">Subtotal: </span>
-                          <span className="text-base font-black text-black">৳{item.price * item.qty}</span>
+                          <span className="text-base font-black text-black">{formatBDT(item.price * item.qty)}</span>
                         </div>
                         <button
                           onClick={() => remove(item.variantSku)}
@@ -173,23 +174,26 @@ export default function CartPage() {
                 <div className="space-y-3.5 border-b border-gray-100 pb-5">
                   <div className="flex justify-between text-sm text-gray-500 font-semibold">
                     <span>Subtotal</span>
-                    <span className="text-black font-extrabold">৳{totals.subtotal}</span>
+                    <span className="text-black font-extrabold">{formatBDT(totals.subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-500 font-semibold">
-                    <span>Shipping Fee</span>
+                    <span>Est. Shipping Fee</span>
                     <span className="text-black font-extrabold">
                       {totals.shipping === 0 ? (
                         <span className="text-green-600">FREE</span>
                       ) : (
-                        `৳${totals.shipping}`
+                        formatBDT(totals.shipping)
                       )}
                     </span>
                   </div>
                   {totals.shipping > 0 && (
                     <p className="text-[10px] text-gray-400 leading-normal">
-                      Spend ৳{3000 - totals.subtotal} more to unlock <span className="font-bold text-green-600">FREE shipping</span> in Bangladesh!
+                      Spend {formatBDT(FREE_SHIPPING_THRESHOLD - totals.subtotal)} more to unlock <span className="font-bold text-green-600">FREE shipping</span> in Bangladesh!
                     </p>
                   )}
+                  <p className="text-[10px] text-gray-400 leading-normal">
+                    Shipping is charged per store and finalized at checkout.
+                  </p>
                 </div>
 
                 {/* COD Option description (Hard Constraint check) */}
@@ -209,7 +213,7 @@ export default function CartPage() {
                 {/* Final Total */}
                 <div className="flex items-end justify-between">
                   <span className="text-sm font-bold text-black uppercase tracking-wider">Estimated Total</span>
-                  <span className="text-2xl font-black text-black">৳{totals.total}</span>
+                  <span className="text-2xl font-black text-black">{formatBDT(totals.total)}</span>
                 </div>
 
                 {/* Checkout CTA */}

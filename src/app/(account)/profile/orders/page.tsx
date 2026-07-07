@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase/client";
 import Link from "next/link";
 import { Package, Calendar, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ProductImage } from "@/components/ProductImage";
 
 export default function MyOrdersPage() {
   const { user } = useUser();
@@ -93,15 +94,13 @@ export default function MyOrdersPage() {
                 {order.items.map((item: any) => (
                   <div key={item.variantSku} className="py-3.5 first:pt-0 last:pb-0 flex gap-4">
                     <div className="w-12 h-15 bg-gray-100 rounded-md overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center text-xs text-gray-400">
-                      {/* Note: since Cloudinary rendering logic exists, for simplicity we show a placeholder or use standard img */}
                       {item.imagePublicId ? (
-                        <img
-                          src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/c_thumb,w_80,h_100,g_face/f_auto,q_auto/${item.imagePublicId}`}
+                        <ProductImage
+                          src={item.imagePublicId}
                           alt={item.title}
+                          width={80}
+                          height={100}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as any).style.display = "none";
-                          }}
                         />
                       ) : (
                         <Package className="h-5 w-5" />
