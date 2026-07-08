@@ -53,6 +53,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
     handleSubmit,
     control,
     setValue,
+    getValues,
     watch,
     formState: { errors },
   } = useForm<any>({
@@ -118,8 +119,17 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
   }, [initialData]);
 
   // Image helpers
+  // Read the latest images via getValues (not the closed-over `productImages`)
+  // so a batch of uploads — which fire onSuccess once per file in quick
+  // succession — each append instead of overwriting the same stale array.
   const handleImageUploaded = (publicId: string) => {
-    setValue("images", [...productImages, publicId]);
+    const current: string[] = getValues("images") || [];
+    if (current.includes(publicId)) return;
+    if (current.length >= 8) {
+      toast.error("You can upload up to 8 images.");
+      return;
+    }
+    setValue("images", [...current, publicId], { shouldValidate: true });
     toast.success("Image uploaded successfully!");
   };
 

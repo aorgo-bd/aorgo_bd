@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { adminDb } from "@/lib/firebase/admin";
 import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { productFormSchema } from "@/lib/schemas";
 import { Product } from "@/lib/types";
+
+const stockUpdateSchema = z.object({
+  variants: z
+    .array(
+      z.object({
+        sku: z.string().min(1),
+        stock: z.coerce.number().int().nonnegative(),
+      })
+    )
+    .min(1, "At least one variant is required"),
+});
 
 export async function PUT(
   request: NextRequest,
@@ -124,6 +136,78 @@ export async function PUT(
     console.error("Failed to update product:", error);
     return NextResponse.json(
       { error: error.message || "An error occurred while updating product." },
+      { status: 500 }
+    );
+  }
+}
+
+// Lightweight stock-only update used by the Inventory page. Adjusting stock is
+// an operational change, so it does NOT reset the product's approval status the
+// way a full edit (title/price/images) does.
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const productId = params.id;
+    if (!productId) {
+      return NextResponse.json({ error: "Product ID is required." }, { status: 400 });
+    }
+
+    const { uid, role } = await verifyRequestUser(request);
+
+    const prodRef = adminDb.collection("products").doc(productId);
+    const prodSnap = await prodRef.get();
+    if (!prodSnap.exists) {
+      return NextResponse.json({ error: "Product not found." }, { status: 404 });
+    }
+
+    const existingProduct = prodSnap.data() as Product;
+    const isOwner = existingProduct.sellerUid === uid;
+    const isAdmin = role === "admin";
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json({ error: "Forbidden: You do not own this product." }, { status: 403 });
+    }
+
+    if (!isAdmin) {
+      const storeSnap = await adminDb.collection("stores").doc(existingProduct.storeId).get();
+      if (!storeSnap.exists || storeSnap.data()?.status !== "approved") {
+        return NextResponse.json({ error: "Your store must be approved before editing stock." }, { status: 403 });
+      }
+    }
+
+    const body = await request.json();
+    const validated = stockUpdateSchema.safeParse(body);
+    if (!validated.success) {
+      return NextResponse.json(
+        { error: "Invalid stock payload", details: validated.error.format() },
+        { status: 400 }
+      );
+    }
+
+    // Merge the submitted stock levels into the existing variants by SKU. Only
+    // known SKUs are touched; unknown SKUs are ignored to avoid corrupting the
+    // variant matrix.
+    const stockBySku = new Map(validated.data.variants.map((v) => [v.sku, v.stock]));
+    const updatedVariants = (existingProduct.variants || []).map((v) =>
+      stockBySku.has(v.sku) ? { ...v, stock: stockBySku.get(v.sku)! } : v
+    );
+
+    await prodRef.update({
+      variants: updatedVariants,
+      updatedAt: Date.now(),
+    });
+
+    return NextResponse.json({
+      success: true,
+      productId,
+      variants: updatedVariants,
+      message: "Stock updated successfully.",
+    });
+  } catch (error: any) {
+    console.error("Failed to update stock:", error);
+    return NextResponse.json(
+      { error: error.message || "An error occurred while updating stock." },
       { status: 500 }
     );
   }
