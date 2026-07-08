@@ -184,7 +184,7 @@ function LoginForm() {
 
   if (isResetMode) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-pink-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 bg-white/70 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-gray-150/50">
           <div>
             <h2 className="mt-4 text-center text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
@@ -233,7 +233,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-pink-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white/70 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-gray-150/50">
         <div>
           <h2 className="mt-4 text-center text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
@@ -251,13 +251,13 @@ function LoginForm() {
         </div>
 
         {safeRedirectPath.startsWith("/seller") && (
-          <div className="rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-3 text-sm text-indigo-800">
+          <div className="rounded-lg bg-pink-50 border border-pink-100 px-4 py-3 text-sm text-pink-800">
             🛍️ <strong>Seller login</strong> — your credentials are the same as your customer account.
             New here? <Link href="/seller/register" className="underline font-semibold">Register as a Seller</Link>
           </div>
         )}
         {safeRedirectPath.startsWith("/admin") && (
-          <div className="rounded-lg bg-violet-50 border border-violet-100 px-4 py-3 text-sm text-violet-800">
+          <div className="rounded-lg bg-pink-50 border border-pink-100 px-4 py-3 text-sm text-pink-800">
             🛡️ <strong>Admin login</strong> — restricted access only.
           </div>
         )}

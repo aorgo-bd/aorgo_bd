@@ -246,7 +246,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
       {/* 1. Basic Information */}
       <div className="rounded-3xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 dark:bg-pink-950/20 text-pink-600">
             <FileText className="h-5 w-5" />
           </div>
           <div>
@@ -310,7 +310,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
             </label>
             <select
               {...register("category")}
-              className="w-full mt-1 h-10 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg px-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full mt-1 h-10 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg px-3 text-sm focus:outline-none focus:border-pink-500 transition-colors"
             >
               <option value="">Select Subcategory</option>
               {parentCategories.map((parent: any) => (
@@ -336,7 +336,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
             </label>
             <select
               {...register("gender")}
-              className="w-full mt-1 h-10 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg px-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full mt-1 h-10 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg px-3 text-sm focus:outline-none focus:border-pink-500 transition-colors"
             >
               <option value="unisex">Unisex</option>
               <option value="women">Women</option>
@@ -349,7 +349,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
       {/* 2. Pricing Section */}
       <div className="rounded-3xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 dark:bg-pink-950/20 text-pink-600">
             <BadgeCent className="h-5 w-5" />
           </div>
           <div>
@@ -398,7 +398,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
       {/* 3. Images Upload Section */}
       <div className="rounded-3xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 dark:bg-pink-950/20 text-pink-600">
             <ImageIcon className="h-5 w-5" />
           </div>
           <div>
@@ -414,7 +414,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
                 key={imageId}
                 className={cn(
                   "relative group flex flex-col h-40 w-32 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shadow-sm transition-all duration-200",
-                  idx === 0 && "ring-2 ring-indigo-500"
+                  idx === 0 && "ring-2 ring-pink-500"
                 )}
               >
                 <div className="flex-1 overflow-hidden relative">
@@ -424,7 +424,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
                     className="h-full w-full object-cover"
                   />
                   {idx === 0 && (
-                    <span className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold text-white bg-indigo-600 rounded">
+                    <span className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold text-white bg-pink-600 rounded">
                       Cover
                     </span>
                   )}
@@ -464,7 +464,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
             ))}
 
             {productImages.length < 8 && (
-              <div className="flex flex-col h-40 w-32 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl items-center justify-center p-4 text-center hover:border-indigo-500 transition-colors">
+              <div className="flex flex-col h-40 w-32 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl items-center justify-center p-4 text-center hover:border-pink-500 transition-colors">
                 <ProductImageUploader onUploaded={handleImageUploaded} />
               </div>
             )}
@@ -480,7 +480,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
       {/* 4. Variant Builder & Dynamic Matrix */}
       <div className="rounded-3xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 dark:bg-pink-950/20 text-pink-600">
             <Layers className="h-5 w-5" />
           </div>
           <div>
@@ -506,7 +506,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
                     className={cn(
                       "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all duration-200",
                       active
-                        ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
+                        ? "bg-pink-600 border-pink-600 text-white shadow-sm"
                         : "border-slate-200 dark:border-slate-800 text-slate-600 hover:bg-slate-100 dark:text-slate-400"
                     )}
                   >
@@ -545,7 +545,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
                     className={cn(
                       "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all duration-200",
                       active
-                        ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
+                        ? "bg-pink-600 border-pink-600 text-white shadow-sm"
                         : "border-slate-200 dark:border-slate-800 text-slate-600 hover:bg-slate-100 dark:text-slate-400"
                     )}
                   >
@@ -573,7 +573,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
             <Button
               type="button"
               onClick={generateVariantMatrix}
-              className="gap-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-150 text-xs font-semibold py-2"
+              className="gap-2 bg-pink-50 text-pink-700 hover:bg-pink-100 border border-pink-150 text-xs font-semibold py-2"
             >
               <Grid className="h-4 w-4" /> Generate Variant Matrix
             </Button>
@@ -672,7 +672,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
       {/* 5. Additional Attributes */}
       <div className="rounded-3xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 p-6 md:p-8 shadow-sm backdrop-blur-md space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 dark:bg-pink-950/20 text-pink-600">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
@@ -699,7 +699,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
             </label>
             <select
               {...register("attributes.fit")}
-              className="w-full mt-1 h-10 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg px-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full mt-1 h-10 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg px-3 text-sm focus:outline-none focus:border-pink-500 transition-colors"
             >
               <option value="">Select Fit</option>
               <option value="regular">Regular</option>
@@ -721,7 +721,7 @@ export function ProductForm({ initialData, isSubmitting, onSubmit }: ProductForm
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/10 px-8"
+          className="bg-pink-600 hover:bg-pink-700 text-white font-semibold shadow-lg shadow-pink-600/10 px-8"
         >
           {isSubmitting ? (
             <div className="flex items-center gap-2">

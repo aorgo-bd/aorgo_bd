@@ -263,7 +263,7 @@ export default function SellerRegisterPage() {
       <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-white/20 bg-white/60 p-6 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/60 md:p-10">
         {/* Progress Bar & Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-400">
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-600 via-pink-600 to-pink-700 bg-clip-text text-transparent dark:from-pink-400 dark:to-pink-400">
             Apply as Seller Partner
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -275,7 +275,7 @@ export default function SellerRegisterPage() {
             {/* Step lines */}
             <div className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-slate-200 dark:bg-slate-800 -z-10" />
             <div
-              className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 bg-indigo-600 transition-all duration-300 -z-10"
+              className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 bg-pink-600 transition-all duration-300 -z-10"
               style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
 
@@ -290,9 +290,9 @@ export default function SellerRegisterPage() {
                     className={cn(
                       "flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 font-semibold text-sm",
                       isCompleted
-                        ? "bg-indigo-600 border-indigo-600 text-white"
+                        ? "bg-pink-600 border-pink-600 text-white"
                         : isCurrent
-                        ? "bg-white dark:bg-slate-900 border-indigo-600 text-indigo-600 shadow-md shadow-indigo-600/10 scale-110"
+                        ? "bg-white dark:bg-slate-900 border-pink-600 text-pink-600 shadow-md shadow-pink-600/10 scale-110"
                         : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
                     )}
                   >
@@ -302,7 +302,7 @@ export default function SellerRegisterPage() {
                     className={cn(
                       "text-xs font-semibold tracking-wider uppercase",
                       isCurrent
-                        ? "text-indigo-600 dark:text-indigo-400"
+                        ? "text-pink-600 dark:text-pink-400"
                         : "text-slate-400 dark:text-slate-600"
                     )}
                   >
@@ -427,7 +427,7 @@ export default function SellerRegisterPage() {
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                     Trade License Document <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500 transition-colors">
+                  <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:border-pink-500 transition-colors">
                     <input
                       type="file"
                       id="trade-license-input"
@@ -445,17 +445,17 @@ export default function SellerRegisterPage() {
                           href={licensePreviewUrl ?? cloudinaryDocumentUrl(tradeLicenseUrl)}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-xs text-indigo-600 dark:text-indigo-400 underline font-semibold mt-1"
+                          className="text-xs text-pink-600 dark:text-pink-400 underline font-semibold mt-1"
                         >
                           View Document
                         </a>
                       </div>
                     ) : licenseUploading ? (
                       <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
+                        <Loader2 className="h-8 w-8 text-pink-600 animate-spin" />
                         <p className="text-sm font-medium">Uploading Trade License... {licenseProgress}%</p>
                         <div className="w-full max-w-[200px] h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
-                          <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${licenseProgress}%` }} />
+                          <div className="h-full bg-pink-600 rounded-full" style={{ width: `${licenseProgress}%` }} />
                         </div>
                       </div>
                     ) : (
@@ -480,7 +480,7 @@ export default function SellerRegisterPage() {
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                     National ID Card (NID) <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500 transition-colors">
+                  <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:border-pink-500 transition-colors">
                     <input
                       type="file"
                       id="nid-input"
@@ -498,17 +498,17 @@ export default function SellerRegisterPage() {
                           href={nidPreviewUrl ?? cloudinaryDocumentUrl(nidUrl)}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-xs text-indigo-600 dark:text-indigo-400 underline font-semibold mt-1"
+                          className="text-xs text-pink-600 dark:text-pink-400 underline font-semibold mt-1"
                         >
                           View Document
                         </a>
                       </div>
                     ) : nidUploading ? (
                       <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
+                        <Loader2 className="h-8 w-8 text-pink-600 animate-spin" />
                         <p className="text-sm font-medium">Uploading National ID... {nidProgress}%</p>
                         <div className="w-full max-w-[200px] h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
-                          <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${nidProgress}%` }} />
+                          <div className="h-full bg-pink-600 rounded-full" style={{ width: `${nidProgress}%` }} />
                         </div>
                       </div>
                     ) : (
@@ -539,8 +539,8 @@ export default function SellerRegisterPage() {
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
-                <div className="flex items-center gap-2 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-4 mb-4">
-                  <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="flex items-center gap-2 bg-pink-50/50 dark:bg-pink-950/20 border border-pink-100 dark:border-pink-900/50 rounded-2xl p-4 mb-4">
+                  <Building2 className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
                     Please provide the bank details where you wish to receive your payouts after commissions.
                   </p>
@@ -646,7 +646,7 @@ export default function SellerRegisterPage() {
               <Button
                 type="button"
                 onClick={handleNext}
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all duration-200"
+                className="gap-2 bg-pink-600 hover:bg-pink-700 text-white font-semibold transition-all duration-200"
               >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
@@ -654,7 +654,7 @@ export default function SellerRegisterPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting || licenseUploading || nidUploading}
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/10 transition-all duration-200"
+                className="gap-2 bg-pink-600 hover:bg-pink-700 text-white font-semibold shadow-lg shadow-pink-600/10 transition-all duration-200"
               >
                 {isSubmitting ? (
                   <>

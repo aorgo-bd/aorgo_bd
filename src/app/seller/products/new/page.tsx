@@ -53,7 +53,7 @@ export default function NewProductPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <PackagePlus className="h-6 w-6 text-indigo-500" /> Add New Product
+            <PackagePlus className="h-6 w-6 text-pink-500" /> Add New Product
           </h1>
           <p className="text-sm text-slate-500">
             Create a new apparel or footwear listing with custom variants for the marketplace.

@@ -324,7 +324,7 @@ export default function AddressesPage() {
                 {!addr.isDefault && (
                   <button
                     onClick={() => handleSetDefault(addr.id)}
-                    className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors uppercase tracking-wider text-[10px]"
+                    className="font-bold text-pink-600 hover:text-pink-700 transition-colors uppercase tracking-wider text-[10px]"
                   >
                     Set Default
                   </button>

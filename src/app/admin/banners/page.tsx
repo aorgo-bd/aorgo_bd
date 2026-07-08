@@ -231,7 +231,7 @@ export default function AdminBannersPage() {
         </div>
         <Button
           onClick={handleCreateOpen}
-          className="bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-lg shadow-violet-600/10 gap-2 rounded-xl"
+          className="bg-pink-600 hover:bg-pink-700 text-white font-semibold shadow-lg shadow-pink-600/10 gap-2 rounded-xl"
         >
           <Plus className="h-4 w-4" /> Add Banner
         </Button>
@@ -240,7 +240,7 @@ export default function AdminBannersPage() {
       {/* Grid of Banners */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Loading active banners...</p>
         </div>
       ) : sortedBanners.length > 0 ? (
@@ -268,7 +268,7 @@ export default function AdminBannersPage() {
                           banner.position === "hero"
                             ? "bg-blue-50 text-blue-700 dark:bg-blue-950/20"
                             : banner.position === "mid"
-                            ? "bg-violet-50 text-violet-700 dark:bg-violet-950/20"
+                            ? "bg-pink-50 text-pink-700 dark:bg-pink-950/20"
                             : "bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950/20"
                         }`}
                       >
@@ -287,7 +287,7 @@ export default function AdminBannersPage() {
                         href={banner.ctaUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-0.5 text-violet-500 hover:underline font-semibold"
+                        className="inline-flex items-center gap-0.5 text-pink-500 hover:underline font-semibold"
                       >
                         CTA URL <ExternalLink className="h-2.5 w-2.5" />
                       </a>
@@ -316,7 +316,7 @@ export default function AdminBannersPage() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-slate-500 hover:text-violet-600"
+                        className="h-8 w-8 text-slate-500 hover:text-pink-600"
                         onClick={() => handleEditOpen(banner)}
                       >
                         <Edit2 className="h-3.5 w-3.5" />
@@ -350,7 +350,7 @@ export default function AdminBannersPage() {
         <DialogContent className="max-w-md rounded-2xl bg-white p-6 border border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-lg font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-violet-500" />
+              <ImageIcon className="h-5 w-5 text-pink-500" />
               {editingBanner ? "Modify Banner" : "Create Banner Asset"}
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
@@ -457,7 +457,7 @@ export default function AdminBannersPage() {
               <input
                 type="checkbox"
                 id="banner-active"
-                className="rounded text-violet-650 focus:ring-violet-500 h-4 w-4 border-slate-200"
+                className="rounded text-pink-650 focus:ring-pink-500 h-4 w-4 border-slate-200"
                 {...register("active")}
               />
               <label htmlFor="banner-active" className="text-xs font-semibold text-slate-600">
@@ -479,7 +479,7 @@ export default function AdminBannersPage() {
                 type="submit"
                 size="sm"
                 disabled={submitLoading}
-                className="rounded-lg text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white"
+                className="rounded-lg text-xs font-semibold bg-pink-600 hover:bg-pink-700 text-white"
               >
                 {submitLoading ? "Saving..." : editingBanner ? "Save Changes" : "Create Asset"}
               </Button>

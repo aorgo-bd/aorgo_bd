@@ -110,14 +110,14 @@ export default function SellerDashboard() {
       value: orders?.length || 0,
       description: "Lifetime store orders placed",
       icon: ShoppingBag,
-      color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/50",
+      color: "text-pink-500 bg-pink-50 dark:bg-pink-950/20 border-pink-100 dark:border-pink-900/50",
     },
     {
       title: "Total Products",
       value: store.totalProducts || 0,
       description: "Active & pending listings",
       icon: Package,
-      color: "text-violet-500 bg-violet-50 dark:bg-violet-950/20 border-violet-100 dark:border-violet-900/50",
+      color: "text-pink-500 bg-pink-50 dark:bg-pink-950/20 border-pink-100 dark:border-pink-900/50",
     },
     {
       title: "Average Rating",
@@ -132,12 +132,12 @@ export default function SellerDashboard() {
     <div className="space-y-8">
       {/* Welcome banner */}
       <div className="relative overflow-hidden rounded-3xl bg-slate-900 text-slate-100 p-8 shadow-xl dark:bg-slate-950">
-        <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl" />
-        <div className="absolute left-1/3 bottom-0 h-28 w-28 rounded-full bg-violet-500/10 blur-2xl" />
+        <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-pink-500/10 blur-3xl" />
+        <div className="absolute left-1/3 bottom-0 h-28 w-28 rounded-full bg-pink-500/10 blur-2xl" />
         
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-400 border border-indigo-500/20">
+            <span className="rounded-full bg-pink-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-pink-400 border border-pink-500/20">
               Store Status: {store.status}
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight mt-3">
@@ -149,7 +149,7 @@ export default function SellerDashboard() {
           </div>
           <div className="flex gap-3">
             <Link href="/seller/products/new">
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/10">
+              <Button className="bg-pink-600 hover:bg-pink-700 text-white font-semibold shadow-lg shadow-pink-600/10">
                 Create Listing
               </Button>
             </Link>
@@ -197,9 +197,9 @@ export default function SellerDashboard() {
         <Card className="lg:col-span-2 border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <Clock className="h-5 w-5 text-indigo-500" /> Recent Orders
+              <Clock className="h-5 w-5 text-pink-500" /> Recent Orders
             </CardTitle>
-            <Link href="/seller/orders" className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1 dark:text-indigo-400">
+            <Link href="/seller/orders" className="text-xs font-semibold text-pink-600 hover:underline flex items-center gap-1 dark:text-pink-400">
               All Orders <ArrowRight className="h-3 w-3" />
             </Link>
           </CardHeader>
@@ -291,7 +291,7 @@ export default function SellerDashboard() {
           <Card className="border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60">
             <CardHeader>
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <Truck className="h-5 w-5 text-indigo-500" /> Shipping Partners
+                <Truck className="h-5 w-5 text-pink-500" /> Shipping Partners
               </CardTitle>
             </CardHeader>
             <CardContent className="text-xs text-slate-500 leading-relaxed">

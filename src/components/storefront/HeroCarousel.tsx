@@ -189,7 +189,7 @@ export default function HeroCarousel({ initialBanners }: HeroCarouselProps) {
                 >
                   <Link
                     href={currentBanner.ctaUrl || "/products"}
-                    className="w-full sm:w-52 py-4 px-8 inline-flex items-center justify-center gap-2 bg-black hover:bg-black/80 transition-colors text-white rounded-full font-bold text-sm tracking-wide shadow-md group focus:outline-none"
+                    className="w-full sm:w-52 py-4 px-8 inline-flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 transition-colors text-white rounded-sm font-bold text-sm uppercase tracking-widest group focus:outline-none"
                   >
                     <span>Shop Now</span>
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />

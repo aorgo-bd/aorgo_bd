@@ -118,8 +118,8 @@ export default function SellerInventoryPage() {
   };
 
   const kpiCards = [
-    { label: "Products", value: kpis.productCount, icon: Layers, color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/20" },
-    { label: "Total SKUs", value: kpis.skuCount, icon: Boxes, color: "text-violet-500 bg-violet-50 dark:bg-violet-950/20" },
+    { label: "Products", value: kpis.productCount, icon: Layers, color: "text-pink-500 bg-pink-50 dark:bg-pink-950/20" },
+    { label: "Total SKUs", value: kpis.skuCount, icon: Boxes, color: "text-pink-500 bg-pink-50 dark:bg-pink-950/20" },
     { label: "Units in Stock", value: kpis.totalUnits.toLocaleString(), icon: Boxes, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20" },
     { label: "Low Stock", value: kpis.lowStock, icon: AlertTriangle, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/20" },
     { label: "Out of Stock", value: kpis.outOfStock, icon: PackageX, color: "text-red-500 bg-red-50 dark:bg-red-950/20" },
@@ -131,7 +131,7 @@ export default function SellerInventoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <Boxes className="h-6 w-6 text-indigo-500" /> Stock & Inventory
+            <Boxes className="h-6 w-6 text-pink-500" /> Stock & Inventory
           </h1>
           <p className="text-sm text-slate-500">
             Monitor variant stock levels, catch low-stock SKUs, and update quantities inline.
@@ -171,7 +171,7 @@ export default function SellerInventoryPage() {
       {/* Body */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
           <p className="text-sm text-slate-500">Loading inventory...</p>
         </div>
       ) : filteredProducts.length === 0 ? (
@@ -216,7 +216,7 @@ export default function SellerInventoryPage() {
                       size="sm"
                       disabled={!dirty || savingId === product.id}
                       onClick={() => handleSave(product)}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 disabled:opacity-50"
+                      className="bg-pink-600 hover:bg-pink-700 text-white gap-1.5 disabled:opacity-50"
                     >
                       {savingId === product.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                       {savingId === product.id ? "Saving" : "Save"}
@@ -252,7 +252,7 @@ export default function SellerInventoryPage() {
                             min={0}
                             value={value}
                             onChange={(e) => setStock(product.id, v.sku, Math.max(0, parseInt(e.target.value || "0", 10)))}
-                            className={cn("h-8 w-24 text-sm", changed && "border-indigo-500 ring-1 ring-indigo-500")}
+                            className={cn("h-8 w-24 text-sm", changed && "border-pink-500 ring-1 ring-pink-500")}
                           />
                         </div>
                       );

@@ -20,7 +20,12 @@ export default function ClientShell({ children }: { children: React.ReactNode })
       <Toaster />
       {!isDashboardRoute && <AnnouncementBar />}
       {!isDashboardRoute && <Header />}
-      <div className={cn("min-h-screen", !isDashboardRoute && "pb-16 md:pb-0")}>
+      <div
+        className={cn(
+          "min-h-screen",
+          !isDashboardRoute && "bg-ink-100 text-ink-700 pb-16 md:pb-0"
+        )}
+      >
         {children}
       </div>
       <BottomNav />

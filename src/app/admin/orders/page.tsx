@@ -24,7 +24,7 @@ export default function AdminOrdersPage() {
   const statusColors: { [key in OrderStatus]: string } = {
     pending: "bg-amber-50 text-amber-700 dark:bg-amber-950/20 border-amber-100",
     confirmed: "bg-blue-50 text-blue-700 dark:bg-blue-950/20 border-blue-100",
-    processing: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 border-indigo-100",
+    processing: "bg-pink-50 text-pink-700 dark:bg-pink-950/20 border-pink-100",
     shipped: "bg-purple-50 text-purple-700 dark:bg-purple-950/20 border-purple-100",
     delivered: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 border-emerald-100",
     returned: "bg-rose-50 text-rose-700 dark:bg-rose-950/20 border-rose-100",
@@ -71,7 +71,7 @@ export default function AdminOrdersPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="w-full sm:w-48 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition-colors"
+          className="w-full sm:w-48 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-pink-500 transition-colors"
         >
           <option value="all">All Order Statuses</option>
           <option value="pending">Pending</option>
@@ -87,7 +87,7 @@ export default function AdminOrdersPage() {
       {/* Content */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Loading marketplace orders...</p>
         </div>
       ) : filteredOrders.length > 0 ? (

@@ -92,7 +92,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
             {role === "customer" && (
               <Link
                 href="/seller/register"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-pink-600 hover:bg-pink-50 transition-colors"
               >
                 <Store className="h-4.5 w-4.5 shrink-0" />
                 <span>Become a Seller</span>

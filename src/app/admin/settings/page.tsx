@@ -44,7 +44,7 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-          checked ? "bg-violet-600" : "bg-slate-300 dark:bg-slate-700"
+          checked ? "bg-pink-600" : "bg-slate-300 dark:bg-slate-700"
         }`}
       >
         <span
@@ -134,7 +134,7 @@ export default function AdminSettingsPage() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Loading marketplace settings...</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function AdminSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <SettingsIcon className="h-6 w-6 text-violet-500" />
+            <SettingsIcon className="h-6 w-6 text-pink-500" />
             Marketplace Settings
           </h1>
           <p className="text-sm text-slate-500">
@@ -161,7 +161,7 @@ export default function AdminSettingsPage() {
         <Button
           type="submit"
           disabled={saving || !isDirty}
-          className="bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-lg shadow-violet-600/10 gap-2 rounded-xl disabled:opacity-60"
+          className="bg-pink-600 hover:bg-pink-700 text-white font-semibold shadow-lg shadow-pink-600/10 gap-2 rounded-xl disabled:opacity-60"
         >
           <Save className="h-4 w-4" /> {saving ? "Saving..." : "Save Changes"}
         </Button>
@@ -172,7 +172,7 @@ export default function AdminSettingsPage() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <SettingsIcon className="h-4 w-4 text-violet-500" /> Brand Identity
+              <SettingsIcon className="h-4 w-4 text-pink-500" /> Brand Identity
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -188,7 +188,7 @@ export default function AdminSettingsPage() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <LifeBuoy className="h-4 w-4 text-violet-500" /> Support Contact
+              <LifeBuoy className="h-4 w-4 text-pink-500" /> Support Contact
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -209,7 +209,7 @@ export default function AdminSettingsPage() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <Megaphone className="h-4 w-4 text-violet-500" /> Announcement Bar
+              <Megaphone className="h-4 w-4 text-pink-500" /> Announcement Bar
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -235,7 +235,7 @@ export default function AdminSettingsPage() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <Truck className="h-4 w-4 text-violet-500" /> Shipping & Commission
+              <Truck className="h-4 w-4 text-pink-500" /> Shipping & Commission
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -266,7 +266,7 @@ export default function AdminSettingsPage() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <Share2 className="h-4 w-4 text-violet-500" /> Social Links
+              <Share2 className="h-4 w-4 text-pink-500" /> Social Links
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -287,7 +287,7 @@ export default function AdminSettingsPage() {
         <Card className="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-violet-500" /> Platform Switches
+              <ShieldAlert className="h-4 w-4 text-pink-500" /> Platform Switches
             </CardTitle>
           </CardHeader>
           <CardContent className="divide-y divide-slate-100 dark:divide-slate-800">

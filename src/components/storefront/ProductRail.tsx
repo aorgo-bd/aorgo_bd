@@ -39,7 +39,7 @@ export default function ProductRail({ title, filter, initialProducts }: ProductR
         </div>
         <div className="flex space-x-4 overflow-x-hidden">
           {[1, 2, 4, 5].map((i) => (
-            <div key={i} className="min-w-[220px] sm:min-w-[280px] w-[280px] aspect-[4/5] bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="min-w-[220px] sm:min-w-[280px] w-[280px] aspect-[3/4] bg-white rounded-sm animate-pulse" />
           ))}
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function ProductRail({ title, filter, initialProducts }: ProductR
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative group">
       <div className="flex items-center justify-between mb-6 sm:mb-8">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase tracking-tight">
+        <h2 className="text-base sm:text-lg font-bold text-ink-700 uppercase tracking-widest">
           {title}
         </h2>
 
@@ -61,7 +61,7 @@ export default function ProductRail({ title, filter, initialProducts }: ProductR
           <button
             type="button"
             onClick={scrollLeft}
-            className="p-2 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs focus:outline-none"
+            className="p-2 rounded-full border border-ink-200 bg-white text-ink-700 hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-colors focus:outline-none"
             aria-label={`Scroll ${title} left`}
           >
             <ChevronLeft className="h-4.5 w-4.5" />
@@ -69,7 +69,7 @@ export default function ProductRail({ title, filter, initialProducts }: ProductR
           <button
             type="button"
             onClick={scrollRight}
-            className="p-2 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs focus:outline-none"
+            className="p-2 rounded-full border border-ink-200 bg-white text-ink-700 hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-colors focus:outline-none"
             aria-label={`Scroll ${title} right`}
           >
             <ChevronRight className="h-4.5 w-4.5" />

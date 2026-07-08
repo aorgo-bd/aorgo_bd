@@ -69,7 +69,7 @@ export default function StoreDetailClient({ slug }: StoreDetailClientProps) {
   const logo = store.logoPublicId || "";
 
   return (
-    <div className="bg-white min-h-screen pb-20">
+    <div className="min-h-screen pb-20">
       {/* Banner */}
       <div className="relative w-full aspect-[16/6] sm:aspect-[16/5] max-h-[340px] bg-gray-100 overflow-hidden">
         {banner ? (
@@ -201,7 +201,7 @@ export default function StoreDetailClient({ slug }: StoreDetailClientProps) {
         </div>
 
         {isLoadingProducts ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
@@ -220,7 +220,7 @@ export default function StoreDetailClient({ slug }: StoreDetailClientProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {sortedProducts.map((product: Product) => (
               <ProductCard key={product.id} product={product} />
             ))}

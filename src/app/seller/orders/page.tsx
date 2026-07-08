@@ -48,7 +48,7 @@ function getStatusBadgeClass(status: string) {
     case "confirmed":
       return "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200/50";
     case "processing":
-      return "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200/50";
+      return "bg-pink-50 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400 border-pink-200/50";
     case "shipped":
       return "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 border-purple-200/50";
     case "delivered":
@@ -112,7 +112,7 @@ export default function SellerOrdersPage() {
         accessorKey: "id",
         header: "Order ID",
         cell: ({ row }) => (
-          <Link href={`/seller/orders/${row.original.id}`} className="font-mono font-bold text-xs hover:text-indigo-600 hover:underline">
+          <Link href={`/seller/orders/${row.original.id}`} className="font-mono font-bold text-xs hover:text-pink-600 hover:underline">
             #{row.original.id.slice(-8).toUpperCase()}
           </Link>
         ),
@@ -200,7 +200,7 @@ export default function SellerOrdersPage() {
         header: "Action",
         cell: ({ row }) => (
           <Link href={`/seller/orders/${row.original.id}`}>
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-500 hover:text-indigo-650">
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-500 hover:text-pink-650">
               <Eye className="h-4.5 w-4.5" />
             </Button>
           </Link>
@@ -258,7 +258,7 @@ export default function SellerOrdersPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-44 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full sm:w-44 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-pink-500 transition-colors"
           >
             <option value="all">All Order Statuses</option>
             <option value="pending">Pending</option>
@@ -276,7 +276,7 @@ export default function SellerOrdersPage() {
       <div className="rounded-2xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 overflow-hidden shadow-sm">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
             <p className="text-sm text-slate-500">Loading incoming orders...</p>
           </div>
         ) : filteredData.length > 0 ? (

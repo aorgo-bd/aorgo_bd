@@ -142,7 +142,7 @@ export default function CategoryClient() {
   }
 
   return (
-    <div className="bg-white min-h-screen pb-20">
+    <div className="min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         
         {/* Breadcrumb Navigation */}
@@ -196,10 +196,10 @@ export default function CategoryClient() {
             {/* Header: Title & Sorting */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-black">
+                <h1 className="text-lg sm:text-xl font-bold text-ink-700 uppercase tracking-wide">
                   {currentCategory.name}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-400 mt-1 font-semibold">
+                <p className="text-xs sm:text-sm text-ink-400 mt-1 font-semibold">
                   Showing {products.length} product{products.length === 1 ? "" : "s"}
                 </p>
               </div>
@@ -215,19 +215,19 @@ export default function CategoryClient() {
 
             {/* Product Cards Grid */}
             {isLoadingProds ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="aspect-[4/5] bg-gray-50 rounded-2xl animate-pulse" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <div key={i} className="aspect-[3/4] bg-white animate-pulse" />
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="py-20 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                <h3 className="text-base font-bold text-gray-900 mb-1">No products found</h3>
-                <p className="text-sm text-gray-550">Try loosening your filters to see more results.</p>
+              <div className="py-20 text-center bg-white border border-ink-200">
+                <h3 className="text-base font-bold text-ink-700 mb-1">No products found</h3>
+                <p className="text-sm text-ink-500">Try loosening your filters to see more results.</p>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {products.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -239,7 +239,7 @@ export default function CategoryClient() {
                     <button
                       onClick={() => fetchNextPage()}
                       disabled={isFetchingNextPage}
-                      className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-black hover:bg-black/90 text-white text-sm font-bold rounded-full transition-colors disabled:opacity-50 min-w-[180px] cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 px-10 py-3 bg-white border border-ink-300 hover:border-pink-500 text-ink-700 hover:text-pink-500 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors disabled:opacity-50 min-w-[180px] cursor-pointer"
                     >
                       {isFetchingNextPage ? (
                         <>

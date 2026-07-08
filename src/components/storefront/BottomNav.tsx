@@ -41,7 +41,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-ink-200 h-[60px] pb-safe shadow-lg flex items-center justify-around">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-ink-200 h-[60px] pb-safe shadow-[0_-1px_6px_rgba(40,44,63,0.08)] flex items-center justify-around">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive =
@@ -58,8 +58,8 @@ export default function BottomNav() {
             <div className="relative">
               <Icon
                 className={cn(
-                  "h-6 w-6 stroke-[1.8] transition-all",
-                  isActive ? "text-pink-500 scale-105" : "text-ink-500"
+                  "h-[22px] w-[22px] stroke-[1.8] transition-colors",
+                  isActive ? "text-pink-500" : "text-ink-500"
                 )}
               />
               {item.badge && item.badge > 0 ? (

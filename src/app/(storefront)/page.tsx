@@ -184,28 +184,28 @@ export default async function StorefrontHomePage() {
       {/* 4. Mid-page Promo Strip (4 tiles) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-gradient-to-br from-pink-500 to-brand-orange text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+          <div className="bg-pink-500 text-white rounded-sm p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
             <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">NEW USER</span>
             <div>
               <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">৳500 OFF</p>
               <p className="text-[10px] text-white/95 leading-normal">On your first order</p>
             </div>
           </div>
-          <div className="bg-ink-900 text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+          <div className="bg-ink-900 text-white rounded-sm p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
             <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">SHIPPING</span>
             <div>
               <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">FREE SHIPPING</p>
               <p className="text-[10px] text-ink-300 leading-normal">Per-store shipping is calculated at checkout</p>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-pink-600 to-pink-400 text-white rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+          <div className="bg-pink-600 text-white rounded-sm p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
             <span className="text-[9px] font-extrabold tracking-widest uppercase text-white/80">EID COLLECTION</span>
             <div>
               <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">Heritage Sarees</p>
               <p className="text-[10px] text-white/95 leading-normal">Exclusive prints now live</p>
             </div>
           </div>
-          <div className="bg-white border border-ink-200 text-ink-900 rounded-md p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
+          <div className="bg-white border border-ink-200 text-ink-900 rounded-sm p-4 flex flex-col justify-between shadow-2xs aspect-[16/8] sm:aspect-auto">
             <span className="text-[9px] font-extrabold tracking-widest uppercase text-pink-500">PAYMENT</span>
             <div>
               <p className="text-base sm:text-lg font-display font-extrabold uppercase leading-tight">COD AVAILABLE</p>
@@ -243,7 +243,7 @@ export default async function StorefrontHomePage() {
             <a
               href={`/products?search=${brand.slug}`}
               key={brand.name}
-              className={`block bg-gradient-to-br ${brand.bg} border border-ink-200 hover:border-pink-500 rounded-md p-6 text-center shadow-2xs hover:shadow-sm transition-all group`}
+              className="block bg-white border border-ink-200 hover:border-pink-500 rounded-sm p-6 text-center shadow-2xs hover:shadow-sm transition-all group"
             >
               <h3 className="text-lg sm:text-2xl font-display font-black tracking-wider text-ink-900 uppercase group-hover:text-pink-500 transition-colors">
                 {brand.name}
@@ -276,7 +276,7 @@ export default async function StorefrontHomePage() {
             <a
               href={`/category/${cat.slug}`}
               key={cat.slug}
-              className="block bg-white border border-ink-200 hover:border-pink-500 rounded-md overflow-hidden shadow-2xs hover:shadow-sm transition-all group"
+              className="block bg-white border border-ink-200 hover:border-pink-500 rounded-sm overflow-hidden shadow-2xs hover:shadow-sm transition-all group"
             >
               <div className="aspect-square relative w-full bg-ink-100">
                 <Image
@@ -341,7 +341,7 @@ export default async function StorefrontHomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
         <a
           href="/products"
-          className="relative block w-full aspect-[21/9] sm:aspect-[21/6] rounded-md overflow-hidden group shadow-2xs border border-ink-200"
+          className="relative block w-full aspect-[21/9] sm:aspect-[21/6] rounded-sm overflow-hidden group shadow-2xs border border-ink-200"
         >
           <Image
             src="/images/banners/banner-1.webp"

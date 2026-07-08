@@ -56,7 +56,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   if (isProductLoading) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
+        <Loader2 className="h-8 w-8 text-pink-600 animate-spin" />
         <p className="text-sm text-slate-500">Loading product details...</p>
       </div>
     );
@@ -85,7 +85,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         </Link>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <Edit className="h-6 w-6 text-indigo-500" /> Edit Product Listing
+            <Edit className="h-6 w-6 text-pink-500" /> Edit Product Listing
           </h1>
           <p className="text-sm text-slate-500">
             Update pricing, variants or basic details. Changing price, title or photos resets approval status.

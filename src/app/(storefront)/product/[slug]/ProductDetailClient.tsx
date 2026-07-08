@@ -119,7 +119,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
         </p>
         <Link
           href="/products"
-          className="inline-flex items-center justify-center px-6 py-3 bg-black hover:bg-black/90 text-white font-bold rounded-full transition-colors uppercase text-sm tracking-wide"
+          className="inline-flex items-center justify-center px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-sm transition-colors uppercase text-sm tracking-wide"
         >
           Browse Products
         </Link>
@@ -352,13 +352,13 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
             {/* Rating Stars Summary */}
             <div className="flex flex-wrap items-center gap-3">
               {product.rating > 0 ? (
-                <div className="flex items-center gap-1.5 py-1 px-2.5 bg-gray-50 border border-gray-100 rounded-full w-fit">
-                  <span className="text-xs font-bold text-gray-900">
+                <div className="flex items-center gap-1.5 py-1 px-2.5 bg-white border border-ink-200 rounded-sm w-fit">
+                  <span className="text-xs font-bold text-ink-700">
                     {product.rating.toFixed(1)}
                   </span>
-                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  <span className="text-[10px] text-gray-300">|</span>
-                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                  <Star className="h-3.5 w-3.5 fill-brand-green text-brand-green" />
+                  <span className="text-[10px] text-ink-300">|</span>
+                  <span className="text-[10px] font-semibold text-ink-500 uppercase tracking-wide">
                     {product.reviewCount} review{product.reviewCount !== 1 ? "s" : ""}
                   </span>
                 </div>
@@ -385,7 +385,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
                 </span>
               )}
               {discount > 0 && (
-                <span className="text-xs sm:text-sm font-extrabold text-[#FF3333] uppercase tracking-wider bg-red-50 border border-red-100/50 py-1 px-2.5 rounded-full leading-none">
+                <span className="text-sm sm:text-base font-bold text-brand-orange uppercase tracking-wide leading-none">
                   ({discount}% OFF)
                 </span>
               )}
@@ -407,7 +407,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
                   Quantity
                 </span>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center border border-gray-200 rounded-xl bg-white overflow-hidden shadow-2xs">
+                  <div className="flex items-center border border-ink-300 rounded-sm bg-white overflow-hidden">
                     <button
                       onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                       disabled={quantity <= 1}
@@ -437,27 +437,27 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
             {/* Stock Warning */}
             {!isAvailable && (
-              <div className="p-4 bg-red-50/70 border border-red-100 rounded-2xl text-red-700 text-sm font-bold flex items-center justify-center">
+              <div className="p-4 bg-red-50/70 border border-red-100 rounded-sm text-red-700 text-sm font-bold flex items-center justify-center">
                 Sold Out — This item is currently unavailable
               </div>
             )}
 
             {/* Desktop Action Buttons */}
             {isAvailable && (
-              <div className="hidden lg:flex items-center gap-3.5 pt-2">
-                {/* 1. Add to Cart */}
+              <div className="hidden lg:flex items-center gap-3 pt-2">
+                {/* 1. Add to Bag */}
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 h-14 bg-black hover:bg-black/90 text-white rounded-xl font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md"
+                  className="flex-1 h-14 bg-pink-500 hover:bg-pink-600 text-white rounded-sm font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-colors active:scale-[0.99]"
                 >
                   <ShoppingBag className="h-5 w-5" />
-                  <span>Add to Cart</span>
+                  <span>Add to Bag</span>
                 </button>
 
                 {/* 2. Buy Now */}
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 h-14 bg-white border-2 border-black hover:bg-gray-50 text-black rounded-xl font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  className="flex-1 h-14 bg-white border border-ink-300 hover:border-ink-700 text-ink-700 rounded-sm font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-colors active:scale-[0.99]"
                 >
                   <span>Buy Now</span>
                 </button>
@@ -465,14 +465,14 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
                 {/* 3. Wishlist heart */}
                 <button
                   onClick={handleWishlistToggle}
-                  className={`h-14 w-14 rounded-xl border flex items-center justify-center transition-all ${
+                  className={`h-14 w-14 rounded-sm border flex items-center justify-center transition-colors ${
                     isWishlisted
-                      ? "border-red-150 bg-red-50 text-red-600 hover:bg-red-100/70"
-                      : "border-gray-200 bg-white text-gray-700 hover:text-black hover:border-gray-300"
+                      ? "border-pink-200 bg-pink-50 text-pink-500 hover:bg-pink-100/70"
+                      : "border-ink-300 bg-white text-ink-500 hover:text-pink-500 hover:border-pink-300"
                   }`}
                   aria-label="Toggle Wishlist"
                 >
-                  <Heart className={`h-5 w-5 ${isWishlisted ? "fill-red-600" : ""}`} />
+                  <Heart className={`h-5 w-5 ${isWishlisted ? "fill-pink-500" : ""}`} />
                 </button>
               </div>
             )}
@@ -493,7 +493,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
               {/* Attributes lists */}
               {product.attributes && Object.keys(product.attributes).length > 0 && (
-                <div className="grid grid-cols-2 gap-4 bg-gray-50/50 border border-gray-100 rounded-2xl p-4 mt-2">
+                <div className="grid grid-cols-2 gap-4 bg-ink-50 border border-ink-200 rounded-sm p-4 mt-2">
                   {Object.entries(product.attributes).map(([key, value]) => {
                     if (!value || (Array.isArray(value) && value.length === 0)) return null;
                     return (
@@ -529,20 +529,20 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
         {completeTheLookProducts.length > 0 && (
           <section className="py-8 relative group border-t border-gray-100">
             <div className="flex items-center justify-between mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase tracking-tight">
+              <h2 className="text-base sm:text-lg font-bold text-ink-700 uppercase tracking-widest">
                 Complete the Look
               </h2>
               {/* Scroll controls */}
               <div className="hidden sm:flex items-center space-x-2">
                 <button
                   onClick={scrollLookLeft}
-                  className="p-2 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs"
+                  className="p-2 rounded-full border border-ink-200 bg-white text-ink-700 hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-colors"
                 >
                   <ChevronLeft className="h-4.5 w-4.5" />
                 </button>
                 <button
                   onClick={scrollLookRight}
-                  className="p-2 rounded-full border border-black/10 bg-white text-black hover:bg-black hover:text-white transition-all shadow-xs"
+                  className="p-2 rounded-full border border-ink-200 bg-white text-ink-700 hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-colors"
                 >
                   <ChevronRight className="h-4.5 w-4.5" />
                 </button>

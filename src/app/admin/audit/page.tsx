@@ -57,7 +57,7 @@ export default function AdminAuditPage() {
                         log.actorRole === "admin"
                           ? "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-100"
                           : log.actorRole === "seller"
-                          ? "bg-violet-50 text-violet-700 border-violet-100"
+                          ? "bg-pink-50 text-pink-700 border-pink-100"
                           : "bg-blue-50 text-blue-700 border-blue-100"
                       }`}
                       variant="secondary"

@@ -81,7 +81,7 @@ export default function MyOrdersPage() {
                       ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                       : order.status === "cancelled"
                       ? "bg-red-50 text-red-700 border-red-100"
-                      : "bg-indigo-50 text-indigo-700 border-indigo-100"
+                      : "bg-pink-50 text-pink-700 border-pink-100"
                   }`}
                   variant="secondary"
                 >

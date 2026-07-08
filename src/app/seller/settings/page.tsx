@@ -100,7 +100,7 @@ export default function SellerSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
         <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Loading settings...</p>
       </div>
     );
@@ -141,7 +141,7 @@ export default function SellerSettingsPage() {
             <Card className="border border-slate-150 rounded-2xl shadow-3xs">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Store className="h-5 w-5 text-indigo-500" />
+                  <Store className="h-5 w-5 text-pink-500" />
                   <span>Public Store Profile</span>
                 </CardTitle>
                 <CardDescription>Update name, description, and visual identifiers shown to customers.</CardDescription>
@@ -195,7 +195,7 @@ export default function SellerSettingsPage() {
             <Card className="border border-slate-150 rounded-2xl shadow-3xs">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Landmark className="h-5 w-5 text-indigo-500" />
+                  <Landmark className="h-5 w-5 text-pink-500" />
                   <span>Payout Bank Account Details</span>
                 </CardTitle>
                 <CardDescription>Add bank routing to collect weekly payouts for orders fulfilled.</CardDescription>
@@ -239,7 +239,7 @@ export default function SellerSettingsPage() {
           <Card className="border border-slate-150 rounded-2xl shadow-3xs">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-indigo-500" />
+                <ShieldCheck className="h-5 w-5 text-pink-500" />
                 <span>Verification Credentials</span>
               </CardTitle>
               <CardDescription>Submitted documents for store authorization. Admin-only editable.</CardDescription>
@@ -249,7 +249,7 @@ export default function SellerSettingsPage() {
                 <div className="space-y-2 border border-slate-150 rounded-xl p-4 bg-slate-50/50">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Trade License document</p>
                   {store.tradeLicenseUrl ? (
-                    <a href={store.tradeLicenseUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-indigo-600 underline hover:text-indigo-700 block truncate">
+                    <a href={store.tradeLicenseUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-pink-600 underline hover:text-pink-700 block truncate">
                       View submitted document
                     </a>
                   ) : (
@@ -260,7 +260,7 @@ export default function SellerSettingsPage() {
                 <div className="space-y-2 border border-slate-150 rounded-xl p-4 bg-slate-50/50">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">National ID Card (NID)</p>
                   {store.nidUrl ? (
-                    <a href={store.nidUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-indigo-600 underline hover:text-indigo-700 block truncate">
+                    <a href={store.nidUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-pink-600 underline hover:text-pink-700 block truncate">
                       View submitted NID document
                     </a>
                   ) : (
@@ -269,11 +269,11 @@ export default function SellerSettingsPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl flex items-center gap-3 mt-6">
-                <ShieldCheck className="h-5 w-5 text-indigo-600" />
+              <div className="p-4 bg-pink-50/50 border border-pink-100 rounded-xl flex items-center gap-3 mt-6">
+                <ShieldCheck className="h-5 w-5 text-pink-600" />
                 <div>
-                  <p className="text-xs font-bold text-indigo-950 uppercase tracking-wider">Verification Status</p>
-                  <p className="text-xs text-indigo-800 mt-0.5 capitalize">
+                  <p className="text-xs font-bold text-pink-950 uppercase tracking-wider">Verification Status</p>
+                  <p className="text-xs text-pink-800 mt-0.5 capitalize">
                     Store is currently: <strong>{store.status}</strong>
                   </p>
                 </div>

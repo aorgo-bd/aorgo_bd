@@ -100,7 +100,7 @@ export default function AdminSellersPage() {
                 <TableCell className="py-4 align-top">
                   <div className="max-w-[200px] space-y-1">
                     <p className="font-extrabold text-slate-800 dark:text-slate-100">{store.name}</p>
-                    <p className="text-[10px] font-semibold text-indigo-500 uppercase tracking-wider">
+                    <p className="text-[10px] font-semibold text-pink-500 uppercase tracking-wider">
                       Slug: {store.slug}
                     </p>
                     <p className="text-xs text-slate-500 line-clamp-2">{store.description}</p>
@@ -119,7 +119,7 @@ export default function AdminSellersPage() {
                       href={cloudinaryDocumentUrl(store.tradeLicenseUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-bold text-violet-600 hover:text-violet-700 hover:underline"
+                      className="inline-flex items-center gap-1.5 font-bold text-pink-600 hover:text-pink-700 hover:underline"
                     >
                       Trade License <ExternalLink className="h-3 w-3" />
                     </a>
@@ -132,7 +132,7 @@ export default function AdminSellersPage() {
                       href={cloudinaryDocumentUrl(store.nidUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-bold text-violet-600 hover:text-violet-700 hover:underline"
+                      className="inline-flex items-center gap-1.5 font-bold text-pink-600 hover:text-pink-700 hover:underline"
                     >
                       NID Document <ExternalLink className="h-3 w-3" />
                     </a>
@@ -251,7 +251,7 @@ export default function AdminSellersPage() {
       {/* Tabs */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Loading seller partners...</p>
         </div>
       ) : (

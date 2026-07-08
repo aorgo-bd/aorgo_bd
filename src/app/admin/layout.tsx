@@ -49,9 +49,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Handle Loading State
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-violet-50/20 via-slate-50 to-violet-100/20 dark:from-slate-950 dark:to-slate-900">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-pink-50/20 via-slate-50 to-pink-100/20 dark:from-slate-950 dark:to-slate-900">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Verifying Admin Access...</p>
         </div>
       </div>
@@ -99,13 +99,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <img
             src="/logo.webp"
             alt="AORGO"
-            className="h-10 w-10 rounded-xl object-contain shadow-md shadow-violet-500/30"
+            className="h-10 w-10 rounded-xl object-contain shadow-md shadow-pink-500/30"
           />
           <div>
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-violet-200 to-violet-300 bg-clip-text text-transparent">
+            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-pink-200 to-pink-300 bg-clip-text text-transparent">
               AORGO
             </span>
-            <span className="block text-xs font-semibold uppercase tracking-wider text-violet-400">
+            <span className="block text-xs font-semibold uppercase tracking-wider text-pink-400">
               Admin Control
             </span>
           </div>
@@ -123,7 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 group relative",
                   isActive
-                    ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20"
+                    ? "bg-pink-600 text-white shadow-lg shadow-pink-600/20"
                     : "text-ink-400 hover:bg-ink-900 hover:text-white"
                 )}
               >
@@ -141,9 +141,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* User Footer Profile info */}
       <div className="border-t border-ink-700 p-4 bg-ink-900">
         <div className="flex items-center gap-3 px-2 py-2">
-          <Avatar className="h-9 w-9 border border-violet-500/30">
+          <Avatar className="h-9 w-9 border border-pink-500/30">
             {user?.photoURL ? <AvatarImage src={user.photoURL} alt={user.displayName || ""} /> : null}
-            <AvatarFallback className="bg-violet-950 text-violet-200 uppercase">
+            <AvatarFallback className="bg-pink-950 text-pink-200 uppercase">
               {user?.displayName?.substring(0, 2) || user?.email?.substring(0, 2) || "AD"}
             </AvatarFallback>
           </Avatar>
@@ -189,7 +189,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Menu className="h-5 w-5" />
             </Button>
             <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-violet-500" />
+              <ShieldCheck className="h-5 w-5 text-pink-500" />
               Admin Portal
             </h2>
           </div>
@@ -197,12 +197,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="hidden text-xs font-semibold text-violet-600 hover:underline md:block dark:text-violet-400"
+              className="hidden text-xs font-semibold text-pink-600 hover:underline md:block dark:text-pink-400"
             >
               View Storefront
             </Link>
             <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
-            <span className="rounded-full bg-violet-50 dark:bg-violet-950/30 px-3 py-1 text-xs font-semibold text-violet-750 dark:text-violet-400 border border-violet-100 dark:border-violet-900/50 uppercase">
+            <span className="rounded-full bg-pink-50 dark:bg-pink-950/30 px-3 py-1 text-xs font-semibold text-pink-750 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50 uppercase">
               System Admin
             </span>
           </div>

@@ -24,7 +24,7 @@ export default function WishlistPage() {
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-black uppercase tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-ink-700 uppercase tracking-wide">
               My Wishlist
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -35,7 +35,7 @@ export default function WishlistPage() {
           {wishlistProducts.length > 0 && (
             <button
               onClick={handleClearWishlist}
-              className="inline-flex items-center justify-center px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors focus:outline-none"
+              className="inline-flex items-center justify-center px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold rounded-sm text-xs uppercase tracking-wider transition-colors focus:outline-none"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Clear Wishlist
@@ -45,13 +45,13 @@ export default function WishlistPage() {
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {[...Array(4)].map((_, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-2xs aspect-[4/5] animate-pulse flex flex-col p-4 space-y-4"
+                className="bg-white rounded-sm border border-gray-100 overflow-hidden shadow-2xs aspect-[4/5] animate-pulse flex flex-col p-4 space-y-4"
               >
-                <div className="flex-1 bg-gray-100 rounded-xl" />
+                <div className="flex-1 bg-gray-100 rounded-sm" />
                 <div className="h-4 bg-gray-100 rounded-md w-1/3" />
                 <div className="h-6 bg-gray-100 rounded-md w-3/4" />
                 <div className="h-5 bg-gray-100 rounded-md w-1/4" />
@@ -60,7 +60,7 @@ export default function WishlistPage() {
           </div>
         ) : wishlistProducts.length === 0 ? (
           /* Empty State */
-          <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center max-w-xl mx-auto shadow-xs">
+          <div className="bg-white rounded-sm border border-gray-100 p-12 text-center max-w-xl mx-auto shadow-xs">
             <div className="w-20 h-20 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Heart className="h-10 w-10 text-gray-350" />
             </div>
@@ -70,14 +70,14 @@ export default function WishlistPage() {
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center justify-center px-8 py-3 bg-black hover:bg-black/90 text-white font-bold rounded-xl text-sm uppercase tracking-wider transition-all"
+              className="inline-flex items-center justify-center px-8 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-sm text-sm uppercase tracking-wider transition-all"
             >
               Discover Products
             </Link>
           </div>
         ) : (
           /* Product Grid */
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {wishlistProducts.map((product: Product) => (
               <div key={product.id} className="relative group">
                 <ProductCard product={product} />

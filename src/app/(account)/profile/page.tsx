@@ -77,7 +77,7 @@ export default function ProfileOverviewPage() {
           {orders.length > 0 && (
             <Link
               href="/profile/orders"
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-0.5 uppercase tracking-wider"
+              className="text-xs font-bold text-pink-600 hover:text-pink-700 flex items-center gap-0.5 uppercase tracking-wider"
             >
               <span>View all</span>
               <ChevronRight className="h-4 w-4" />
@@ -118,7 +118,7 @@ export default function ProfileOverviewPage() {
                           ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                           : order.status === "cancelled"
                           ? "bg-red-50 text-red-700 border-red-100"
-                          : "bg-indigo-50 text-indigo-700 border-indigo-100"
+                          : "bg-pink-50 text-pink-700 border-pink-100"
                       }`}
                       variant="secondary"
                     >

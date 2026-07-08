@@ -6,7 +6,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  ShoppingCart,
   Heart,
   User as UserIcon,
   Menu,
@@ -115,9 +114,9 @@ export default function Header() {
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white border-b border-ink-200 shadow-sm">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-ink-200 shadow-[0_1px_3px_rgba(40,44,63,0.08)]">
       {/* Top Banner Ribbon */}
-      <div className="w-full bg-gradient-to-r from-pink-500 to-brand-orange text-white text-center py-1.5 px-4 text-[11px] font-bold tracking-wider flex items-center justify-center gap-1 min-h-[28px] overflow-hidden select-none">
+      <div className="w-full bg-ink-900 text-white text-center py-1.5 px-4 text-[11px] font-bold tracking-widest flex items-center justify-center gap-1 min-h-[28px] overflow-hidden select-none">
         <motion.span
           key={promoMessageIndex}
           initial={{ opacity: 0, y: 10 }}
@@ -152,7 +151,7 @@ export default function Header() {
                 {/* Mobile Navigation List */}
                 <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
                   {/* Become a Seller CTA card */}
-                  <div className="bg-gradient-to-br from-pink-50 to-ink-50 border border-pink-100 rounded-xl p-4 space-y-2">
+                  <div className="bg-ink-50 border border-ink-200 rounded-md p-4 space-y-2">
                     <p className="text-xs font-bold text-pink-500 uppercase tracking-widest">AORGO MERCHANT</p>
                     <p className="text-sm font-bold text-ink-900">Start Selling on AORGO Today</p>
                     <p className="text-xs text-ink-500">Reach millions of fashion buyers across Bangladesh.</p>
@@ -367,49 +366,29 @@ export default function Header() {
         {/* Desktop Search Bar */}
         <SearchBar className="hidden lg:block flex-1 max-w-xs xl:max-w-md" />
 
-        {/* Right Side Icons: Search, Wishlist, Cart, Profile */}
-        <div className="flex items-center space-x-1 sm:space-x-2">
+        {/* Right Side Icons: Profile, Wishlist, Bag (Myntra icon+label) */}
+        <div className="flex items-center gap-4 sm:gap-6">
           {/* Mobile Search Trigger */}
           <button
             onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-            className="p-2 text-ink-700 hover:text-pink-500 hover:bg-ink-50 rounded-full transition-colors lg:hidden"
+            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors lg:hidden"
+            aria-label="Search"
           >
-            <Search className="h-5.5 w-5.5" />
-          </button>
-
-          {/* Wishlist Icon */}
-          <Link
-            href="/wishlist"
-            className="p-2 text-ink-700 hover:text-pink-500 hover:bg-ink-50 rounded-full transition-colors relative group"
-            aria-label="Wishlist"
-          >
-            <Heart className="h-5.5 w-5.5 group-hover:scale-105 transition-transform" />
-            {wishlistIds.length > 0 && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-pink-500 rounded-full animate-scale-in" />
-            )}
-          </Link>
-
-          {/* Cart Icon */}
-          <button
-            onClick={() => setCartOpen(true)}
-            className="p-2 text-ink-700 hover:text-pink-500 hover:bg-ink-50 rounded-full transition-colors relative group focus:outline-none cursor-pointer"
-            aria-label="Shopping Bag"
-          >
-            <ShoppingCart className="h-5.5 w-5.5 group-hover:scale-105 transition-transform" />
-            {totalCartCount > 0 && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-pink-500 rounded-full animate-scale-in" />
-            )}
+            <Search className="h-5 w-5 stroke-[1.8]" />
           </button>
 
           {/* Desktop User Profile Dropdown Menu */}
           <div className="hidden lg:flex items-center">
             {isLoading ? (
-              <div className="w-8 h-8 rounded-full bg-ink-100 animate-pulse" />
+              <div className="w-6 h-6 rounded-full bg-ink-100 animate-pulse" />
             ) : isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger render={
-                  <button className="flex items-center justify-center w-9 h-9 rounded-full bg-ink-900 text-white hover:bg-pink-500 transition-colors font-bold text-sm focus:outline-none cursor-pointer">
-                    {user.displayName ? user.displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : "U")}
+                  <button className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors focus:outline-none cursor-pointer group">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ink-900 text-white group-hover:bg-pink-500 transition-colors font-bold text-[11px]">
+                      {user.displayName ? user.displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : "U")}
+                    </span>
+                    <span className="text-[11px] font-bold">Profile</span>
                   </button>
                 } />
                 <DropdownMenuContent align="end" className="w-56 bg-white border border-ink-200 shadow-lg rounded-md p-1.5">
@@ -462,12 +441,47 @@ export default function Header() {
             ) : (
               <Link
                 href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                className="inline-flex items-center justify-center h-10 px-5 text-xs font-bold uppercase tracking-wider bg-ink-900 hover:bg-pink-500 text-white rounded-sm transition-colors"
+                className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors"
               >
-                Login / Signup
+                <UserIcon className="h-5 w-5 stroke-[1.8]" />
+                <span className="text-[11px] font-bold">Profile</span>
               </Link>
             )}
           </div>
+
+          {/* Wishlist */}
+          <Link
+            href="/wishlist"
+            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors"
+            aria-label="Wishlist"
+          >
+            <span className="relative">
+              <Heart className="h-5 w-5 stroke-[1.8]" />
+              {wishlistIds.length > 0 && (
+                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
+                  {wishlistIds.length}
+                </span>
+              )}
+            </span>
+            <span className="text-[11px] font-bold hidden lg:block">Wishlist</span>
+          </Link>
+
+          {/* Bag */}
+          <button
+            onClick={() => setCartOpen(true)}
+            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors focus:outline-none cursor-pointer"
+            aria-label="Shopping Bag"
+          >
+            <span className="relative">
+              <ShoppingBag className="h-5 w-5 stroke-[1.8]" />
+              {totalCartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
+                  {totalCartCount}
+                </span>
+              )}
+            </span>
+            <span className="text-[11px] font-bold hidden lg:block">Bag</span>
+          </button>
         </div>
       </div>
 

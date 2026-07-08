@@ -38,26 +38,24 @@ export default function StickyMobileCTA({
       {/* 1. Wishlist Button */}
       <button
         onClick={onWishlistToggle}
-        className={`p-3 rounded-xl border flex items-center justify-center transition-all ${
+        className={`p-3 rounded-sm border flex items-center justify-center transition-colors ${
           isWishlisted
-            ? "border-red-100 bg-red-50 text-red-600 active:scale-95"
-            : "border-gray-200 bg-white text-gray-700 hover:text-black active:scale-95"
+            ? "border-pink-200 bg-pink-50 text-pink-500 active:scale-95"
+            : "border-ink-300 bg-white text-ink-500 hover:text-pink-500 active:scale-95"
         }`}
         aria-label="Toggle Wishlist"
       >
-        <Heart className={`h-6 w-6 ${isWishlisted ? "fill-red-600" : ""}`} />
+        <Heart className={`h-6 w-6 ${isWishlisted ? "fill-pink-500" : ""}`} />
       </button>
 
-      {/* 2. Add to Cart / Out of Stock CTA */}
+      {/* 2. Add to Bag / Out of Stock CTA */}
       <button
         onClick={onAddToCart}
         disabled={!isAvailable}
-        className={`flex-1 h-12 rounded-xl font-bold text-sm tracking-wide uppercase flex items-center justify-center gap-2 shadow-xs transition-all ${
+        className={`flex-1 h-12 rounded-sm font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 transition-colors ${
           !isAvailable
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : needsSelection
-            ? "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
-            : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
+            ? "bg-ink-200 text-ink-400 cursor-not-allowed"
+            : "bg-pink-500 text-white hover:bg-pink-600 active:scale-[0.99]"
         }`}
       >
         <ShoppingBag className="h-4.5 w-4.5" />
@@ -66,7 +64,7 @@ export default function StickyMobileCTA({
             ? "Out of Stock"
             : needsSelection
             ? "Select Size/Color"
-            : "Add to Cart"}
+            : "Add to Bag"}
         </span>
       </button>
     </motion.div>

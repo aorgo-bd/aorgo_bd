@@ -53,9 +53,9 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   // Handle Loading State
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50/20 via-slate-50 to-indigo-100/20 dark:from-slate-950 dark:to-slate-900">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-pink-50/20 via-slate-50 to-pink-100/20 dark:from-slate-950 dark:to-slate-900">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Loading Seller Portal...</p>
         </div>
       </div>
@@ -73,7 +73,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       return null;
     }
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-pink-50/30 to-slate-100 dark:from-slate-950 dark:to-slate-900">
         {children}
       </div>
     );

@@ -17,7 +17,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-gradient-to-br from-slate-50 via-indigo-50/10 to-slate-100 dark:from-slate-950 dark:via-indigo-950/10 dark:to-slate-900">
+    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 bg-gradient-to-br from-slate-50 via-pink-50/10 to-slate-100 dark:from-slate-950 dark:via-pink-950/10 dark:to-slate-900">
       <div className="text-center max-w-md w-full space-y-6 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-xl backdrop-blur-md">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 dark:bg-red-950/20 text-red-600 mx-auto mb-2">
           <AlertTriangle className="h-8 w-8" />

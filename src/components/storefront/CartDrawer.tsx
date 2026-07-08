@@ -51,7 +51,7 @@ export default function CartDrawer() {
               <SheetClose render={
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center px-6 py-2.5 bg-black hover:bg-black/90 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-colors"
+                  className="inline-flex items-center justify-center px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-sm text-xs uppercase tracking-wider transition-colors"
                 >
                   Browse Products
                 </Link>
@@ -61,10 +61,10 @@ export default function CartDrawer() {
             items.map((item) => (
               <div
                 key={item.variantSku}
-                className="flex gap-4 p-3 bg-white border border-gray-100 rounded-2xl shadow-2xs hover:shadow-xs transition-shadow duration-200"
+                className="flex gap-4 p-3 bg-white border border-gray-100 rounded-sm shadow-2xs hover:shadow-xs transition-shadow duration-200"
               >
                 {/* Product Image */}
-                <div className="w-20 aspect-[4/5] bg-gray-50 rounded-xl overflow-hidden shrink-0">
+                <div className="w-20 aspect-[4/5] bg-gray-50 rounded-sm overflow-hidden shrink-0">
                   <ProductImage
                     src={item.imagePublicId}
                     alt={item.title}
@@ -166,7 +166,7 @@ export default function CartDrawer() {
               <SheetClose render={
                 <Link
                   href="/checkout"
-                  className="flex h-12 w-full bg-black hover:bg-black/90 text-white rounded-xl font-bold uppercase tracking-wider text-xs items-center justify-center gap-2 transition-all active:scale-[0.99] shadow-md"
+                  className="flex h-12 w-full bg-pink-500 hover:bg-pink-600 text-white rounded-sm font-bold uppercase tracking-wider text-xs items-center justify-center gap-2 transition-all active:scale-[0.99] shadow-md"
                 >
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="h-4 w-4" />
@@ -177,7 +177,7 @@ export default function CartDrawer() {
               <SheetClose render={
                 <Link
                   href="/cart"
-                  className="flex h-12 w-full bg-white border border-gray-200 hover:bg-gray-50 text-black rounded-xl font-bold uppercase tracking-wider text-xs items-center justify-center transition-all active:scale-[0.99]"
+                  className="flex h-12 w-full bg-white border border-gray-200 hover:bg-gray-50 text-black rounded-sm font-bold uppercase tracking-wider text-xs items-center justify-center transition-all active:scale-[0.99]"
                 >
                   <span>View Shopping Cart</span>
                 </Link>

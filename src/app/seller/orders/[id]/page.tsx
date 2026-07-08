@@ -34,7 +34,7 @@ function getStatusBadgeClass(status: string) {
     case "confirmed":
       return "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200/50";
     case "processing":
-      return "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200/50";
+      return "bg-pink-50 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400 border-pink-200/50";
     case "shipped":
       return "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 border-purple-200/50";
     case "delivered":
@@ -133,7 +133,7 @@ export default function SellerOrderDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+        <Loader2 className="h-10 w-10 animate-spin text-pink-600" />
         <p className="text-muted-foreground text-sm font-medium animate-pulse">Loading order details...</p>
       </div>
     );
@@ -153,7 +153,7 @@ export default function SellerOrderDetailPage() {
         </div>
         <Link
           href="/seller/orders"
-          className={cn(buttonVariants({ variant: "default" }), "py-2 px-4 inline-block bg-indigo-650 hover:bg-indigo-700")}
+          className={cn(buttonVariants({ variant: "default" }), "py-2 px-4 inline-block bg-pink-650 hover:bg-pink-700")}
         >
           Back to Orders
         </Link>
@@ -274,7 +274,7 @@ export default function SellerOrderDetailPage() {
           <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <ClipboardList className="h-5 w-5 text-indigo-500" />
+                <ClipboardList className="h-5 w-5 text-pink-500" />
                 <span>Order History Logs</span>
               </CardTitle>
             </CardHeader>
@@ -289,8 +289,8 @@ export default function SellerOrderDetailPage() {
                   });
                   return (
                     <div key={idx} className="relative">
-                      <div className="absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-indigo-600 bg-background flex items-center justify-center">
-                        <div className="h-1.5 w-1.5 rounded-full bg-indigo-650" />
+                      <div className="absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-pink-600 bg-background flex items-center justify-center">
+                        <div className="h-1.5 w-1.5 rounded-full bg-pink-650" />
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
@@ -319,10 +319,10 @@ export default function SellerOrderDetailPage() {
         {/* Right Side: Fulfillment Actions, Address, Billing */}
         <div className="lg:col-span-4 space-y-6">
           {/* Fulfillment Actions Card */}
-          <Card className="shadow-sm border-indigo-100 bg-indigo-50/10 dark:border-indigo-900/30 dark:bg-indigo-950/10">
+          <Card className="shadow-sm border-pink-100 bg-pink-50/10 dark:border-pink-900/30 dark:bg-pink-950/10">
             <CardHeader>
               <CardTitle className="text-sm font-bold flex items-center space-x-2">
-                <Truck className="h-4.5 w-4.5 text-indigo-500" />
+                <Truck className="h-4.5 w-4.5 text-pink-500" />
                 <span>Process Fulfillment</span>
               </CardTitle>
             </CardHeader>
@@ -398,7 +398,7 @@ export default function SellerOrderDetailPage() {
                 <Button
                   type="submit"
                   disabled={isUpdating}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase rounded-xl py-2 shadow-md flex items-center justify-center gap-1.5"
+                  className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs uppercase rounded-xl py-2 shadow-md flex items-center justify-center gap-1.5"
                 >
                   {isUpdating ? (
                     <>
@@ -445,7 +445,7 @@ export default function SellerOrderDetailPage() {
                 <span className="text-slate-700 dark:text-slate-350">৳{order.totals.shipping.toLocaleString()}</span>
               </div>
               {order.totals.discount > 0 && (
-                <div className="flex justify-between font-medium text-indigo-600">
+                <div className="flex justify-between font-medium text-pink-600">
                   <span>Discount</span>
                   <span>-৳{order.totals.discount.toLocaleString()}</span>
                 </div>
@@ -453,7 +453,7 @@ export default function SellerOrderDetailPage() {
               <hr />
               <div className="flex justify-between items-end">
                 <span className="font-bold text-sm text-slate-800 dark:text-slate-250">Grand Total</span>
-                <span className="font-extrabold text-base text-indigo-600">৳{order.totals.total.toLocaleString()}</span>
+                <span className="font-extrabold text-base text-pink-600">৳{order.totals.total.toLocaleString()}</span>
               </div>
               <hr />
               <div className="flex justify-between items-center text-[10px] pt-1">

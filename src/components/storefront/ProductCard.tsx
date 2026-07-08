@@ -39,18 +39,18 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="group flex flex-col w-full bg-white rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-shadow duration-300 border border-gray-100"
+      className="group relative flex flex-col w-full bg-white overflow-hidden transition-shadow duration-200 hover:shadow-[0_2px_16px_rgba(40,44,63,0.16)]"
     >
-      {/* 4:5 Aspect Ratio Image Wrapper */}
-      <div className="relative w-full aspect-[4/5] bg-gray-50 overflow-hidden">
+      {/* 3:4 Aspect Ratio Image Wrapper */}
+      <div className="relative w-full aspect-[3/4] bg-ink-100 overflow-hidden">
         {mainImage ? (
           <ProductImage
             src={mainImage}
             alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs">
+          <div className="w-full h-full flex items-center justify-center bg-ink-100 text-ink-400 text-xs">
             No Image
           </div>
         )}
@@ -58,55 +58,62 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Overlay */}
         <button
           onClick={handleWishlistToggle}
-          className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white backdrop-blur-xs text-gray-700 hover:text-black transition-all rounded-full shadow-xs focus:outline-none z-10"
+          aria-label="Add to wishlist"
+          className="absolute top-2.5 right-2.5 h-8 w-8 flex items-center justify-center bg-white/95 text-ink-500 hover:text-pink-500 transition-colors rounded-full shadow-[0_1px_4px_rgba(40,44,63,0.16)] focus:outline-none z-10"
         >
           <Heart
-            className={`h-4.5 w-4.5 transition-colors ${
-              isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"
+            className={`h-4 w-4 transition-colors ${
+              isWishlisted ? "fill-pink-500 text-pink-500" : "text-ink-500"
             }`}
           />
         </button>
 
-        {/* Discount Badge Overlay */}
-        {discount > 0 && (
-          <span className="absolute bottom-3 left-3 bg-[#FF3333] text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
-            {discount}% OFF
-          </span>
+        {/* Rating pill (Myntra style) bottom-left */}
+        {product.rating > 0 && (
+          <div className="absolute bottom-0 left-0 m-2 flex items-center gap-1 bg-white/95 px-1.5 py-0.5 rounded-sm shadow-[0_1px_2px_rgba(40,44,63,0.12)]">
+            <span className="text-[11px] font-bold text-ink-700 leading-none">
+              {product.rating.toFixed(1)}
+            </span>
+            <span className="text-brand-green text-[10px] leading-none">★</span>
+            {product.reviewCount > 0 && (
+              <>
+                <span className="w-px h-2.5 bg-ink-300" />
+                <span className="text-[10px] font-semibold text-ink-400 leading-none">
+                  {product.reviewCount > 999
+                    ? `${(product.reviewCount / 1000).toFixed(1)}k`
+                    : product.reviewCount}
+                </span>
+              </>
+            )}
+          </div>
         )}
       </div>
 
       {/* Product Details Section */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between min-h-[120px]">
-        <div>
-          {/* Brand */}
-          <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">
-            {product.brand}
+      <div className="px-2.5 pt-2 pb-3 flex flex-col">
+        {/* Brand */}
+        <h3 className="text-sm font-bold text-ink-700 truncate leading-tight">
+          {product.brand}
+        </h3>
+        {/* Title / description (one line, muted — Myntra style) */}
+        <p className="text-[13px] text-ink-500 truncate leading-tight mt-0.5">
+          {product.title}
+        </p>
+
+        {/* Price row */}
+        <div className="flex items-center flex-wrap gap-1.5 mt-1.5">
+          <span className="text-sm font-bold text-ink-700">
+            ৳{product.price.toLocaleString("en-BD")}
           </span>
-          {/* Title */}
-          <h3 className="text-sm font-bold text-gray-900 group-hover:text-black line-clamp-2 leading-snug mb-1">
-            {product.title}
-          </h3>
-        </div>
-
-        {/* Price & Rating */}
-        <div className="pt-2 border-t border-gray-50 flex items-end justify-between">
-          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
-            <span className="text-base sm:text-lg font-black text-black">
-              ৳{product.price.toLocaleString("en-BD")}
+          {product.comparePrice && product.comparePrice > product.price && (
+            <span className="text-xs text-ink-400 line-through">
+              ৳{product.comparePrice.toLocaleString("en-BD")}
             </span>
-            {product.comparePrice && product.comparePrice > product.price && (
-              <span className="text-xs sm:text-sm text-gray-400 line-through">
-                ৳{product.comparePrice.toLocaleString("en-BD")}
-              </span>
-            )}
-          </div>
-
-          {/* Rating */}
-          {product.rating > 0 && (
-            <div className="flex items-center text-[11px] sm:text-xs font-medium text-gray-500">
-              <span className="text-amber-500 mr-0.5">★</span>
-              <span>{product.rating.toFixed(1)}</span>
-            </div>
+          )}
+          {discount > 0 && (
+            <span className="text-xs font-bold text-brand-orange">
+              ({discount}% OFF)
+            </span>
           )}
         </div>
       </div>

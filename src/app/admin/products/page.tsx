@@ -156,7 +156,7 @@ export default function AdminProductsPage() {
                   <TableCell className="align-top py-4">
                     <div className="max-w-[220px] space-y-0.5">
                       <p className="font-extrabold text-slate-800 dark:text-slate-100 truncate">{product.title}</p>
-                      <p className="text-[10px] font-semibold text-indigo-500 uppercase tracking-wider">
+                      <p className="text-[10px] font-semibold text-pink-500 uppercase tracking-wider">
                         {product.brand} • {product.gender}
                       </p>
                       <p className="text-[10px] text-slate-400 capitalize">
@@ -286,7 +286,7 @@ export default function AdminProductsPage() {
       {/* Tabs */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Loading catalog items...</p>
         </div>
       ) : (
@@ -358,7 +358,7 @@ export default function AdminProductsPage() {
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="e.g. Inappropriate images, trade license mismatches, or pricing anomalies."
-              className="w-full h-24 p-3 border border-slate-200 dark:border-slate-850 bg-slate-50 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+              className="w-full h-24 p-3 border border-slate-200 dark:border-slate-850 bg-slate-50 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
             />
           </div>
 

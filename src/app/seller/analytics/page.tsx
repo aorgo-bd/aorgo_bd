@@ -137,7 +137,7 @@ export default function SellerAnalyticsPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
         <p className="text-sm text-slate-500">Crunching your sales numbers...</p>
       </div>
     );
@@ -145,9 +145,9 @@ export default function SellerAnalyticsPage() {
 
   const kpis = [
     { label: "Gross Revenue", value: formatBDT(analytics.grossRevenue), hint: "Confirmed → delivered", icon: TrendingUp, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20" },
-    { label: "Net Payout", value: formatBDT(analytics.netPayout), hint: `After ${Math.round(analytics.commissionRate * 100)}% commission`, icon: Wallet, color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/20" },
+    { label: "Net Payout", value: formatBDT(analytics.netPayout), hint: `After ${Math.round(analytics.commissionRate * 100)}% commission`, icon: Wallet, color: "text-pink-500 bg-pink-50 dark:bg-pink-950/20" },
     { label: "Commission Owed", value: formatBDT(analytics.commissionOwed), hint: "Platform fee", icon: Coins, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/20" },
-    { label: "Units Sold", value: analytics.unitsSold.toLocaleString(), hint: `${analytics.totalOrders} total orders`, icon: ShoppingBag, color: "text-violet-500 bg-violet-50 dark:bg-violet-950/20" },
+    { label: "Units Sold", value: analytics.unitsSold.toLocaleString(), hint: `${analytics.totalOrders} total orders`, icon: ShoppingBag, color: "text-pink-500 bg-pink-50 dark:bg-pink-950/20" },
     { label: "Avg Order Value", value: formatBDT(analytics.aov), hint: "Per revenue order", icon: BarChart3, color: "text-sky-500 bg-sky-50 dark:bg-sky-950/20" },
   ];
 
@@ -158,7 +158,7 @@ export default function SellerAnalyticsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <BarChart3 className="h-6 w-6 text-indigo-500" /> Analytics & Reports
+          <BarChart3 className="h-6 w-6 text-pink-500" /> Analytics & Reports
         </h1>
         <p className="text-sm text-slate-500">
           Sales performance, payout breakdown, and your best-selling products.
@@ -199,7 +199,7 @@ export default function SellerAnalyticsPage() {
             <Card className="lg:col-span-2 border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60">
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-indigo-500" /> Revenue — Last 30 Days
+                  <TrendingUp className="h-4 w-4 text-pink-500" /> Revenue — Last 30 Days
                 </CardTitle>
               </CardHeader>
               <CardContent className="h-72 pl-0">
@@ -228,7 +228,7 @@ export default function SellerAnalyticsPage() {
             <Card className="border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60">
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <ShoppingBag className="h-4 w-4 text-indigo-500" /> Order Status
+                  <ShoppingBag className="h-4 w-4 text-pink-500" /> Order Status
                 </CardTitle>
               </CardHeader>
               <CardContent className="h-72">

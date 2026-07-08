@@ -32,7 +32,7 @@ export default function AnnouncementBar() {
   if (!message) return null;
 
   return (
-    <div className="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-center text-xs sm:text-sm font-semibold px-4 py-2">
+    <div className="bg-ink-900 text-white text-center text-xs sm:text-sm font-semibold px-4 py-2 tracking-wide">
       {message}
     </div>
   );

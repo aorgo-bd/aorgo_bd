@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Assembling admin intelligence...</p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function AdminDashboardPage() {
       title: "Registered Sellers",
       value: metrics.totalSellersCount.toLocaleString(),
       icon: <FiTrendingUp className="w-5 h-5" />,
-      color: "text-violet-600 bg-violet-50 dark:bg-violet-950/20 dark:text-violet-400 border border-violet-100 dark:border-violet-900/50",
+      color: "text-pink-600 bg-pink-50 dark:bg-pink-950/20 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50",
       description: "Active seller partners",
     },
     {
@@ -182,7 +182,7 @@ export default function AdminDashboardPage() {
         <Card className="lg:col-span-8 border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <FiTrendingUp className="h-5 w-5 text-violet-500" />
+              <FiTrendingUp className="h-5 w-5 text-pink-500" />
               Daily Orders Trend (Last 30 Days)
             </CardTitle>
           </CardHeader>
@@ -238,10 +238,10 @@ export default function AdminDashboardPage() {
         <Card className="lg:col-span-4 border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <FiClock className="h-5 w-5 text-violet-500" />
+              <FiClock className="h-5 w-5 text-pink-500" />
               Administrative Log
             </CardTitle>
-            <Badge className="bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300 border border-violet-200 dark:border-violet-800 uppercase text-[9px] font-bold px-2 py-0.5">
+            <Badge className="bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300 border border-pink-200 dark:border-pink-800 uppercase text-[9px] font-bold px-2 py-0.5">
               Live
             </Badge>
           </CardHeader>
@@ -251,7 +251,7 @@ export default function AdminDashboardPage() {
                 {sortedActivities.map((log) => (
                   <div key={log.id} className="flex gap-3 text-xs leading-5">
                     <div className="relative flex h-6 w-6 flex-none items-center justify-center">
-                      <div className="h-1.5 w-1.5 rounded-full bg-violet-500 ring-4 ring-violet-100 dark:ring-violet-950" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-pink-500 ring-4 ring-pink-100 dark:ring-pink-950" />
                     </div>
                     <div className="flex-auto min-w-0">
                       <p className="font-semibold text-slate-700 dark:text-slate-300 truncate">

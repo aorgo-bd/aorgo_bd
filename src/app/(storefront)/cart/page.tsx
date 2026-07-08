@@ -18,7 +18,7 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-black uppercase tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-ink-700 uppercase tracking-wide">
             Shopping Cart
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -28,7 +28,7 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           /* Empty State */
-          <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center max-w-xl mx-auto shadow-xs">
+          <div className="bg-white rounded-sm border border-gray-100 p-12 text-center max-w-xl mx-auto shadow-xs">
             <div className="w-20 h-20 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingBag className="h-10 w-10 text-gray-300" />
             </div>
@@ -38,7 +38,7 @@ export default function CartPage() {
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center justify-center px-8 py-3 bg-black hover:bg-black/90 text-white font-bold rounded-xl text-sm uppercase tracking-wider transition-all"
+              className="inline-flex items-center justify-center px-8 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-sm text-sm uppercase tracking-wider transition-all"
             >
               Continue Shopping
             </Link>
@@ -48,7 +48,7 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left side: Cart Items List */}
             <div className="lg:col-span-8 space-y-4">
-              <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-xs">
+              <div className="bg-white rounded-sm border border-gray-100 overflow-hidden shadow-xs">
                 {/* Header row for large screens */}
                 <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-widest">
                   <div className="col-span-6">Product Details</div>
@@ -66,7 +66,7 @@ export default function CartPage() {
                     >
                       {/* Product details (Image + Title/Variant) */}
                       <div className="col-span-1 md:col-span-6 flex gap-4">
-                        <div className="w-20 aspect-[4/5] bg-gray-50 rounded-2xl overflow-hidden shrink-0 border border-gray-100">
+                        <div className="w-20 aspect-[4/5] bg-gray-50 rounded-sm overflow-hidden shrink-0 border border-gray-100">
                           <ProductImage
                             src={item.imagePublicId}
                             alt={item.title}
@@ -105,7 +105,7 @@ export default function CartPage() {
 
                       {/* Quantity Selector */}
                       <div className="col-span-1 md:col-span-2 flex justify-start md:justify-center">
-                        <div className="flex items-center border border-gray-200 rounded-xl bg-white shadow-2xs">
+                        <div className="flex items-center border border-gray-200 rounded-sm bg-white shadow-2xs">
                           <button
                             onClick={() => updateQty(item.variantSku, item.qty - 1)}
                             disabled={item.qty <= 1}
@@ -135,7 +135,7 @@ export default function CartPage() {
                         </div>
                         <button
                           onClick={() => remove(item.variantSku)}
-                          className="text-gray-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition-colors"
+                          className="text-gray-400 hover:text-red-600 p-2 rounded-sm hover:bg-red-50 transition-colors"
                           aria-label="Remove item"
                         >
                           <Trash2 className="h-4.5 w-4.5" />
@@ -165,7 +165,7 @@ export default function CartPage() {
 
             {/* Right side: Sticky Order Summary Card */}
             <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs space-y-6">
+              <div className="bg-white rounded-sm border border-gray-100 p-6 shadow-xs space-y-6">
                 <h3 className="text-base font-bold text-black uppercase tracking-wide">
                   Order Summary
                 </h3>
@@ -197,7 +197,7 @@ export default function CartPage() {
                 </div>
 
                 {/* COD Option description (Hard Constraint check) */}
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="p-4 bg-gray-50 rounded-sm border border-gray-100">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
                     Delivery Payment Mode
                   </span>
@@ -219,7 +219,7 @@ export default function CartPage() {
                 {/* Checkout CTA */}
                 <Link
                   href="/checkout"
-                  className="flex h-14 w-full bg-black hover:bg-black/90 text-white rounded-2xl font-bold uppercase tracking-wider text-xs items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md"
+                  className="flex h-14 w-full bg-pink-500 hover:bg-pink-600 text-white rounded-sm font-bold uppercase tracking-wider text-xs items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md"
                 >
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="h-4.5 w-4.5" />
@@ -227,7 +227,7 @@ export default function CartPage() {
               </div>
 
               {/* Trust block */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+              <div className="bg-white rounded-sm border border-gray-100 p-4 flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-gray-400 shrink-0" />
                 <div className="text-[10px] text-gray-500 leading-normal font-normal">
                   <p className="font-bold text-gray-700">100% Quality Assurance</p>

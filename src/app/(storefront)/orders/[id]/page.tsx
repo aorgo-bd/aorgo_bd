@@ -20,7 +20,7 @@ function getStatusBadgeClass(status: string) {
     case "confirmed":
       return "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200/50";
     case "processing":
-      return "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200/50";
+      return "bg-pink-50 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400 border-pink-200/50";
     case "shipped":
       return "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 border-purple-200/50";
     case "delivered":
@@ -91,7 +91,7 @@ function ReviewActionCell({
         size="sm"
         variant="outline"
         onClick={() => setIsFormOpen(true)}
-        className="text-[11px] font-semibold py-1 px-2.5 border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-900/50 dark:text-indigo-400 dark:hover:bg-indigo-950/30"
+        className="text-[11px] font-semibold py-1 px-2.5 border-pink-200 text-pink-600 hover:bg-pink-50 dark:border-pink-900/50 dark:text-pink-400 dark:hover:bg-pink-950/30"
       >
         Write Review
       </Button>

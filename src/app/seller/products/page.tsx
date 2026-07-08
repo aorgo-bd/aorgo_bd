@@ -102,7 +102,7 @@ export default function SellerProductsPage() {
             <p className="font-bold text-slate-800 dark:text-slate-100 truncate">
               {row.original.title}
             </p>
-            <p className="text-[10px] font-semibold text-indigo-500 uppercase tracking-wider">
+            <p className="text-[10px] font-semibold text-pink-500 uppercase tracking-wider">
               {row.original.brand}
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function SellerProductsPage() {
         header: "Actions",
         cell: ({ row }) => (
           <Link href={`/seller/products/${row.original.id}/edit`}>
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-500 hover:text-indigo-600">
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-500 hover:text-pink-600">
               <Edit2 className="h-4 w-4" />
             </Button>
           </Link>
@@ -237,7 +237,7 @@ export default function SellerProductsPage() {
           </p>
         </div>
         <Link href="/seller/products/new">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/10 gap-2">
+          <Button className="bg-pink-600 hover:bg-pink-700 text-white font-semibold shadow-lg shadow-pink-600/10 gap-2">
             <Plus className="h-4 w-4" /> Add Product
           </Button>
         </Link>
@@ -259,7 +259,7 @@ export default function SellerProductsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-40 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full sm:w-40 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-pink-500 transition-colors"
           >
             <option value="all">All Statuses</option>
             <option value="approved">Approved</option>
@@ -275,7 +275,7 @@ export default function SellerProductsPage() {
       <div className="rounded-2xl border border-slate-200 bg-white/60 dark:border-slate-800 dark:bg-slate-950/60 overflow-hidden shadow-sm">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
             <p className="text-sm text-slate-500">Loading products catalog...</p>
           </div>
         ) : filteredData.length > 0 ? (

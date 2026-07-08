@@ -98,7 +98,7 @@ export default function VariantSelector({
       {colors.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <span className="text-sm font-bold text-ink-700 uppercase tracking-wider">
               Select Color
             </span>
             {selectedColor && (
@@ -117,10 +117,10 @@ export default function VariantSelector({
                   key={color}
                   onClick={() => available && onColorChange(color)}
                   disabled={!available}
-                  className={`group relative w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
+                  className={`group relative w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
                     selected
-                      ? "border-black scale-108 shadow-md"
-                      : "border-gray-200 hover:border-gray-400"
+                      ? "border-pink-500 scale-105"
+                      : "border-ink-200 hover:border-ink-400"
                   } ${!available ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
                   title={color + (!available ? " (Out of Stock)" : "")}
                 >
@@ -159,7 +159,7 @@ export default function VariantSelector({
       {sizes.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <span className="text-sm font-bold text-ink-700 uppercase tracking-wider">
               Select Size
             </span>
             {selectedSize && (
@@ -178,12 +178,12 @@ export default function VariantSelector({
                   key={size}
                   onClick={() => available && onSizeChange(size)}
                   disabled={!available}
-                  className={`min-w-12 h-12 px-4 rounded-xl border-2 text-sm font-bold transition-all relative overflow-hidden flex items-center justify-center uppercase ${
+                  className={`min-w-12 h-12 px-4 rounded-sm border text-sm font-bold transition-colors relative overflow-hidden flex items-center justify-center uppercase ${
                     selected
-                      ? "border-black bg-black text-white shadow-sm"
+                      ? "border-pink-500 bg-pink-50 text-pink-500"
                       : available
-                      ? "border-gray-200 bg-white text-gray-800 hover:border-gray-400 hover:bg-gray-50"
-                      : "border-gray-100 bg-gray-50/50 text-gray-300 cursor-not-allowed"
+                      ? "border-ink-300 bg-white text-ink-700 hover:border-pink-400 hover:text-pink-500"
+                      : "border-ink-200 bg-ink-50 text-ink-300 cursor-not-allowed"
                   }`}
                 >
                   <span>{size}</span>

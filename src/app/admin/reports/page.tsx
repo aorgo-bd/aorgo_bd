@@ -100,7 +100,7 @@ export default function AdminReportsPage() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Compiling financial performance indexes...</p>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function AdminReportsPage() {
           <Card className="lg:col-span-5 border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                <PieIcon className="h-5 w-5 text-violet-500" />
+                <PieIcon className="h-5 w-5 text-pink-500" />
                 Category Performance Share
               </CardTitle>
             </CardHeader>
@@ -166,7 +166,7 @@ export default function AdminReportsPage() {
           <Card className="lg:col-span-7 border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-violet-500" />
+                <BarChart3 className="h-5 w-5 text-pink-500" />
                 Seller Leaderboard (Top 5 stores)
               </CardTitle>
             </CardHeader>

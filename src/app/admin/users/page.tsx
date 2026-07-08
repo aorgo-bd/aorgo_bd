@@ -102,7 +102,7 @@ export default function AdminUsersPage() {
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="w-full sm:w-48 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition-colors"
+          className="w-full sm:w-48 h-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg px-3 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:border-pink-500 transition-colors"
         >
           <option value="all">All Roles</option>
           <option value="customer">Customers</option>
@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
       {/* Content */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-pink-600 border-t-transparent"></div>
           <p className="text-sm text-slate-500">Loading directory profiles...</p>
         </div>
       ) : filteredUsers.length > 0 ? (
@@ -152,7 +152,7 @@ export default function AdminUsersPage() {
                           u.role === "admin"
                             ? "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-100 dark:bg-fuchsia-950/20"
                             : u.role === "seller"
-                            ? "bg-violet-50 text-violet-700 border-violet-100 dark:bg-violet-950/20"
+                            ? "bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/20"
                             : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/20"
                         }`}
                         variant="secondary"

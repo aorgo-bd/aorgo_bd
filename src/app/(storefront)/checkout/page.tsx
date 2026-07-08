@@ -211,12 +211,12 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto max-w-7xl py-10 px-4 md:px-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight">Checkout</h1>
-        <p className="text-muted-foreground text-sm">Complete your multi-vendor fashion order</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-ink-700 uppercase tracking-wide">Checkout</h1>
+        <p className="text-ink-400 text-sm mt-1">Complete your multi-vendor fashion order</p>
       </div>
 
       {firebaseUser && !firebaseUser.emailVerified && (
-        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm">
+        <div className="mb-6 p-4 rounded-sm bg-amber-50 border border-amber-200 text-amber-900 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm">
           <div>
             ⚠️ <strong>Email Verification Warning:</strong> Your email address (<strong>{firebaseUser.email}</strong>) is not verified. Please verify it to ensure you receive order status updates.
           </div>
@@ -243,7 +243,7 @@ export default function CheckoutPage() {
         {/* Checkout Steps Form */}
         <div className="lg:col-span-8 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 h-12 bg-zinc-100 dark:bg-zinc-800/40 p-1 rounded-xl">
+            <TabsList className="grid w-full grid-cols-3 mb-8 h-12 bg-zinc-100 dark:bg-zinc-800/40 p-1 rounded-sm">
               <TabsTrigger
                 value="cart"
                 className="rounded-lg py-2 flex items-center justify-center space-x-2 text-xs md:text-sm font-medium transition-all"
@@ -356,7 +356,7 @@ export default function CheckoutPage() {
                             key={addr.id}
                             onClick={() => setSelectedAddress(addr)}
                             className={cn(
-                              "border rounded-xl p-4 cursor-pointer transition-all relative flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-600 bg-background/50",
+                              "border rounded-sm p-4 cursor-pointer transition-all relative flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-600 bg-background/50",
                               isSelected
                                 ? "border-primary ring-2 ring-primary/20 bg-primary/[0.02]"
                                 : "border-border/60"
@@ -389,7 +389,7 @@ export default function CheckoutPage() {
 
                   {/* Empty state or Form view */}
                   {showNewAddressForm || !user.addresses || user.addresses.length === 0 ? (
-                    <div className="border rounded-xl p-6 bg-zinc-50/20 dark:bg-zinc-900/10 border-dashed">
+                    <div className="border rounded-sm p-6 bg-zinc-50/20 dark:bg-zinc-900/10 border-dashed">
                       <div className="mb-4 flex items-center justify-between">
                         <h4 className="font-bold text-sm">Add a Shipping Address</h4>
                         {user.addresses && user.addresses.length > 0 && (
@@ -425,7 +425,7 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-6">
                   {/* Shipping summary preview */}
                   {selectedAddress && (
-                    <div className="p-4 rounded-xl border border-dashed bg-zinc-50/30 dark:bg-zinc-900/5 flex items-start space-x-3">
+                    <div className="p-4 rounded-sm border border-dashed bg-zinc-50/30 dark:bg-zinc-900/5 flex items-start space-x-3">
                       <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                       <div className="text-xs">
                         <span className="font-bold text-zinc-700 dark:text-zinc-300">Shipping to: </span>
@@ -446,7 +446,7 @@ export default function CheckoutPage() {
                   {/* Payment option list */}
                   <div className="space-y-3">
                     {/* COD Option */}
-                    <label className="border border-primary rounded-xl p-4 flex items-center justify-between cursor-pointer bg-primary/[0.01]">
+                    <label className="border border-primary rounded-sm p-4 flex items-center justify-between cursor-pointer bg-primary/[0.01]">
                       <div className="flex items-center space-x-3">
                         <input
                           type="radio"
@@ -466,7 +466,7 @@ export default function CheckoutPage() {
                     </label>
 
                     {/* bKash (disabled) */}
-                    <label className="border border-border/60 rounded-xl p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
+                    <label className="border border-border/60 rounded-sm p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
                       <div className="flex items-center space-x-3">
                         <input
                           type="radio"
@@ -486,7 +486,7 @@ export default function CheckoutPage() {
                     </label>
 
                     {/* Nagad (disabled) */}
-                    <label className="border border-border/60 rounded-xl p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
+                    <label className="border border-border/60 rounded-sm p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
                       <div className="flex items-center space-x-3">
                         <input
                           type="radio"
@@ -506,7 +506,7 @@ export default function CheckoutPage() {
                     </label>
 
                     {/* Credit / Debit Card (disabled) */}
-                    <label className="border border-border/60 rounded-xl p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
+                    <label className="border border-border/60 rounded-sm p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
                       <div className="flex items-center space-x-3">
                         <input
                           type="radio"
