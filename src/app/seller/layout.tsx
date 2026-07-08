@@ -107,9 +107,12 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
     <div className="flex h-full flex-col justify-between bg-ink-900 text-ink-50">
       <div className="px-6 py-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 shadow-md shadow-pink-500/30 text-white font-bold text-lg font-display">
-            A
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.webp"
+            alt="AORGO"
+            className="h-10 w-10 rounded-xl object-contain shadow-md shadow-pink-500/30"
+          />
           <div>
             <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-pink-100 to-pink-300 bg-clip-text text-transparent">
               AORGO

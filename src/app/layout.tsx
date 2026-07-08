@@ -43,7 +43,8 @@ export default function RootLayout({
     <html lang="en" className={cn(assistant.variable, bebas.variable, bangla.variable)}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/webp" href="/logo.webp" />
+        <link rel="apple-touch-icon" href="/logo.webp" />
         <meta name="theme-color" content="#000000" />
       </head>
       <body className="font-sans">

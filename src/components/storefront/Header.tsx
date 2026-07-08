@@ -260,7 +260,7 @@ export default function Header() {
               href="/"
               className="flex items-center justify-center"
             >
-              <Logo className="h-7 sm:h-8" />
+              <Logo className="h-9 sm:h-11" />
             </Link>
           </div>
         </div>
