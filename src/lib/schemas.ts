@@ -116,6 +116,24 @@ export const bannerFormSchema = z.object({
 
 export type BannerFormData = z.infer<typeof bannerFormSchema>;
 
+export const categoryFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug must be lowercase letters, numbers and single hyphens (e.g. women-tops)"
+    ),
+  nameBn: z.string().optional().or(z.literal("")),
+  // Parent slug; "" or null means a top-level category.
+  parent: z.string().nullable().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
+  order: z.coerce.number().int().nonnegative("Order must be 0 or more"),
+});
+
+export type CategoryFormData = z.infer<typeof categoryFormSchema>;
+
 export const settingsSchema = z.object({
   siteName: z.string().min(2, "Site name must be at least 2 characters"),
   supportEmail: z.string().email("Invalid support email address"),
