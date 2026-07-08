@@ -273,6 +273,47 @@ export function useSellerProducts(sellerUid: string) {
   });
 }
 
+/**
+ * Fetch a store's publicly visible (approved) products for its storefront
+ * profile page. Unlike `useSellerProducts` (seller dashboard, all statuses),
+ * this only returns approved products so shoppers never see drafts.
+ */
+export function useStoreProducts(storeId: string) {
+  return useQuery<Product[]>({
+    queryKey: ["store-products", storeId],
+    queryFn: async () => {
+      if (!storeId) return [];
+      try {
+        const productsRef = collection(db, "products");
+        const q = query(
+          productsRef,
+          where("storeId", "==", storeId),
+          where("status", "==", "approved")
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          return USE_MOCKS
+            ? MOCK_PRODUCTS.filter(
+                (p) => p.storeId === storeId && p.status === "approved"
+              )
+            : [];
+        }
+        return snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }) as Product)
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } catch (err) {
+        console.warn("[useStoreProducts] product query failed:", err);
+        return USE_MOCKS
+          ? MOCK_PRODUCTS.filter(
+              (p) => p.storeId === storeId && p.status === "approved"
+            )
+          : [];
+      }
+    },
+    enabled: !!storeId,
+  });
+}
+
 export function useSellerProduct(productId: string) {
   return useQuery<Product | null>({
     queryKey: ["seller-product", productId],

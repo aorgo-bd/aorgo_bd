@@ -1,4 +1,4 @@
-import { Category, Product, Banner } from "@/lib/types";
+import { Category, Product, Banner, Store } from "@/lib/types";
 
 export const MOCK_CATEGORIES: Category[] = [
   { slug: "women", name: "Women", parent: undefined, order: 1, image: "/images/products/jamdani-saree.webp", productCount: 8 },
@@ -335,6 +335,85 @@ export const MOCK_PRODUCTS: Product[] = [
     createdAt: Date.now() - 86400000 * 11,
     updatedAt: Date.now()
   }
+];
+
+export const MOCK_STORES: Store[] = [
+  {
+    id: "demo-store-1",
+    ownerUid: "demo-seller-1",
+    name: "Aarong Heritage",
+    slug: "aarong-heritage",
+    description:
+      "Bangladesh's home of authentic handcrafted heritage — Jamdani, cotton and silk sarees woven by master artisans.",
+    logoPublicId: "/images/products/jamdani-saree.webp",
+    bannerPublicId: "/images/banners/banner-1.webp",
+    status: "approved",
+    contact: { email: "hello@aarongheritage.com", phone: "+8801700000001" },
+    commissionRate: 0.1,
+    rating: 4.8,
+    reviewCount: 320,
+    totalSales: 1240,
+    totalProducts: 3,
+    createdAt: Date.now() - 86400000 * 120,
+    approvedAt: Date.now() - 86400000 * 118,
+  },
+  {
+    id: "demo-store-2",
+    ownerUid: "demo-seller-2",
+    name: "Yellow Clothing",
+    slug: "yellow-clothing",
+    description:
+      "Contemporary everyday fashion — salwar kameez, western tops and heavyweight streetwear essentials.",
+    logoPublicId: "/images/products/three-piece-salwar-kameez.webp",
+    bannerPublicId: "/images/banners/banner-2.webp",
+    status: "approved",
+    contact: { email: "care@yellowclothing.com", phone: "+8801700000002" },
+    commissionRate: 0.1,
+    rating: 4.5,
+    reviewCount: 210,
+    totalSales: 860,
+    totalProducts: 3,
+    createdAt: Date.now() - 86400000 * 90,
+    approvedAt: Date.now() - 86400000 * 88,
+  },
+  {
+    id: "demo-store-3",
+    ownerUid: "demo-seller-3",
+    name: "Sailor Fashion",
+    slug: "sailor-fashion",
+    description:
+      "Feminine floral maxis and flowing georgette dresses designed for effortless summer days.",
+    logoPublicId: "/images/products/floral-maxi.webp",
+    bannerPublicId: "/images/banners/banner-1.webp",
+    status: "approved",
+    contact: { email: "hello@sailorfashion.com", phone: "+8801700000003" },
+    commissionRate: 0.1,
+    rating: 4.6,
+    reviewCount: 140,
+    totalSales: 520,
+    totalProducts: 2,
+    createdAt: Date.now() - 86400000 * 60,
+    approvedAt: Date.now() - 86400000 * 58,
+  },
+  {
+    id: "demo-store-4",
+    ownerUid: "demo-seller-4",
+    name: "Ecstasy Studio",
+    slug: "ecstasy-studio",
+    description:
+      "Trend-led crop tops and minimalist western wear for the young and the bold.",
+    logoPublicId: "/images/products/crop-top.webp",
+    bannerPublicId: "/images/banners/banner-2.webp",
+    status: "approved",
+    contact: { email: "studio@ecstasy.com", phone: "+8801700000004" },
+    commissionRate: 0.1,
+    rating: 4.4,
+    reviewCount: 98,
+    totalSales: 410,
+    totalProducts: 2,
+    createdAt: Date.now() - 86400000 * 45,
+    approvedAt: Date.now() - 86400000 * 43,
+  },
 ];
 
 export const MOCK_BANNERS: Banner[] = [

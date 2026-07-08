@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Shield,
   ShoppingBag,
+  Store,
 } from "lucide-react";
 import { useUser } from "@/lib/hooks/useUser";
 import { useCategories } from "@/lib/hooks/useCategories";
@@ -206,6 +207,11 @@ export default function Header() {
                       </Link>
                     } />
                     <SheetClose render={
+                      <Link href="/stores" className="flex items-center gap-2 text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
+                        <Store className="h-4 w-4" /> EXPLORE STORES
+                      </Link>
+                    } />
+                    <SheetClose render={
                       <Link href="/wishlist" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
                         MY WISHLIST
                       </Link>
@@ -344,6 +350,18 @@ export default function Header() {
               </div>
             );
           })}
+
+          {/* Stores directory link */}
+          <Link
+            href="/stores"
+            className={cn(
+              "flex items-center gap-1.5 text-sm font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-4 border-transparent hover:border-pink-500 h-full transition-all duration-150 uppercase",
+              pathname.startsWith("/stores") && "text-pink-500 border-pink-500"
+            )}
+          >
+            <Store className="h-4 w-4" />
+            Stores
+          </Link>
         </nav>
 
         {/* Desktop Search Bar */}
