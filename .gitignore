@@ -38,6 +38,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# firebase service account
+# firebase service account (any admin SDK key, not just the exact name)
 service-account.json
+*firebase-adminsdk*.json
+*-service-account*.json
 

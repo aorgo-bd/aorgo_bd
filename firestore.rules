@@ -38,7 +38,10 @@ service cloud.firestore {
 
     // ===== STORES =====
     match /stores/{storeId} {
-      allow read: if isAdmin() || (isSeller() && resource.data.ownerUid == uid());
+      // Public can browse approved stores; owners/admins can see their own in any state.
+      allow read: if resource.data.status == 'approved'
+                  || isAdmin()
+                  || (isSeller() && resource.data.ownerUid == uid());
       allow create: if isSeller()
                     && request.resource.data.ownerUid == uid()
                     && request.resource.data.status == 'pending';
@@ -72,8 +75,12 @@ service cloud.firestore {
                   || (isCustomer() && resource.data.customerUid == uid())
                   || (isSeller()   && resource.data.storeOwnerUid == uid());
       allow create: if false;
+      // Sellers may only fulfil their own orders and may only touch fulfilment
+      // fields — never financial fields (totals, items, payment, ownership).
       allow update: if isAdmin()
-                    || (isSeller() && resource.data.storeOwnerUid == uid());
+                    || (isSeller() && resource.data.storeOwnerUid == uid()
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['status', 'shipping', 'statusHistory', 'updatedAt']));
       allow delete: if false;
     }
 
@@ -109,7 +116,10 @@ service cloud.firestore {
 
     // ===== NOTIFICATIONS =====
     match /notifications/{id} {
-      allow read, update: if isNotSuspended() && resource.data.recipientUid == uid();
+      allow read: if isNotSuspended() && resource.data.recipientUid == uid();
+      // Recipients may only flip the 'read' flag, not rewrite the notification.
+      allow update: if isNotSuspended() && resource.data.recipientUid == uid()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow create: if isAdmin();
       allow delete: if isAdmin();
     }

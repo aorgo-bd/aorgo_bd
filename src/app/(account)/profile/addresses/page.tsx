@@ -8,111 +8,55 @@ import toast from "react-hot-toast";
 import { MapPin, Plus, Trash2, Home, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Address } from "@/lib/types";
-
-const BD_DISTRICTS = [
-  "Dhaka", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Barishal", "Rangpur", "Mymensingh",
-  "Gazipur", "Narayanganj", "Cumilla", "Bogura", "Cox's Bazar", "Feni", "Jessore", "Tangail"
-];
+import { AddressForm } from "@/components/storefront/AddressForm";
+import type { AddressFormData } from "@/lib/schemas";
 
 export default function AddressesPage() {
   const { user, refetch } = useUser();
   const [isAdding, setIsAdding] = useState(false);
-  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
-
-  // Form states
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [area, setArea] = useState("");
-  const [city, setCity] = useState("");
-  const [district, setDistrict] = useState(BD_DISTRICTS[0]);
-  const [postalCode, setPostalCode] = useState("");
-  const [isDefault, setIsDefault] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [loading, setLoading] = useState(false);
 
   const resetForm = () => {
-    setName("");
-    setPhone("");
-    setArea("");
-    setCity("");
-    setDistrict(BD_DISTRICTS[0]);
-    setPostalCode("");
-    setIsDefault(false);
     setIsAdding(false);
-    setEditingAddressId(null);
+    setEditingAddress(null);
   };
 
   const handleEditInit = (addr: Address) => {
-    setName(addr.name);
-    setPhone(addr.phone);
-    setArea(addr.area);
-    setCity(addr.city);
-    setDistrict(addr.district);
-    setPostalCode(addr.postalCode);
-    setIsDefault(addr.isDefault);
-    setEditingAddressId(addr.id);
+    setEditingAddress(addr);
     setIsAdding(true);
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Validated (RHF + Zod via <AddressForm>) submit handler for add & edit.
+  const handleFormSubmit = async (data: AddressFormData) => {
     if (!user) return;
-    if (!name || !phone || !area || !city || !postalCode) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
     setLoading(true);
     try {
       const addresses = user.addresses ? [...user.addresses] : [];
 
-      if (editingAddressId) {
-        // Edit Mode
+      if (editingAddress) {
         const updated = addresses.map((addr) => {
-          if (addr.id === editingAddressId) {
-            return {
-              ...addr,
-              name,
-              phone,
-              area,
-              city,
-              district,
-              postalCode,
-              isDefault: isDefault || addr.isDefault, // Keep default if already default
-            };
+          if (addr.id === editingAddress.id) {
+            return { ...addr, ...data, isDefault: data.isDefault || addr.isDefault };
           }
-          // If we are setting this address to default, set others to false
-          if (isDefault) {
-            return { ...addr, isDefault: false };
-          }
-          return addr;
+          return data.isDefault ? { ...addr, isDefault: false } : addr;
         });
-
-        // Ensure at least one default
-        if (isDefault) {
-          const targetIndex = updated.findIndex((a) => a.id === editingAddressId);
+        if (data.isDefault) {
+          const targetIndex = updated.findIndex((a) => a.id === editingAddress.id);
           if (targetIndex !== -1) updated[targetIndex].isDefault = true;
         }
-
         await updateDoc(doc(db, "users", user.uid), { addresses: updated, updatedAt: Date.now() });
         toast.success("Address updated successfully!");
       } else {
-        // Add Mode
         const newAddressId = doc(collection(db, "temp")).id;
         const newAddress: Address = {
           id: newAddressId,
-          name,
-          phone,
-          area,
-          city,
-          district,
-          postalCode,
-          isDefault: isDefault || addresses.length === 0, // Automatically default if first address
+          ...data,
+          isDefault: data.isDefault || addresses.length === 0,
         };
-
-        const updated = isDefault
+        const updated = data.isDefault
           ? addresses.map((a) => ({ ...a, isDefault: false })).concat(newAddress)
           : addresses.concat(newAddress);
-
         await updateDoc(doc(db, "users", user.uid), { addresses: updated, updatedAt: Date.now() });
         toast.success("Address added successfully!");
       }
@@ -132,11 +76,9 @@ export default function AddressesPage() {
 
     try {
       let updated = user.addresses.filter((a: Address) => a.id !== id);
-      // If we deleted the default, set first remaining as default
       if (updated.length > 0 && !updated.some((a: Address) => a.isDefault)) {
         updated[0].isDefault = true;
       }
-
       await updateDoc(doc(db, "users", user.uid), { addresses: updated, updatedAt: Date.now() });
       toast.success("Address deleted successfully");
       await refetch();
@@ -184,111 +126,30 @@ export default function AddressesPage() {
       </div>
 
       {isAdding ? (
-        <form onSubmit={handleFormSubmit} className="space-y-4 max-w-xl">
+        <div className="max-w-xl space-y-4">
           <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">
-            {editingAddressId ? "Edit Address Details" : "New Address Details"}
+            {editingAddress ? "Edit Address Details" : "New Address Details"}
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Recipient Name *</label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Shakib Al Hasan"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Contact Phone *</label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="e.g. +8801700000000"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-            <div className="sm:col-span-2 space-y-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Address / Street Name / Area *</label>
-              <input
-                type="text"
-                required
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                placeholder="House, Road, Apartment, Area details..."
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">City *</label>
-              <input
-                type="text"
-                required
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="e.g. Mirpur"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">District *</label>
-              <select
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-gray-250 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                {BD_DISTRICTS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Postal Code *</label>
-              <input
-                type="text"
-                required
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                placeholder="e.g. 1216"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-            <div className="sm:col-span-2 flex items-center gap-2 pt-2">
-              <input
-                type="checkbox"
-                id="default-check"
-                checked={isDefault}
-                onChange={(e) => setIsDefault(e.target.checked)}
-                className="h-4 w-4 rounded-md border-gray-300 text-black focus:ring-black"
-              />
-              <label htmlFor="default-check" className="text-xs font-semibold text-gray-600 cursor-pointer">
-                Set as default delivery address
-              </label>
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex h-10 items-center justify-center bg-black hover:bg-black/90 text-white rounded-xl px-5 text-xs font-bold transition-all disabled:opacity-50 min-w-[100px] cursor-pointer"
-            >
-              {loading ? "Saving..." : "Save Address"}
-            </button>
-            <button
-              type="button"
-              onClick={resetForm}
-              className="inline-flex h-10 items-center justify-center border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl px-5 text-xs font-bold transition-all"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+          <AddressForm
+            onSubmit={handleFormSubmit}
+            isSubmitting={loading}
+            onCancel={resetForm}
+            submitLabel={editingAddress ? "Update Address" : "Save Address"}
+            defaultValues={
+              editingAddress
+                ? {
+                    name: editingAddress.name,
+                    phone: editingAddress.phone,
+                    area: editingAddress.area,
+                    city: editingAddress.city,
+                    district: editingAddress.district,
+                    postalCode: editingAddress.postalCode,
+                    isDefault: editingAddress.isDefault,
+                  }
+                : undefined
+            }
+          />
+        </div>
       ) : !user?.addresses || user.addresses.length === 0 ? (
         <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
           <MapPin className="h-10 w-10 mx-auto text-gray-300 mb-3" />

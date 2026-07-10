@@ -37,15 +37,23 @@ export async function verifyRequestUser(request: NextRequest): Promise<VerifiedR
   }
 
   let uid = "";
+  // Role is taken from the *verified* custom claim, never the Firestore user doc.
+  // The users-create rule lets a user self-assign role:"seller" in their own doc,
+  // so trusting that field would be privilege-escalatable. Custom claims are only
+  // settable server-side via the Admin SDK (seller approval / admin promotion).
+  let claimRole: unknown;
   if (bearerToken) {
     const decoded = await adminAuth.verifyIdToken(bearerToken, true);
     uid = decoded.uid;
+    claimRole = decoded.role;
   } else if (sessionCookie) {
     const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
     uid = decoded.uid;
+    claimRole = decoded.role;
   } else if (legacyIdTokenCookie) {
     const decoded = await adminAuth.verifyIdToken(legacyIdTokenCookie, true);
     uid = decoded.uid;
+    claimRole = decoded.role;
   } else {
     throw new AuthError("Unauthorized: Missing session");
   }
@@ -60,9 +68,14 @@ export async function verifyRequestUser(request: NextRequest): Promise<VerifiedR
     throw new AuthError("Account suspended", 403);
   }
 
+  const role: Role =
+    claimRole === "admin" || claimRole === "seller" || claimRole === "customer"
+      ? claimRole
+      : "customer";
+
   return {
     uid,
-    role: userData.role || "customer",
+    role,
     userData,
   };
 }

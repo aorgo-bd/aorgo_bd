@@ -18,10 +18,10 @@ const stockUpdateSchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const productId = params.id;
+    const productId = (await params).id;
     if (!productId) {
       return NextResponse.json({ error: "Product ID is required." }, { status: 400 });
     }
@@ -146,10 +146,10 @@ export async function PUT(
 // way a full edit (title/price/images) does.
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const productId = params.id;
+    const productId = (await params).id;
     if (!productId) {
       return NextResponse.json({ error: "Product ID is required." }, { status: 400 });
     }

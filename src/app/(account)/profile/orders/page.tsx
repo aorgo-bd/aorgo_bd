@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Package, Calendar, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/ProductImage";
+import { formatBDT } from "@/lib/utils";
 
 export default function MyOrdersPage() {
   const { user } = useUser();
@@ -113,8 +114,8 @@ export default function MyOrdersPage() {
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-sm font-black text-black">৳{item.priceAtPurchase * item.qty}</p>
-                      <p className="text-[10px] text-gray-450 mt-0.5">৳{item.priceAtPurchase} each</p>
+                      <p className="text-sm font-black text-black">{formatBDT(item.priceAtPurchase * item.qty)}</p>
+                      <p className="text-[10px] text-gray-450 mt-0.5">{formatBDT(item.priceAtPurchase)} each</p>
                     </div>
                   </div>
                 ))}
@@ -123,7 +124,7 @@ export default function MyOrdersPage() {
               {/* Bottom row: Total and Actions */}
               <div className="px-5 py-4 bg-gray-50/20 border-t border-gray-100 flex items-center justify-between gap-4">
                 <p className="text-xs font-semibold text-gray-500">
-                  Total Amount: <span className="text-sm font-black text-black ml-1">৳{order.totals.total}</span>
+                  Total Amount: <span className="text-sm font-black text-black ml-1">{formatBDT(order.totals.total)}</span>
                 </p>
                 <Link
                   href={`/orders/${order.id}`}

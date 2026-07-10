@@ -240,7 +240,7 @@ export default async function StorefrontHomePage() {
             { name: "Sailor", label: "Casual Everyday", slug: "sailor", bg: "from-[#FAF9F6] to-[#EAE6DF]" },
             { name: "Ecstasy", label: "Western Edits", slug: "ecstasy", bg: "from-[#FBF8F9] to-[#EFE5E7]" }
           ].map((brand) => (
-            <a
+            <Link
               href={`/products?search=${brand.slug}`}
               key={brand.name}
               className="block bg-white border border-ink-200 hover:border-pink-500 rounded-sm p-6 text-center shadow-2xs hover:shadow-sm transition-all group"
@@ -249,7 +249,7 @@ export default async function StorefrontHomePage() {
                 {brand.name}
               </h3>
               <p className="text-[10px] text-ink-500 font-bold uppercase tracking-wider mt-1">{brand.label}</p>
-            </a>
+            </Link>
           ))}
         </div>
       </section>
@@ -339,7 +339,7 @@ export default async function StorefrontHomePage() {
 
       {/* 13. Full-width Promo Banner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <a
+        <Link
           href="/products"
           className="relative block w-full aspect-[21/9] sm:aspect-[21/6] rounded-sm overflow-hidden group shadow-2xs border border-ink-200"
         >
@@ -359,7 +359,7 @@ export default async function StorefrontHomePage() {
               Cash on Delivery available across Bangladesh.
             </p>
           </div>
-        </a>
+        </Link>
       </div>
 
       {/* 14. Section: WHY SHOP AT AORGO */}

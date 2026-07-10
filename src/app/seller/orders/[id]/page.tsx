@@ -56,6 +56,27 @@ const COURIERS = [
   { value: "paperfly", label: "Paperfly" },
 ];
 
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  pending: "Pending Confirmation",
+  confirmed: "Confirmed",
+  processing: "Processing",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  returned: "Returned",
+  cancelled: "Cancelled",
+};
+
+// Mirror of the server-side state-machine so the UI only offers valid moves.
+const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["processing", "cancelled"],
+  processing: ["shipped", "cancelled"],
+  shipped: ["delivered", "returned"],
+  delivered: ["returned"],
+  returned: [],
+  cancelled: [],
+};
+
 export default function SellerOrderDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
@@ -169,6 +190,9 @@ export default function SellerOrderDetailPage() {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const currentStatus = order.status as OrderStatus;
+  const nextStatuses = ALLOWED_TRANSITIONS[currentStatus] ?? [];
 
   return (
     <div className="space-y-6">
@@ -336,16 +360,24 @@ export default function SellerOrderDetailPage() {
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as OrderStatus)}
-                    className="flex h-10 w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm transition-colors outline-none focus-visible:border-ring"
+                    className="flex h-10 w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm transition-colors outline-none focus-visible:border-ring disabled:opacity-60"
+                    disabled={nextStatuses.length === 0}
                   >
-                    <option value="pending">Pending Confirmation</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="returned">Returned</option>
-                    <option value="cancelled">Cancelled</option>
+                    {/* Current status (kept selectable so the form has a value) */}
+                    <option value={currentStatus}>
+                      {STATUS_LABELS[currentStatus]} (current)
+                    </option>
+                    {nextStatuses.map((s) => (
+                      <option key={s} value={s}>
+                        {STATUS_LABELS[s]}
+                      </option>
+                    ))}
                   </select>
+                  {nextStatuses.length === 0 && (
+                    <p className="text-[11px] text-slate-400">
+                      This order is in a final state and cannot change.
+                    </p>
+                  )}
                 </div>
 
                 {/* Courier Selection */}

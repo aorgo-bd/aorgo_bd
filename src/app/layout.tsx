@@ -2,6 +2,7 @@ import { Assistant, Bebas_Neue, Hind_Siliguri } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Providers from "./_components/providers";
 import ClientShell from "./_components/ClientShell";
+import "@/lib/env"; // fail-fast env validation at server boot
 import "./globals.css";
 
 const assistant = Assistant({
@@ -26,6 +27,7 @@ const bangla = Hind_Siliguri({
 });
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://aorgo-bd.vercel.app"),
   title: "AORGO — Bangladesh Fashion Marketplace",
   description: "Shop curated fashion from verified Bangladeshi sellers. Cash on Delivery across Bangladesh.",
 };

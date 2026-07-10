@@ -46,6 +46,26 @@ export const addressSchema = z.object({
 
 export type AddressFormData = z.infer<typeof addressSchema>;
 
+// Profile self-service settings. Fields are optional, but when provided they
+// must be valid (so an invalid phone can't flow into delivery downstream).
+export const profileSettingsSchema = z.object({
+  displayName: z
+    .string()
+    .trim()
+    .max(60, "Name is too long")
+    .refine((v) => v === "" || v.length >= 2, "Name must be at least 2 characters"),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || bdPhoneRegex.test(v), "Invalid Bangladesh phone number"),
+  photoURL: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || /^https?:\/\/.+/.test(v), "Must be a valid URL"),
+});
+
+export type ProfileSettingsFormData = z.infer<typeof profileSettingsSchema>;
+
 export const checkoutItemSchema = z.object({
   productId: z.string(),
   variantSku: z.string(),

@@ -9,6 +9,7 @@ import ProductCard from "@/components/storefront/ProductCard";
 import CategoryFilter from "@/components/storefront/CategoryFilter";
 import SortDropdown from "@/components/storefront/SortDropdown";
 import Link from "next/link";
+import { formatBDT } from "@/lib/utils";
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
@@ -201,7 +202,7 @@ export default function SearchClient() {
                     className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-250 text-xs font-bold text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     <span>
-                      Price: ৳{minPrice} — ৳{maxPrice}
+                      Price: {formatBDT(minPrice)} — {formatBDT(maxPrice)}
                     </span>
                     <X className="h-3 w-3 text-gray-400" />
                   </button>

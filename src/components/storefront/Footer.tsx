@@ -13,12 +13,27 @@ const FOOTER_HEADING =
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    const value = email.trim();
+    if (!value) return;
+    setSubscribing(true);
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: value }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Subscription failed");
       toast.success("Successfully subscribed to the newsletter!");
       setEmail("");
+    } catch (err: any) {
+      toast.error(err.message || "Could not subscribe. Please try again.");
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -68,9 +83,10 @@ export default function Footer() {
               />
               <button
                 type="submit"
-                className="h-9 px-4 bg-ink-900 text-white text-xs font-bold uppercase tracking-wider rounded-r-sm hover:bg-pink-500 transition-colors"
+                disabled={subscribing}
+                className="h-9 px-4 bg-ink-900 text-white text-xs font-bold uppercase tracking-wider rounded-r-sm hover:bg-pink-500 transition-colors disabled:opacity-60"
               >
-                Join
+                {subscribing ? "..." : "Join"}
               </button>
             </form>
           </div>

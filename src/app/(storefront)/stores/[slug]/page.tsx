@@ -4,11 +4,11 @@ import { Store } from "@/lib/types";
 import StoreDetailClient from "./StoreDetailClient";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
 
   try {
     if (!adminDb) {
@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function StorePage({ params }: Props) {
-  return <StoreDetailClient slug={params.slug} />;
+export default async function StorePage({ params }: Props) {
+  const { slug } = await params;
+  return <StoreDetailClient slug={slug} />;
 }

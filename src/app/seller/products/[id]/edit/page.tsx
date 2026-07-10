@@ -12,14 +12,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface EditProductPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EditProductPage({ params }: EditProductPageProps) {
   const router = useRouter();
-  const productId = params.id;
+  const { id: productId } = React.use(params);
 
   // Query product data
   const { data: product, isLoading: isProductLoading, error } = useSellerProduct(productId);

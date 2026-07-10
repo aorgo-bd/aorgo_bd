@@ -6,6 +6,7 @@ import { calculateShippingFee } from "@/lib/shipping";
 
 export interface CartItem {
   productId: string;
+  storeId?: string;    // used to estimate shipping per store (matches server)
   variantSku: string;
   title: string;
   imagePublicId: string;
@@ -14,6 +15,7 @@ export interface CartItem {
   qty: number;
   price: number; // integer taka BDT
   brand: string;
+  stock?: number;      // available stock for this variant (client-side qty cap)
 }
 
 export interface CartTotals {
@@ -36,9 +38,19 @@ interface CartStore {
 
 const calculateTotals = (items: CartItem[]): CartTotals => {
   const subtotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
-  // Client-side estimate using the shared rule. The server recomputes shipping
-  // per store at checkout (see src/lib/shipping.ts and /api/orders).
-  const shipping = calculateShippingFee(subtotal);
+  // Client-side estimate. Shipping is charged per store, so we group by storeId
+  // and sum each store's fee — mirroring the server's per-store computation in
+  // /api/orders. The exact fee can still differ (first-order rule + admin
+  // settings are server-authoritative), so this remains an estimate.
+  const subtotalByStore: Record<string, number> = {};
+  for (const item of items) {
+    const key = item.storeId || "__unknown__";
+    subtotalByStore[key] = (subtotalByStore[key] || 0) + item.price * item.qty;
+  }
+  const shipping = Object.values(subtotalByStore).reduce(
+    (acc, storeSubtotal) => acc + calculateShippingFee(storeSubtotal),
+    0
+  );
   return {
     subtotal,
     shipping,
@@ -56,6 +68,7 @@ async function syncCartToFirestore(items: CartItem[]) {
       {
         items: items.map((item) => ({
           productId: item.productId,
+          storeId: item.storeId ?? null,
           variantSku: item.variantSku,
           title: item.title,
           imagePublicId: item.imagePublicId,
@@ -64,6 +77,7 @@ async function syncCartToFirestore(items: CartItem[]) {
           qty: item.qty,
           price: item.price,
           brand: item.brand,
+          stock: item.stock ?? null,
         })),
         updatedAt: Date.now(),
       },
@@ -88,11 +102,14 @@ export const useCartStore = create<CartStore>()(
           );
           let updatedItems;
           if (existing) {
-            updatedItems = state.items.map((item) =>
-              item.variantSku === newItem.variantSku
-                ? { ...item, qty: item.qty + newItem.qty }
-                : item
-            );
+            updatedItems = state.items.map((item) => {
+              if (item.variantSku !== newItem.variantSku) return item;
+              // Merge stock knowledge and never exceed available stock.
+              const stock = newItem.stock ?? item.stock;
+              const merged = item.qty + newItem.qty;
+              const qty = typeof stock === "number" ? Math.min(merged, stock) : merged;
+              return { ...item, ...newItem, qty };
+            });
           } else {
             updatedItems = [...state.items, newItem];
           }
@@ -115,11 +132,12 @@ export const useCartStore = create<CartStore>()(
         }),
       updateQty: (variantSku, qty) =>
         set((state) => {
-          const updatedItems = state.items.map((item) =>
-            item.variantSku === variantSku
-              ? { ...item, qty: Math.max(1, qty) }
-              : item
-          );
+          const updatedItems = state.items.map((item) => {
+            if (item.variantSku !== variantSku) return item;
+            let next = Math.max(1, qty);
+            if (typeof item.stock === "number") next = Math.min(next, Math.max(1, item.stock));
+            return { ...item, qty: next };
+          });
           syncCartToFirestore(updatedItems);
           return {
             items: updatedItems,

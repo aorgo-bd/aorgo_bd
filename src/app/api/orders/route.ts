@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import { verifyRequestUser } from "@/lib/firebase/server-auth";
 import { checkoutPayloadSchema } from "@/lib/schemas";
-import { Order, OrderItem, Product, Store } from "@/lib/types";
+import { Order, OrderItem, Product, Store, StorefrontSettings } from "@/lib/types";
 import { calculateShippingFee } from "@/lib/shipping";
 
 export async function POST(request: NextRequest) {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
 
       // B. Fetch all stores (READS)
       const storeDocs: { [id: string]: Store } = {};
+      const storeRefs: { [id: string]: FirebaseFirestore.DocumentReference } = {};
       for (const storeId of uniqueStoreIds) {
         const storeRef = adminDb.collection("stores").doc(storeId);
         const docSnap = await transaction.get(storeRef);
@@ -63,6 +65,23 @@ export async function POST(request: NextRequest) {
           throw new Error(`Store "${storeData.name}" is currently suspended or inactive.`);
         }
         storeDocs[storeId] = { ...storeData, id: docSnap.id };
+        storeRefs[storeId] = storeRef;
+      }
+
+      // Load admin storefront settings so shipping fees / COD availability are
+      // driven by the admin dashboard, not hardcoded constants.
+      const settingsSnap = await transaction.get(
+        adminDb.collection("settings").doc("storefront")
+      );
+      const settings = (settingsSnap.exists ? settingsSnap.data() : {}) as Partial<StorefrontSettings>;
+      const codEnabled = settings.codEnabled !== false; // default enabled
+      const freeShippingThreshold =
+        typeof settings.freeShippingThreshold === "number" ? settings.freeShippingThreshold : undefined;
+      const flatShippingFee =
+        typeof settings.defaultShippingFee === "number" ? settings.defaultShippingFee : undefined;
+
+      if (!codEnabled) {
+        throw new Error("Cash on Delivery is currently unavailable. Please try again later.");
       }
 
       // Check if it's the customer's first order
@@ -126,7 +145,11 @@ export async function POST(request: NextRequest) {
         // Shipping fee logic (shared source of truth with the client cart): free
         // shipping if per-store subtotal exceeds the threshold, OR first order over
         // the first-order threshold, otherwise a flat per-store fee.
-        const shippingFee = calculateShippingFee(subtotal, { isFirstOrder });
+        const shippingFee = calculateShippingFee(subtotal, {
+          isFirstOrder,
+          freeShippingThreshold,
+          flatFee: flatShippingFee,
+        });
         const total = subtotal + shippingFee; // COD discount = 0 for MVP
 
         const orderId = adminDb.collection("orders").doc().id;
@@ -215,10 +238,15 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Create order documents
+      // Create order documents + accrue store sales (merchandise subtotal).
       for (const order of createdOrders) {
         const orderRef = adminDb.collection("orders").doc(order.id);
         transaction.set(orderRef, order);
+
+        // Accumulate the store's lifetime sales so rankings/analytics are real.
+        transaction.update(storeRefs[order.storeId], {
+          totalSales: FieldValue.increment(order.totals.subtotal),
+        });
 
         // Audit trail for each created order (matches admin-route pattern)
         const auditRef = adminDb.collection("audit_logs").doc();

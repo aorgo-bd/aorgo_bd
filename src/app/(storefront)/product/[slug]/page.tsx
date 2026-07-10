@@ -8,7 +8,7 @@ import { MOCK_PRODUCTS } from "@/lib/data/mock-db";
 const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -32,7 +32,8 @@ async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function generateMetadata({ params }: Props) {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
   if (!product) return { title: "Product not found | AORGO" };
   return {
     title: `${product.title} | ${product.brand} | AORGO`,
@@ -44,7 +45,8 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aorgo-bd.vercel.app";
@@ -75,11 +77,19 @@ export default async function ProductPage({ params }: Props) {
         : undefined,
   };
 
+  // Escape characters that could break out of the <script> block or be
+  // interpreted as HTML. JSON.stringify alone does NOT escape < > & so a
+  // crafted product title could otherwise inject markup on the public PDP.
+  const safeJsonLd = JSON.stringify(jsonLd)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd }}
       />
       <ProductDetailClient initialProduct={product} />
     </>

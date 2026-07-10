@@ -6,7 +6,7 @@ import { useCartStore } from "@/lib/stores/cart";
 import { ProductImage } from "@/components/ProductImage";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatBDT } from "@/lib/utils";
 
 export default function CartDrawer() {
   const { items, totals, isOpen, setIsOpen, updateQty, remove } = useCartStore();
@@ -130,7 +130,7 @@ export default function CartDrawer() {
                     </div>
 
                     <span className="text-sm font-black text-black">
-                      ৳{item.price * item.qty}
+                      {formatBDT(item.price * item.qty)}
                     </span>
                   </div>
                 </div>
@@ -146,7 +146,7 @@ export default function CartDrawer() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm text-gray-500 font-semibold">
                 <span>Subtotal</span>
-                <span className="text-black font-extrabold">৳{totals.subtotal}</span>
+                <span className="text-black font-extrabold">{formatBDT(totals.subtotal)}</span>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-500 font-semibold">
                 <span>Shipping Estimate</span>
@@ -156,7 +156,7 @@ export default function CartDrawer() {
               </div>
               <div className="border-t border-gray-200/60 my-2 pt-2 flex items-end justify-between">
                 <span className="text-base font-bold text-black uppercase tracking-wide">Total</span>
-                <span className="text-xl font-black text-black">৳{totals.total}</span>
+                <span className="text-xl font-black text-black">{formatBDT(totals.total)}</span>
               </div>
             </div>
 

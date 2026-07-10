@@ -45,12 +45,12 @@ import {
   AlertTriangle,
   Loader2
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatBDT } from "@/lib/utils";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Map order statuses to step-indexes for a simplified visual tracker
@@ -108,7 +108,7 @@ function ReviewActionCell({
 }
 
 export default function OrderDetailPage({ params }: PageProps) {
-  const { id } = params;
+  const { id } = React.use(params);
   const { user, isAuthenticated, isLoading: isLoadingUser } = useUser();
 
   // Query order doc client-side
@@ -413,7 +413,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                             </span>
                           </div>
                         </td>
-                        <td className="p-4 text-center font-semibold">{item.qty} × ৳{item.priceAtPurchase}</td>
+                        <td className="p-4 text-center font-semibold">{item.qty} × {formatBDT(item.priceAtPurchase)}</td>
                         {order.status === "delivered" && (
                           <td className="p-4 text-center">
                             <ReviewActionCell
@@ -424,7 +424,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                             />
                           </td>
                         )}
-                        <td className="p-4 text-right pr-6 font-bold text-sm text-zinc-700 dark:text-zinc-300">৳{item.qty * item.priceAtPurchase}</td>
+                        <td className="p-4 text-right pr-6 font-bold text-sm text-zinc-700 dark:text-zinc-300">{formatBDT(item.qty * item.priceAtPurchase)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -504,23 +504,23 @@ export default function OrderDetailPage({ params }: PageProps) {
             <CardContent className="p-5 space-y-3 bg-background/10 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-semibold text-zinc-700 dark:text-zinc-300">৳{order.totals.subtotal}</span>
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">{formatBDT(order.totals.subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Shipping Fee</span>
                 <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                  {order.totals.shipping === 0 ? "FREE" : `৳${order.totals.shipping}`}
+                  {order.totals.shipping === 0 ? "FREE" : formatBDT(order.totals.shipping)}
                 </span>
               </div>
               {order.totals.discount > 0 && (
                 <div className="flex justify-between text-primary font-medium">
                   <span>Discount</span>
-                  <span>-৳{order.totals.discount}</span>
+                  <span>-{formatBDT(order.totals.discount)}</span>
                 </div>
               )}
               <div className="border-t border-border/80 pt-3 flex justify-between items-end">
                 <span className="font-bold text-sm text-foreground">Grand Total</span>
-                <span className="font-extrabold text-base text-primary">৳{order.totals.total}</span>
+                <span className="font-extrabold text-base text-primary">{formatBDT(order.totals.total)}</span>
               </div>
             </CardContent>
           </Card>

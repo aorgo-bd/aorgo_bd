@@ -209,6 +209,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
     addItem({
       productId: product.id,
+      storeId: product.storeId,
       variantSku: variant.sku,
       title: product.title,
       imagePublicId: variant.imagePublicId || product.images?.[0] || "",
@@ -217,6 +218,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
       qty: quantity,
       price: product.price,
       brand: product.brand,
+      stock: variant.stock,
     });
     setCartOpen(true);
     toast.success(`${product.title} added to cart!`);
@@ -248,6 +250,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
     addItem({
       productId: product.id,
+      storeId: product.storeId,
       variantSku: variant.sku,
       title: product.title,
       imagePublicId: variant.imagePublicId || product.images?.[0] || "",
@@ -256,6 +259,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
       qty: quantity,
       price: product.price,
       brand: product.brand,
+      stock: variant.stock,
     });
 
     router.push("/cart");

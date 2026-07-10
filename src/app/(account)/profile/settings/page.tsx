@@ -1,33 +1,53 @@
 "use client";
 
 import { useUser } from "@/lib/hooks/useUser";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { doc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase/client";
 import { sendPasswordResetEmail } from "firebase/auth";
 import toast from "react-hot-toast";
-import { Settings, ShieldAlert, KeyRound, User as UserIcon, ArrowLeft } from "lucide-react";
+import { ShieldAlert, KeyRound, User as UserIcon, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { profileSettingsSchema, ProfileSettingsFormData } from "@/lib/schemas";
 
 export default function AccountSettingsPage() {
   const { user, refetch } = useUser();
-  const [displayName, setDisplayName] = useState(user?.displayName || "");
-  const [phone, setPhone] = useState(user?.phone || "");
-  const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ProfileSettingsFormData>({
+    resolver: zodResolver(profileSettingsSchema),
+    defaultValues: { displayName: "", phone: "", photoURL: "" },
+  });
+
+  // Populate form once the user document has loaded.
+  useEffect(() => {
+    if (user) {
+      reset({
+        displayName: user.displayName || "",
+        phone: user.phone || "",
+        photoURL: user.photoURL || "",
+      });
+    }
+  }, [user, reset]);
+
+  const handleUpdateProfile = async (data: ProfileSettingsFormData) => {
     if (!user) return;
 
     setLoading(true);
     try {
       const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, {
-        displayName,
-        phone,
-        photoURL,
+        displayName: data.displayName,
+        phone: data.phone,
+        photoURL: data.photoURL,
         updatedAt: Date.now(),
       });
       toast.success("Profile updated successfully!");
@@ -92,50 +112,61 @@ export default function AccountSettingsPage() {
       </div>
 
       {/* Edit Profile Form */}
-      <form onSubmit={handleUpdateProfile} className="space-y-4">
+      <form onSubmit={handleSubmit(handleUpdateProfile)} className="space-y-4" noValidate>
         <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
           <UserIcon className="h-4.5 w-4.5 text-gray-450" />
           <span>Profile Information</span>
         </h3>
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Full Name</label>
+            <label htmlFor="displayName" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Full Name</label>
             <input
+              id="displayName"
               type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              {...register("displayName")}
               placeholder="Your full name"
               className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
+            {errors.displayName && (
+              <p className="text-[11px] text-red-600">{errors.displayName.message}</p>
+            )}
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Email Address (Read-only)</label>
+            <label htmlFor="email" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Email Address (Read-only)</label>
             <input
+              id="email"
               type="email"
               disabled
               value={user?.email || ""}
+              readOnly
               className="w-full h-10 px-3.5 rounded-xl border border-gray-150 bg-slate-50 text-gray-450 text-sm focus:outline-none select-none"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Phone Number</label>
+            <label htmlFor="phone" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Phone Number</label>
             <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. +8801XXXXXXXXX"
+              id="phone"
+              type="tel"
+              {...register("phone")}
+              placeholder="e.g. 01712345678"
               className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
+            {errors.phone && (
+              <p className="text-[11px] text-red-600">{errors.phone.message}</p>
+            )}
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Avatar Photo URL</label>
+            <label htmlFor="photoURL" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Avatar Photo URL</label>
             <input
+              id="photoURL"
               type="text"
-              value={photoURL}
-              onChange={(e) => setPhotoURL(e.target.value)}
+              {...register("photoURL")}
               placeholder="Cloudinary public URL or external image..."
               className="w-full h-10 px-3.5 rounded-xl border border-gray-250 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
+            {errors.photoURL && (
+              <p className="text-[11px] text-red-600">{errors.photoURL.message}</p>
+            )}
           </div>
         </div>
         <button

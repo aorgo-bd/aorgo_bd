@@ -4,11 +4,11 @@ import { Category } from '@/lib/types';
 import CategoryClient from './CategoryClient';
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
 
   try {
     if (!adminDb) {

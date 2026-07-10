@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { CldImage } from "next-cloudinary";
 import { Product } from "@/lib/types";
+import { formatBDT } from "@/lib/utils";
 
 interface SearchBarProps {
   className?: string;
@@ -156,7 +157,7 @@ export default function SearchBar({ className = "", onSearchExecuted }: SearchBa
                       </p>
                     </div>
                     <div className="text-sm font-extrabold text-black shrink-0">
-                      ৳{item.price}
+                      {formatBDT(item.price)}
                     </div>
                   </button>
                 ))}
