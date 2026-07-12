@@ -7,8 +7,14 @@ service cloud.firestore {
     function uid() { return request.auth.uid; }
     function userPath() { return /databases/$(database)/documents/users/$(uid()); }
     function isNotSuspended() {
+      // NOTE: `.get('suspended', false)` — NOT `.data.suspended`. New user docs
+      // are created without a `suspended` field, and directly reading a missing
+      // document field raises an evaluation error in Firestore rules, which then
+      // denies the whole request. That silently broke every authenticated write
+      // gated by this helper (cart/wishlist sync, saving a checkout address) and
+      // every admin collection read (which needs isAdmin() → isNotSuspended()).
       return isSignedIn()
-        && (!exists(userPath()) || get(userPath()).data.suspended != true);
+        && (!exists(userPath()) || get(userPath()).data.get('suspended', false) != true);
     }
     function role() {
       return request.auth.token.role;
@@ -106,7 +112,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /banners/{id} {
-      allow read: if resource.data.active == true || isAdmin();
+      allow read: if resource.data.get('active', false) == true || isAdmin();
       allow write: if isAdmin();
     }
     match /settings/{key} {

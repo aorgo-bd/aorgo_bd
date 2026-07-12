@@ -15,10 +15,17 @@ export default function BottomNav() {
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
-  // Hide on admin and seller panel pages
+  // Hide on admin and seller panel pages, and on flows that render their own
+  // primary sticky bottom action bar. The product detail page (StickyMobileCTA)
+  // and checkout page both pin an action bar to `bottom-0`; leaving this nav
+  // mounted made it paint over those bars on phones (both are `fixed bottom-0
+  // z-40`), hiding Add to Cart / Buy Now / Place Order — i.e. "no purchasing
+  // controls on mobile". Yielding the bottom edge to those bars fixes it.
   if (
     pathname.startsWith("/seller") ||
-    pathname.startsWith("/admin")
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/product/") ||
+    pathname.startsWith("/checkout")
   ) {
     return null;
   }

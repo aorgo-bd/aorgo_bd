@@ -280,33 +280,47 @@ export default function CheckoutPage() {
         {/* Checkout Steps Form */}
         <div className="lg:col-span-8 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 h-12 bg-zinc-100 dark:bg-zinc-800/40 p-1 rounded-sm">
-              <TabsTrigger
-                value="cart"
-                className="rounded-lg py-2 flex items-center justify-center space-x-2 text-xs md:text-sm font-medium transition-all"
-              >
-                <ShoppingBag className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">1. Review Cart</span>
-                <span className="sm:hidden">1. Cart</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="shipping"
-                disabled={items.length === 0}
-                className="rounded-lg py-2 flex items-center justify-center space-x-2 text-xs md:text-sm font-medium transition-all"
-              >
-                <MapPin className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">2. Shipping</span>
-                <span className="sm:hidden">2. Address</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="payment"
-                disabled={!selectedAddress}
-                className="rounded-lg py-2 flex items-center justify-center space-x-2 text-xs md:text-sm font-medium transition-all"
-              >
-                <CreditCard className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">3. Payment</span>
-                <span className="sm:hidden">3. Pay</span>
-              </TabsTrigger>
+            {/* Accessible step progress — the triggers keep Tabs' keyboard/ARIA
+                behaviour while reading as a connected checkout stepper. */}
+            <TabsList
+              aria-label="Checkout steps"
+              className="relative grid w-full grid-cols-3 mb-8 h-auto bg-transparent p-0 gap-2 sm:gap-3"
+            >
+              {[
+                { value: "cart", label: "Review Cart", shortLabel: "Cart", icon: ShoppingBag, done: true, disabled: false },
+                { value: "shipping", label: "Shipping", shortLabel: "Address", icon: MapPin, done: !!selectedAddress, disabled: items.length === 0 },
+                { value: "payment", label: "Payment", shortLabel: "Pay", icon: CreditCard, done: false, disabled: !selectedAddress },
+              ].map((step, idx) => {
+                const StepIcon = step.icon;
+                const isActive = activeTab === step.value;
+                const isComplete = step.done && !isActive;
+                return (
+                  <TabsTrigger
+                    key={step.value}
+                    value={step.value}
+                    disabled={step.disabled}
+                    className="group flex flex-col items-center gap-2 rounded-xl border border-border/60 bg-background/60 px-2 py-3 text-center transition-all data-[state=active]:border-primary data-[state=active]:bg-primary/[0.04] data-[state=active]:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:border-border"
+                  >
+                    <span
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors shrink-0",
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : isComplete
+                          ? "bg-emerald-500 text-white"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {isComplete ? <Check className="h-4 w-4 stroke-[3]" /> : idx + 1}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-muted-foreground group-data-[state=active]:text-foreground">
+                      <StepIcon className="h-3.5 w-3.5 shrink-0 hidden sm:inline" />
+                      <span className="hidden sm:inline">{step.label}</span>
+                      <span className="sm:hidden">{step.shortLabel}</span>
+                    </span>
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
 
             {/* TAB 1: REVIEW CART ITEMS */}

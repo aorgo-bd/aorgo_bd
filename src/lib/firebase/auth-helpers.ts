@@ -23,13 +23,14 @@ export async function createOrGetUserDocument(
     const photoURL = firebaseUser.photoURL || "";
     const now = Date.now();
 
-    const newUserData: User = {
+    const newUserData: User & { suspended: boolean } = {
       uid: firebaseUser.uid,
       role: "customer",
       email,
       displayName,
       photoURL,
       addresses: [],
+      suspended: false,
       createdAt: now,
       updatedAt: now,
     };

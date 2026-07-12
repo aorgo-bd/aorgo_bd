@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
 import { getFreshIdToken } from "@/lib/firebase/client-token";
 import { Order, Product, Store, User, Banner, AuditLog } from "@/lib/types";
 
 const ADMIN_STALE_TIME = 60_000;
-const ADMIN_LIST_LIMIT = 50;
 
 export function useAdminSellers() {
   return useQuery<Store[]>({
@@ -53,13 +50,18 @@ export function useAdminOrders() {
   return useQuery<Order[]>({
     queryKey: ["admin-orders"],
     queryFn: async () => {
-      const ordersRef = collection(db, "orders");
-      const q = query(ordersRef, orderBy("createdAt", "desc"), limit(ADMIN_LIST_LIMIT));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Order[];
+      // Server read (Admin SDK). A direct client query fails whenever the
+      // ambient SDK token lacks a fresh `role: admin` claim. See useAdminBanners.
+      const idToken = await getFreshIdToken();
+      const res = await fetch("/api/admin/orders", {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to load orders");
+      }
+      const data = await res.json();
+      return (data.orders || []) as Order[];
     },
     staleTime: ADMIN_STALE_TIME,
   });
@@ -69,13 +71,21 @@ export function useAdminUsers() {
   return useQuery<User[]>({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, orderBy("createdAt", "desc"), limit(ADMIN_LIST_LIMIT));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => ({
-        uid: doc.id,
-        ...doc.data(),
-      })) as User[];
+      // Server read (Admin SDK) so the entire user directory is returned. A
+      // direct client Firestore query is gated by the isAdmin() rule and returns
+      // an empty list when the ambient token's `role: admin` claim is stale —
+      // this was the root cause of "admin dashboard shows no users". See
+      // useAdminBanners for the shared rationale.
+      const idToken = await getFreshIdToken();
+      const res = await fetch("/api/admin/users", {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to load users");
+      }
+      const data = await res.json();
+      return (data.users || []) as User[];
     },
     staleTime: ADMIN_STALE_TIME,
   });
@@ -109,13 +119,18 @@ export function useAdminAuditLogs() {
   return useQuery<AuditLog[]>({
     queryKey: ["admin-audit-logs"],
     queryFn: async () => {
-      const logsRef = collection(db, "audit_logs");
-      const q = query(logsRef, orderBy("at", "desc"), limit(ADMIN_LIST_LIMIT));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as AuditLog[];
+      // Server read (Admin SDK) — audit_logs is admin-read-only, so a direct
+      // client query depends on a fresh `role: admin` claim. See useAdminBanners.
+      const idToken = await getFreshIdToken();
+      const res = await fetch("/api/admin/audit-logs", {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to load audit logs");
+      }
+      const data = await res.json();
+      return (data.auditLogs || []) as AuditLog[];
     },
     staleTime: ADMIN_STALE_TIME,
   });

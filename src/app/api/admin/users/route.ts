@@ -2,6 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 
+const ADMIN_LIST_LIMIT = 50;
+
+export async function GET(request: NextRequest) {
+  try {
+    await verifyAdmin(request);
+
+    // Read through the Admin SDK (server-side) so the full user directory is
+    // always returned. A direct client Firestore collection query requires the
+    // ambient SDK token to carry a fresh `role: admin` claim (via isAdmin() in
+    // the security rules) — which is unreliable right after promotion / on a
+    // stale token — and silently returns an empty list. Same rationale as the
+    // sellers/products/banners admin routes.
+    const snap = await adminDb
+      .collection("users")
+      .orderBy("createdAt", "desc")
+      .limit(ADMIN_LIST_LIMIT)
+      .get();
+    const users = snap.docs.map((doc) => ({ uid: doc.id, ...doc.data() }));
+
+    return NextResponse.json({ users });
+  } catch (error: any) {
+    const status = error?.status || 500;
+    console.error("Failed to list users:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status }
+    );
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const { uid: actorUid } = await verifyAdmin(request);
