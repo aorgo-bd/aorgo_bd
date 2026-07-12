@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { useProductSearch } from "@/lib/hooks/useProductSearch";
@@ -9,16 +10,26 @@ import ProductCard from "@/components/storefront/ProductCard";
 import CategoryFilter from "@/components/storefront/CategoryFilter";
 import SortDropdown from "@/components/storefront/SortDropdown";
 
-export default function ShopEverythingPage() {
+function ShopEverythingContent() {
   const { data: categories = [], isLoading: isLoadingCats } = useCategories();
+  const searchParams = useSearchParams();
 
   // Root level categories to show in sidebar filter
   const subcategories = categories.filter((c: any) => !c.parent);
 
+  // Seed price / category from the URL so entry points like the homepage
+  // "Shop by Price" cards (/products?maxPrice=499) and category tiles land
+  // pre-filtered.
+  const initialMaxPrice = Number(searchParams.get("maxPrice")) || 50000;
+  const initialMinPrice = Number(searchParams.get("minPrice")) || 0;
+  const initialCategory = searchParams.get("category");
+
   // Filter States
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(50000);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
+    initialCategory ? [initialCategory] : []
+  );
+  const [minPrice, setMinPrice] = useState<number>(initialMinPrice);
+  const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc" | "rating-desc" | "popular">("newest");
@@ -48,6 +59,23 @@ export default function ShopEverythingPage() {
   });
 
   const products = data?.pages.flatMap((page) => page.products) || [];
+
+  // Infinite scroll: auto-fetch the next page as the sentinel nears the viewport.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleSubcategoryToggle = (subSlug: string) => {
     setSelectedSubcategories((prev) =>
@@ -172,25 +200,20 @@ export default function ShopEverythingPage() {
                   ))}
                 </div>
 
-                {/* Pagination (Load More) */}
-                {hasNextPage && (
-                  <div className="flex justify-center mt-12">
-                    <button
-                      onClick={() => fetchNextPage()}
-                      disabled={isFetchingNextPage}
-                      className="inline-flex items-center justify-center gap-2 px-10 py-3 bg-white border border-ink-300 hover:border-pink-500 text-ink-700 hover:text-pink-500 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors disabled:opacity-50 min-w-[180px] cursor-pointer"
-                    >
-                      {isFetchingNextPage ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Loading...</span>
-                        </>
-                      ) : (
-                        <span>Load More Products</span>
-                      )}
-                    </button>
-                  </div>
-                )}
+                {/* Infinite-scroll sentinel */}
+                <div ref={sentinelRef} className="h-12 flex items-center justify-center mt-12">
+                  {isFetchingNextPage && (
+                    <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink-400">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading more
+                    </span>
+                  )}
+                  {!hasNextPage && products.length > 0 && (
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-ink-300">
+                      You&apos;ve reached the end
+                    </span>
+                  )}
+                </div>
               </>
             )}
 
@@ -199,5 +222,24 @@ export default function ShopEverythingPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function ShopEverythingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="h-6 bg-ink-100 rounded-md w-48 mb-8 animate-pulse" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="aspect-[3/4] bg-ink-100 rounded-sm animate-pulse" />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <ShopEverythingContent />
+    </Suspense>
   );
 }

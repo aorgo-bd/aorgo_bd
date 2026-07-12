@@ -4,9 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Star, Heart, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Heart, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight, Store as StoreIcon, ChevronRight as ArrowRight } from "lucide-react";
 
 import { useProductBySlug, useProducts } from "@/lib/hooks/useProducts";
+import { useStoreById } from "@/lib/hooks/useStores";
 import { Category, Product, ProductVariant, Order } from "@/lib/types";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { useCartStore } from "@/lib/stores/cart";
@@ -33,6 +34,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
   const { data: product = initialProduct, isLoading, error } = useProductBySlug(slug);
   const { data: allProducts = [] } = useProducts();
   const { data: categoriesList = [] } = useCategories();
+  const { data: store } = useStoreById(product?.storeId || "");
 
   const { user } = useUser();
   const { data: reviews = [] } = useReviews(product?.id || "");
@@ -307,6 +309,11 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
   const crumbs = getBreadcrumbs();
 
+  // Only link to a store profile that is publicly visible (approved). The
+  // profile page itself 404s on non-approved stores, so we avoid dead links.
+  const storeHref = store && store.status === "approved" ? `/stores/${store.slug}` : null;
+  const storeName = store?.name || product.brand;
+
   return (
     <main className="min-h-screen bg-white">
       {/* PDP Container */}
@@ -345,13 +352,53 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
             
             {/* Title & Brand Header */}
             <div>
-              <span className="text-xs sm:text-sm font-extrabold text-gray-400 uppercase tracking-widest block mb-1.5">
-                {product.brand}
-              </span>
+              {storeHref ? (
+                <Link
+                  href={storeHref}
+                  className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-pink-500 hover:text-pink-600 uppercase tracking-widest mb-1.5 transition-colors group"
+                >
+                  <StoreIcon className="h-3.5 w-3.5" />
+                  <span className="group-hover:underline underline-offset-2">{storeName}</span>
+                </Link>
+              ) : (
+                <span className="text-xs sm:text-sm font-extrabold text-gray-400 uppercase tracking-widest block mb-1.5">
+                  {storeName}
+                </span>
+              )}
               <h1 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight leading-snug">
                 {product.title}
               </h1>
             </div>
+
+            {/* Sold-by / View Store card */}
+            {storeHref && (
+              <Link
+                href={storeHref}
+                className="flex items-center justify-between gap-3 rounded-sm border border-ink-200 bg-ink-50/60 hover:border-pink-300 hover:bg-pink-50/40 transition-colors p-3 group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="flex items-center justify-center h-10 w-10 shrink-0 rounded-full bg-pink-500 text-white font-black text-sm">
+                    {storeName.charAt(0).toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">Sold by</p>
+                    <p className="text-sm font-bold text-ink-900 truncate group-hover:text-pink-500 transition-colors flex items-center gap-1.5">
+                      {storeName}
+                      {store && store.rating > 0 && (
+                        <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-ink-500">
+                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          {store.rating.toFixed(1)}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <span className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-pink-500 border border-pink-200 rounded-sm px-3 py-2 group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                  View Store
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            )}
 
             {/* Rating Stars Summary */}
             <div className="flex flex-wrap items-center gap-3">
@@ -603,6 +650,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
           selectedSize={selectedSize}
           selectedColor={selectedColor}
           onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
           isWishlisted={isWishlisted}
           onWishlistToggle={handleWishlistToggle}
           isAvailable={isAvailable}

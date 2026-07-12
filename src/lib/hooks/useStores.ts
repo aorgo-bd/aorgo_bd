@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -69,6 +71,38 @@ export function useStoreBySlug(slug: string) {
       }
     },
     enabled: !!slug,
+    staleTime: 1000 * 60 * 10,
+  });
+}
+
+/**
+ * Fetch a single store by its document id. Used by the product detail page to
+ * resolve a product's `storeId` into a linkable store profile (slug, name,
+ * rating). Any store status is returned here because the seller who owns the
+ * product may be reviewing their own listing; the store profile page itself
+ * still gates on `status === "approved"`.
+ */
+export function useStoreById(storeId: string) {
+  return useQuery<Store | null>({
+    queryKey: ["store-by-id", storeId],
+    queryFn: async () => {
+      if (!storeId) return null;
+      try {
+        const snapshot = await getDoc(doc(db, "stores", storeId));
+        if (!snapshot.exists()) {
+          return USE_MOCKS
+            ? MOCK_STORES.find((s) => s.id === storeId) || null
+            : null;
+        }
+        return { id: snapshot.id, ...snapshot.data() } as Store;
+      } catch (err) {
+        console.warn("[useStoreById] store query failed:", err);
+        return USE_MOCKS
+          ? MOCK_STORES.find((s) => s.id === storeId) || null
+          : null;
+      }
+    },
+    enabled: !!storeId,
     staleTime: 1000 * 60 * 10,
   });
 }

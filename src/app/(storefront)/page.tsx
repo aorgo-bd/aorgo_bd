@@ -2,6 +2,9 @@ import React from "react";
 import Link from "next/link";
 import HeroCarousel from "@/components/storefront/HeroCarousel";
 import ProductRail from "@/components/storefront/ProductRail";
+import FeaturedCategories from "@/components/storefront/FeaturedCategories";
+import ShopByPrice from "@/components/storefront/ShopByPrice";
+import AllProductsFeed from "@/components/storefront/AllProductsFeed";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Banner, Category, Product } from "@/lib/types";
 import type { ProductFilter } from "@/lib/hooks/useProducts";
@@ -180,6 +183,12 @@ export default async function StorefrontHomePage() {
 
       {/* 3. Hero Banners Carousel */}
       <HeroCarousel initialBanners={banners} />
+
+      {/* 3b. Featured Categories (2-row, immediately below hero) */}
+      <FeaturedCategories categories={categories} />
+
+      {/* 3c. Shop by Price */}
+      <ShopByPrice />
 
       {/* 4. Mid-page Promo Strip (4 tiles) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
@@ -361,6 +370,16 @@ export default async function StorefrontHomePage() {
           </div>
         </Link>
       </div>
+
+      {/* 13b. Section: ALL PRODUCTS (main infinite feed) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+        <div className="mb-6 border-b border-ink-200 pb-3">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+            All Products
+          </h2>
+        </div>
+        <AllProductsFeed sortBy="newest" />
+      </section>
 
       {/* 14. Section: WHY SHOP AT AORGO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 border-t border-ink-200 pt-12 sm:pt-16">

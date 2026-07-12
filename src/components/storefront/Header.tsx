@@ -5,18 +5,18 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
   Heart,
   User as UserIcon,
   Menu,
-  X,
   ChevronDown,
   LogOut,
-  SlidersHorizontal,
   ArrowRight,
   Shield,
   ShoppingBag,
   Store,
+  MoreVertical,
+  Package,
+  LayoutGrid,
 } from "lucide-react";
 import { useUser } from "@/lib/hooks/useUser";
 import { useCategories } from "@/lib/hooks/useCategories";
@@ -60,13 +60,12 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useUser();
-  const { data: categories = [], isLoading: isLoadingCats } = useCategories();
+  const { data: categories = [] } = useCategories();
   const cartItems = useCartStore((state) => state.items);
   const wishlistIds = useWishlistStore((state) => state.ids);
   const setCartOpen = useCartStore((state) => state.setIsOpen);
 
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [promoMessageIndex, setPromoMessageIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -80,9 +79,13 @@ export default function Header() {
   }, []);
 
   // Group categories into parent-child structure
-  const rootCategories = categories.filter((c: any) => !c.parent).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+  const rootCategories = categories
+    .filter((c: any) => !c.parent)
+    .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   const getSubcategories = (parentSlug: string) =>
-    categories.filter((c: any) => c.parent === parentSlug).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+    categories
+      .filter((c: any) => c.parent === parentSlug)
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
   const handleLogout = async () => {
     try {
@@ -112,6 +115,11 @@ export default function Header() {
   }, []);
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
+  const userInitial = user?.displayName
+    ? user.displayName[0].toUpperCase()
+    : user?.email
+    ? user.email[0].toUpperCase()
+    : "U";
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white border-b border-ink-200 shadow-[0_1px_3px_rgba(40,44,63,0.08)]">
@@ -128,144 +136,313 @@ export default function Header() {
         </motion.span>
       </div>
 
-      {/* Main Navigation Row (Desktop: 80px, Mobile: 56px) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 lg:h-20 flex items-center justify-between gap-4">
-        
-        {/* Left Side: Mobile Menu Drawer + Logo */}
-        <div className="flex items-center gap-3">
-          {/* Mobile Hamburger Drawer */}
-          <div className="block lg:hidden">
-            <Sheet>
-              <SheetTrigger render={
-                <button className="p-2 -ml-2 text-ink-700 hover:text-pink-500 transition-colors rounded-full hover:bg-ink-50 focus:outline-none">
-                  <Menu className="h-6 w-6" />
-                </button>
-              } />
-              <SheetContent side="left" className="w-[300px] sm:w-[360px] p-0 flex flex-col bg-white">
-                <SheetHeader className="px-6 pt-6 pb-4 border-b border-ink-200 text-left">
-                  <SheetTitle className="flex items-center justify-between">
-                    <Logo className="h-7" />
-                  </SheetTitle>
-                </SheetHeader>
-                
-                {/* Mobile Navigation List */}
-                <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-                  {/* Become a Seller CTA card */}
-                  <div className="bg-ink-50 border border-ink-200 rounded-md p-4 space-y-2">
-                    <p className="text-xs font-bold text-pink-500 uppercase tracking-widest">AORGO MERCHANT</p>
-                    <p className="text-sm font-bold text-ink-900">Start Selling on AORGO Today</p>
-                    <p className="text-xs text-ink-500">Reach millions of fashion buyers across Bangladesh.</p>
-                    <SheetClose render={
-                      <Link
-                        href="/seller/register"
-                        className="inline-flex items-center justify-center w-full mt-2 h-9 text-xs font-bold bg-ink-900 text-white rounded-md hover:bg-ink-700 transition-colors"
-                      >
-                        BECOME A SELLER
-                      </Link>
-                    } />
-                  </div>
+      {/* Main Navigation Row: [search] — [logo] — [wishlist][cart][more] */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 lg:h-20 flex items-center gap-3 lg:gap-6">
+        {/* Mobile Hamburger Drawer (left) */}
+        <div className="block lg:hidden">
+          <Sheet>
+            <SheetTrigger render={
+              <button className="p-2 -ml-2 text-ink-700 hover:text-pink-500 transition-colors rounded-full hover:bg-ink-50 focus:outline-none">
+                <Menu className="h-6 w-6" />
+              </button>
+            } />
+            <SheetContent side="left" className="w-[300px] sm:w-[360px] p-0 flex flex-col bg-white">
+              <SheetHeader className="px-6 pt-6 pb-4 border-b border-ink-200 text-left">
+                <SheetTitle className="flex items-center justify-between">
+                  <Logo className="h-7" />
+                </SheetTitle>
+              </SheetHeader>
 
-                  <div className="space-y-4">
-                    <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest">SHOP CATEGORIES</p>
-                    {rootCategories.map((parent: any) => {
-                      const subs = getSubcategories(parent.slug);
-                      return (
-                        <div key={parent.slug} className="space-y-2">
-                          <SheetClose render={
-                            <Link
-                              href={`/category/${parent.slug}`}
-                              className="block text-base font-bold text-ink-900 hover:text-pink-500 transition-colors"
-                            >
-                              {parent.name.toUpperCase()}
-                            </Link>
-                          } />
-                          {subs.length > 0 && (
-                            <div className="pl-3 border-l border-ink-200 flex flex-col space-y-1.5">
-                              {subs.map((sub: any) => (
-                                <SheetClose key={sub.slug} render={
-                                  <Link
-                                    href={`/category/${sub.slug}`}
-                                    className="text-sm font-semibold text-ink-500 hover:text-pink-500 py-0.5 transition-colors"
-                                  >
-                                    {sub.name}
-                                  </Link>
-                                } />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Additional links */}
-                  <div className="pt-4 border-t border-ink-200 space-y-3 flex flex-col">
-                    <SheetClose render={
-                      <Link href="/products" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
-                        BROWSE ALL PRODUCTS
-                      </Link>
-                    } />
-                    <SheetClose render={
-                      <Link href="/stores" className="flex items-center gap-2 text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
-                        <Store className="h-4 w-4" /> EXPLORE STORES
-                      </Link>
-                    } />
-                    <SheetClose render={
-                      <Link href="/wishlist" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
-                        MY WISHLIST
-                      </Link>
-                    } />
-                  </div>
+              {/* Mobile Navigation List */}
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+                {/* Become a Seller CTA card */}
+                <div className="bg-ink-50 border border-ink-200 rounded-md p-4 space-y-2">
+                  <p className="text-xs font-bold text-pink-500 uppercase tracking-widest">AORGO MERCHANT</p>
+                  <p className="text-sm font-bold text-ink-900">Start Selling on AORGO Today</p>
+                  <p className="text-xs text-ink-500">Reach millions of fashion buyers across Bangladesh.</p>
+                  <SheetClose render={
+                    <Link
+                      href="/seller/register"
+                      className="inline-flex items-center justify-center w-full mt-2 h-9 text-xs font-bold bg-ink-900 text-white rounded-md hover:bg-ink-700 transition-colors"
+                    >
+                      BECOME A SELLER
+                    </Link>
+                  } />
                 </div>
 
-                {/* Mobile Footer Auth Section */}
-                <div className="p-6 border-t border-ink-200 bg-ink-50">
-                  {isAuthenticated && user ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-sm">
-                          {user.displayName ? user.displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : "U")}
-                        </div>
-                        <div className="max-w-[140px]">
-                          <p className="text-sm font-semibold truncate text-ink-900">{user.displayName || "User"}</p>
-                          <p className="text-xs text-ink-400 capitalize">{user.role}</p>
-                        </div>
+                <div className="space-y-4">
+                  <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest">SHOP CATEGORIES</p>
+                  {rootCategories.map((parent: any) => {
+                    const subs = getSubcategories(parent.slug);
+                    return (
+                      <div key={parent.slug} className="space-y-2">
+                        <SheetClose render={
+                          <Link
+                            href={`/category/${parent.slug}`}
+                            className="block text-base font-bold text-ink-900 hover:text-pink-500 transition-colors"
+                          >
+                            {parent.name.toUpperCase()}
+                          </Link>
+                        } />
+                        {subs.length > 0 && (
+                          <div className="pl-3 border-l border-ink-200 flex flex-col space-y-1.5">
+                            {subs.map((sub: any) => (
+                              <SheetClose key={sub.slug} render={
+                                <Link
+                                  href={`/category/${sub.slug}`}
+                                  className="text-sm font-semibold text-ink-500 hover:text-pink-500 py-0.5 transition-colors"
+                                >
+                                  {sub.name}
+                                </Link>
+                              } />
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <button
-                        onClick={handleLogout}
-                        className="p-2 text-ink-400 hover:text-pink-500 transition-colors rounded-full hover:bg-white"
-                      >
-                        <LogOut className="h-5 w-5" />
-                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Additional links */}
+                <div className="pt-4 border-t border-ink-200 space-y-3 flex flex-col">
+                  <SheetClose render={
+                    <Link href="/products" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
+                      BROWSE ALL PRODUCTS
+                    </Link>
+                  } />
+                  <SheetClose render={
+                    <Link href="/stores" className="flex items-center gap-2 text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
+                      <Store className="h-4 w-4" /> EXPLORE STORES
+                    </Link>
+                  } />
+                  <SheetClose render={
+                    <Link href="/wishlist" className="text-sm font-bold text-ink-700 hover:text-pink-500 transition-colors">
+                      MY WISHLIST
+                    </Link>
+                  } />
+                </div>
+              </div>
+
+              {/* Mobile Footer Auth Section */}
+              <div className="p-6 border-t border-ink-200 bg-ink-50">
+                {isAuthenticated && user ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-sm">
+                        {userInitial}
+                      </div>
+                      <div className="max-w-[140px]">
+                        <p className="text-sm font-semibold truncate text-ink-900">{user.displayName || "User"}</p>
+                        <p className="text-xs text-ink-400 capitalize">{user.role}</p>
+                      </div>
                     </div>
-                  ) : (
-                    <SheetClose render={
-                      <Link
-                        href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                        className="block w-full py-3 text-center bg-pink-500 text-white rounded-md font-bold hover:bg-pink-600 transition-colors text-xs tracking-wider"
-                      >
-                        LOG IN / SIGN UP
+                    <button
+                      onClick={handleLogout}
+                      className="p-2 text-ink-400 hover:text-pink-500 transition-colors rounded-full hover:bg-white"
+                    >
+                      <LogOut className="h-5 w-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <SheetClose render={
+                    <Link
+                      href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                      className="block w-full py-3 text-center bg-pink-500 text-white rounded-md font-bold hover:bg-pink-600 transition-colors text-xs tracking-wider"
+                    >
+                      LOG IN / SIGN UP
+                    </Link>
+                  } />
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* 1. Wide Search Bar (desktop, leftmost per spec) */}
+        <SearchBar className="hidden lg:block flex-1 max-w-2xl" />
+
+        {/* 2. Logo + Brand Name (centered on mobile, right of search on desktop) */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 shrink-0 mx-auto lg:mx-0 lg:ml-auto"
+        >
+          <Logo className="h-9 sm:h-11" />
+          <span className="hidden sm:block text-2xl font-display font-black tracking-widest text-ink-900 uppercase leading-none">
+            AORGO
+          </span>
+        </Link>
+
+        {/* Right Side Icons: Wishlist, Cart, More */}
+        <div className="flex items-center gap-3 sm:gap-5 shrink-0 ml-auto lg:ml-0">
+          {/* 3. Wishlist */}
+          <Link
+            href="/wishlist"
+            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors"
+            aria-label="Wishlist"
+          >
+            <span className="relative">
+              <Heart className="h-5 w-5 stroke-[1.8]" />
+              {wishlistIds.length > 0 && (
+                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
+                  {wishlistIds.length}
+                </span>
+              )}
+            </span>
+            <span className="text-[11px] font-bold hidden lg:block">Wishlist</span>
+          </Link>
+
+          {/* 4. Cart Bag */}
+          <button
+            onClick={() => setCartOpen(true)}
+            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors focus:outline-none cursor-pointer"
+            aria-label="Shopping Bag"
+          >
+            <span className="relative">
+              <ShoppingBag className="h-5 w-5 stroke-[1.8]" />
+              {totalCartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
+                  {totalCartCount}
+                </span>
+              )}
+            </span>
+            <span className="text-[11px] font-bold hidden lg:block">Bag</span>
+          </button>
+
+          {/* 5. Three-dot (More) Menu — account + quick links */}
+          <DropdownMenu>
+            <DropdownMenuTrigger render={
+              <button
+                className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors focus:outline-none cursor-pointer group"
+                aria-label="More menu"
+              >
+                {isLoading ? (
+                  <span className="w-5 h-5 rounded-full bg-ink-100 animate-pulse" />
+                ) : isAuthenticated && user ? (
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ink-900 text-white group-hover:bg-pink-500 transition-colors font-bold text-[11px]">
+                    {userInitial}
+                  </span>
+                ) : (
+                  <MoreVertical className="h-5 w-5 stroke-[1.8]" />
+                )}
+                <span className="text-[11px] font-bold hidden lg:block">More</span>
+              </button>
+            } />
+            <DropdownMenuContent align="end" className="w-60 bg-white border border-ink-200 shadow-lg rounded-md p-1.5">
+              {isAuthenticated && user ? (
+                <>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="px-2.5 py-2">
+                      <p className="text-sm font-semibold text-ink-900 truncate">{user.displayName || "My Profile"}</p>
+                      <p className="text-xs text-ink-400 truncate">{user.email}</p>
+                      <p className="text-[9px] text-white font-bold uppercase tracking-wider bg-pink-500 rounded-sm w-fit px-2 py-0.5 mt-1.5">
+                        {user.role}
+                      </p>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator className="bg-ink-200" />
+
+                  <DropdownMenuItem render={
+                    <Link href="/profile" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <UserIcon className="h-4 w-4 text-ink-400" />
+                      <span>My Profile</span>
+                    </Link>
+                  } />
+                  <DropdownMenuItem render={
+                    <Link href="/orders" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <Package className="h-4 w-4 text-ink-400" />
+                      <span>My Orders</span>
+                    </Link>
+                  } />
+
+                  {user.role === "admin" && (
+                    <DropdownMenuItem render={
+                      <Link href="/admin/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                        <Shield className="h-4 w-4 text-ink-400" />
+                        <span>Admin Dashboard</span>
                       </Link>
                     } />
                   )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
 
-          {/* Logo (Centered on mobile, Left on desktop) */}
-          <div className="lg:block">
-            <Link
-              href="/"
-              className="flex items-center justify-center"
-            >
-              <Logo className="h-9 sm:h-11" />
-            </Link>
-          </div>
+                  {user.role === "seller" && (
+                    <DropdownMenuItem render={
+                      <Link href="/seller/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                        <ShoppingBag className="h-4 w-4 text-ink-400" />
+                        <span>Seller Dashboard</span>
+                      </Link>
+                    } />
+                  )}
+
+                  {user.role === "customer" && (
+                    <DropdownMenuItem render={
+                      <Link href="/seller/register" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                        <Store className="h-4 w-4 text-ink-400" />
+                        <span>Become a Seller</span>
+                      </Link>
+                    } />
+                  )}
+
+                  <DropdownMenuSeparator className="bg-ink-200" />
+                  <DropdownMenuItem render={
+                    <Link href="/stores" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <LayoutGrid className="h-4 w-4 text-ink-400" />
+                      <span>Explore Stores</span>
+                    </Link>
+                  } />
+
+                  <DropdownMenuSeparator className="bg-ink-200" />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="rounded-sm px-2.5 py-2 hover:bg-pink-50 focus:bg-pink-50 transition-colors text-pink-500 font-bold text-xs uppercase tracking-wider cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 text-pink-500" />
+                    <span>Log Out</span>
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem render={
+                    <Link
+                      href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                      className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider"
+                    >
+                      <UserIcon className="h-4 w-4 text-ink-400" />
+                      <span>Log In / Sign Up</span>
+                    </Link>
+                  } />
+                  <DropdownMenuSeparator className="bg-ink-200" />
+                  <DropdownMenuItem render={
+                    <Link href="/products" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <LayoutGrid className="h-4 w-4 text-ink-400" />
+                      <span>All Products</span>
+                    </Link>
+                  } />
+                  <DropdownMenuItem render={
+                    <Link href="/stores" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <Store className="h-4 w-4 text-ink-400" />
+                      <span>Explore Stores</span>
+                    </Link>
+                  } />
+                  <DropdownMenuItem render={
+                    <Link href="/seller/register" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
+                      <ShoppingBag className="h-4 w-4 text-ink-400" />
+                      <span>Become a Seller</span>
+                    </Link>
+                  } />
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+      </div>
 
-        {/* Center: Desktop Mega-Menu Categories */}
-        <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 h-full">
+      {/* Mobile Persistent Search Bar Row */}
+      <div className="lg:hidden px-4 pb-3">
+        <SearchBar className="w-full" />
+      </div>
+
+      {/* Secondary Navigation Row: Women / Men / … + Stores (desktop) */}
+      <nav className="hidden lg:block border-t border-ink-100 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-7 xl:gap-9 h-12">
           {rootCategories.map((parent: any) => {
             const subs = getSubcategories(parent.slug);
             const isMenuOpen = activeMegaMenu === parent.slug;
@@ -280,29 +457,29 @@ export default function Header() {
                 <Link
                   href={`/category/${parent.slug}`}
                   className={cn(
-                    "flex items-center gap-1 text-sm font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-4 border-transparent hover:border-pink-500 h-full transition-all duration-150 uppercase",
+                    "flex items-center gap-1 text-[13px] font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-2 border-transparent hover:border-pink-500 h-full transition-all duration-150 uppercase",
                     isMenuOpen && "text-pink-500 border-pink-500"
                   )}
                 >
                   {parent.name}
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  {subs.length > 0 && <ChevronDown className="h-3.5 w-3.5" />}
                 </Link>
 
                 {/* Animated Dropdown Mega-Menu Panel */}
                 <AnimatePresence>
-                  {isMenuOpen && (
+                  {isMenuOpen && subs.length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 15 }}
                       transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                      className="absolute left-1/2 -translate-x-1/2 top-full w-[600px] bg-white rounded-md shadow-lg border border-ink-200 p-6 grid grid-cols-12 gap-6 z-50 mt-1"
+                      className="absolute left-0 top-full w-[600px] bg-white rounded-md shadow-lg border border-ink-200 p-6 grid grid-cols-12 gap-6 z-50"
                     >
                       {/* Left: Subcategory list */}
                       <div className="col-span-8 grid grid-cols-2 gap-4 border-r border-ink-200 pr-4">
                         <div className="col-span-2">
                           <h4 className="text-xs font-bold text-ink-400 uppercase tracking-widest mb-1">
-                            Browse Categories
+                            Browse {parent.name}
                           </h4>
                         </div>
                         {subs.map((sub: any) => (
@@ -333,7 +510,7 @@ export default function Header() {
                             Explore the most premium local collections.
                           </p>
                         </div>
-                        
+
                         <Link
                           href={`/category/${parent.slug}`}
                           onClick={() => setActiveMegaMenu(null)}
@@ -350,166 +527,29 @@ export default function Header() {
             );
           })}
 
-          {/* Stores directory link */}
+          {/* Static directory links */}
+          <Link
+            href="/products"
+            className={cn(
+              "text-[13px] font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-2 border-transparent hover:border-pink-500 h-full flex items-center transition-all duration-150 uppercase",
+              pathname === "/products" && "text-pink-500 border-pink-500"
+            )}
+          >
+            All Products
+          </Link>
           <Link
             href="/stores"
             className={cn(
-              "flex items-center gap-1.5 text-sm font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-4 border-transparent hover:border-pink-500 h-full transition-all duration-150 uppercase",
+              "flex items-center gap-1.5 text-[13px] font-bold tracking-wider text-ink-700 hover:text-pink-500 border-b-2 border-transparent hover:border-pink-500 h-full transition-all duration-150 uppercase",
               pathname.startsWith("/stores") && "text-pink-500 border-pink-500"
             )}
           >
             <Store className="h-4 w-4" />
             Stores
           </Link>
-        </nav>
-
-        {/* Desktop Search Bar */}
-        <SearchBar className="hidden lg:block flex-1 max-w-xs xl:max-w-md" />
-
-        {/* Right Side Icons: Profile, Wishlist, Bag (Myntra icon+label) */}
-        <div className="flex items-center gap-4 sm:gap-6">
-          {/* Mobile Search Trigger */}
-          <button
-            onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors lg:hidden"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5 stroke-[1.8]" />
-          </button>
-
-          {/* Desktop User Profile Dropdown Menu */}
-          <div className="hidden lg:flex items-center">
-            {isLoading ? (
-              <div className="w-6 h-6 rounded-full bg-ink-100 animate-pulse" />
-            ) : isAuthenticated && user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger render={
-                  <button className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors focus:outline-none cursor-pointer group">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ink-900 text-white group-hover:bg-pink-500 transition-colors font-bold text-[11px]">
-                      {user.displayName ? user.displayName[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : "U")}
-                    </span>
-                    <span className="text-[11px] font-bold">Profile</span>
-                  </button>
-                } />
-                <DropdownMenuContent align="end" className="w-56 bg-white border border-ink-200 shadow-lg rounded-md p-1.5">
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel className="px-2.5 py-2">
-                      <p className="text-sm font-semibold text-ink-900 truncate">{user.displayName || "My Profile"}</p>
-                      <p className="text-xs text-ink-400 truncate">{user.email}</p>
-                      <p className="text-[9px] text-white font-bold uppercase tracking-wider bg-pink-500 rounded-sm w-fit px-2 py-0.5 mt-1.5">
-                        {user.role}
-                      </p>
-                    </DropdownMenuLabel>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator className="bg-ink-200" />
-                  
-                  <DropdownMenuItem render={
-                    <Link href="/profile" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
-                      <UserIcon className="h-4 w-4 text-ink-400" />
-                      <span>My Profile</span>
-                    </Link>
-                  } />
-
-                  {user.role === "admin" && (
-                    <DropdownMenuItem render={
-                      <Link href="/admin/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
-                        <Shield className="h-4 w-4 text-ink-400" />
-                        <span>Admin Dashboard</span>
-                      </Link>
-                    } />
-                  )}
-
-                  {user.role === "seller" && (
-                    <DropdownMenuItem render={
-                      <Link href="/seller/dashboard" className="flex items-center gap-2 text-ink-700 font-bold rounded-sm px-2.5 py-2 hover:bg-ink-50 focus:bg-ink-50 transition-colors w-full text-xs uppercase tracking-wider">
-                        <ShoppingBag className="h-4 w-4 text-ink-400" />
-                        <span>Seller Dashboard</span>
-                      </Link>
-                    } />
-                  )}
-
-                  <DropdownMenuSeparator className="bg-ink-200" />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="rounded-sm px-2.5 py-2 hover:bg-pink-50 focus:bg-pink-50 transition-colors text-pink-500 font-bold text-xs uppercase tracking-wider cursor-pointer"
-                  >
-                    <LogOut className="h-4 w-4 text-pink-500" />
-                    <span>Log Out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link
-                href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors"
-              >
-                <UserIcon className="h-5 w-5 stroke-[1.8]" />
-                <span className="text-[11px] font-bold">Profile</span>
-              </Link>
-            )}
-          </div>
-
-          {/* Wishlist */}
-          <Link
-            href="/wishlist"
-            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors"
-            aria-label="Wishlist"
-          >
-            <span className="relative">
-              <Heart className="h-5 w-5 stroke-[1.8]" />
-              {wishlistIds.length > 0 && (
-                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
-                  {wishlistIds.length}
-                </span>
-              )}
-            </span>
-            <span className="text-[11px] font-bold hidden lg:block">Wishlist</span>
-          </Link>
-
-          {/* Bag */}
-          <button
-            onClick={() => setCartOpen(true)}
-            className="flex flex-col items-center gap-0.5 text-ink-700 hover:text-pink-500 transition-colors focus:outline-none cursor-pointer"
-            aria-label="Shopping Bag"
-          >
-            <span className="relative">
-              <ShoppingBag className="h-5 w-5 stroke-[1.8]" />
-              {totalCartCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
-                  {totalCartCount}
-                </span>
-              )}
-            </span>
-            <span className="text-[11px] font-bold hidden lg:block">Bag</span>
-          </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Expanding Search Overlay */}
-      <AnimatePresence>
-        {isMobileSearchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="w-full bg-white border-b border-ink-200 lg:hidden overflow-hidden"
-          >
-            <div className="p-4 flex gap-2 items-center">
-              <SearchBar
-                className="flex-1"
-                onSearchExecuted={() => setIsMobileSearchOpen(false)}
-              />
-              <button
-                type="button"
-                onClick={() => setIsMobileSearchOpen(false)}
-                className="px-3 text-xs font-bold uppercase tracking-wider text-ink-500 hover:text-pink-500 cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
       <CartDrawer />
     </header>
   );

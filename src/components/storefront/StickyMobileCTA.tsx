@@ -10,6 +10,7 @@ interface StickyMobileCTAProps {
   selectedSize: string;
   selectedColor: string;
   onAddToCart: () => void;
+  onBuyNow: () => void;
   isWishlisted: boolean;
   onWishlistToggle: () => void;
   isAvailable: boolean;
@@ -20,6 +21,7 @@ export default function StickyMobileCTA({
   selectedSize,
   selectedColor,
   onAddToCart,
+  onBuyNow,
   isWishlisted,
   onWishlistToggle,
   isAvailable,
@@ -48,14 +50,14 @@ export default function StickyMobileCTA({
         <Heart className={`h-6 w-6 ${isWishlisted ? "fill-pink-500" : ""}`} />
       </button>
 
-      {/* 2. Add to Bag / Out of Stock CTA */}
+      {/* 2. Add to Bag */}
       <button
         onClick={onAddToCart}
         disabled={!isAvailable}
-        className={`flex-1 h-12 rounded-sm font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 transition-colors ${
+        className={`flex-1 h-12 rounded-sm font-bold text-[13px] tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-colors ${
           !isAvailable
-            ? "bg-ink-200 text-ink-400 cursor-not-allowed"
-            : "bg-pink-500 text-white hover:bg-pink-600 active:scale-[0.99]"
+            ? "bg-ink-200 text-ink-400 border-ink-200 cursor-not-allowed"
+            : "bg-white text-pink-500 border-pink-500 hover:bg-pink-50 active:scale-[0.99]"
         }`}
       >
         <ShoppingBag className="h-4.5 w-4.5" />
@@ -63,9 +65,22 @@ export default function StickyMobileCTA({
           {!isAvailable
             ? "Out of Stock"
             : needsSelection
-            ? "Select Size/Color"
+            ? "Select Options"
             : "Add to Bag"}
         </span>
+      </button>
+
+      {/* 3. Buy Now */}
+      <button
+        onClick={onBuyNow}
+        disabled={!isAvailable}
+        className={`flex-1 h-12 rounded-sm font-bold text-[13px] tracking-wider uppercase flex items-center justify-center gap-1.5 transition-colors ${
+          !isAvailable
+            ? "bg-ink-200 text-ink-400 cursor-not-allowed"
+            : "bg-pink-500 text-white hover:bg-pink-600 active:scale-[0.99]"
+        }`}
+      >
+        <span>{needsSelection && isAvailable ? "Select Options" : "Buy Now"}</span>
       </button>
     </motion.div>
   );

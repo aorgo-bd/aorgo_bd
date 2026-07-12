@@ -29,6 +29,8 @@ export default function CheckoutPage() {
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   // Set default address if available when user is loaded
   useEffect(() => {
@@ -154,6 +156,41 @@ export default function CheckoutPage() {
     }
   };
 
+  // Coupon Handler — coupons are a Phase 1.5 feature (order totals are
+  // recomputed server-side, so we never fake a client-only discount). For now
+  // we validate the input and surface an honest "no active coupons" message.
+  const handleApplyCoupon = () => {
+    const code = couponCode.trim();
+    if (!code) {
+      setCouponError("Enter a coupon code to apply.");
+      return;
+    }
+    setCouponError("This coupon is invalid or has expired.");
+    toast.error("No active coupon codes are available yet.");
+  };
+
+  // Contextual primary action for the mobile sticky bar based on current step.
+  const advanceOrPlaceOrder = () => {
+    if (activeTab === "cart") {
+      setActiveTab("shipping");
+    } else if (activeTab === "shipping") {
+      if (selectedAddress && !showNewAddressForm) {
+        setActiveTab("payment");
+      } else {
+        toast.error("Please select or save a shipping address first.");
+      }
+    } else {
+      handlePlaceOrder();
+    }
+  };
+
+  const mobileCtaLabel =
+    activeTab === "cart"
+      ? "Continue"
+      : activeTab === "shipping"
+      ? "Continue to Payment"
+      : "Place Order (COD)";
+
   // Place Order Handler
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
@@ -209,8 +246,8 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-7xl py-10 px-4 md:px-6">
-      <div className="mb-8">
+    <div className="container mx-auto max-w-7xl py-6 sm:py-10 px-4 md:px-6 pb-28 lg:pb-10">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-xl sm:text-2xl font-bold text-ink-700 uppercase tracking-wide">Checkout</h1>
         <p className="text-ink-400 text-sm mt-1">Complete your multi-vendor fashion order</p>
       </div>
@@ -577,6 +614,37 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Coupon section */}
+              <div className="border-t pt-4 space-y-2">
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">
+                  Have a coupon?
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError(null);
+                    }}
+                    placeholder="Enter code"
+                    className="flex-1 min-w-0 h-9 rounded-sm border border-border/60 bg-background px-3 text-sm uppercase tracking-wider focus:outline-none focus:border-primary transition-colors"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleApplyCoupon}
+                    className="shrink-0"
+                  >
+                    Apply
+                  </Button>
+                </div>
+                {couponError && (
+                  <p className="text-[11px] text-red-500 font-medium">{couponError}</p>
+                )}
+              </div>
+
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -604,6 +672,32 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Mobile Sticky Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-t border-border/60 px-4 py-3 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex items-center gap-4">
+        <div className="shrink-0">
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide leading-none">
+            {activeTab === "payment" ? "Total" : "Est. Total"}
+          </p>
+          <p className="text-lg font-extrabold text-primary leading-tight">{formatBDT(totals.total)}</p>
+        </div>
+        <Button
+          onClick={advanceOrPlaceOrder}
+          disabled={isPlacingOrder || (activeTab === "payment" && !selectedAddress)}
+          className="flex-1 h-12 text-sm font-bold"
+        >
+          {isPlacingOrder ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Placing Order...
+            </>
+          ) : (
+            <>
+              {mobileCtaLabel}
+              {activeTab !== "payment" && <ChevronRight className="h-4 w-4 ml-1" />}
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );
