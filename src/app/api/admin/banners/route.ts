@@ -4,6 +4,29 @@ import { adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 import { bannerFormSchema } from "@/lib/schemas";
 
+export async function GET(request: NextRequest) {
+  try {
+    await verifyAdmin(request);
+
+    // Read through the Admin SDK so admins always see every banner — including
+    // inactive ones — regardless of Firestore security rules or the freshness
+    // of the client's auth token. The public storefront reads banners the same
+    // (server) way; the client-side rules read is unreliable for admins whose
+    // custom claim hasn't propagated to the ambient SDK token yet.
+    const snap = await adminDb.collection("banners").orderBy("order", "asc").get();
+    const banners = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return NextResponse.json({ banners });
+  } catch (error: any) {
+    const status = error?.status || 500;
+    console.error("Failed to list banners:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { uid } = await verifyAdmin(request);

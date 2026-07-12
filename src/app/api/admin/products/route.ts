@@ -3,6 +3,34 @@ import { revalidatePath } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 
+const ADMIN_LIST_LIMIT = 50;
+
+export async function GET(request: NextRequest) {
+  try {
+    await verifyAdmin(request);
+
+    // Read through the Admin SDK so admins see products in every state (draft,
+    // pending, approved, rejected, archived). A client-side rules read requires
+    // a fresh `role: admin` claim on the ambient SDK token and otherwise leaves
+    // the moderation queue silently empty.
+    const snap = await adminDb
+      .collection("products")
+      .orderBy("createdAt", "desc")
+      .limit(ADMIN_LIST_LIMIT)
+      .get();
+    const products = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return NextResponse.json({ products });
+  } catch (error: any) {
+    const status = error?.status || 500;
+    console.error("Failed to list products:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status }
+    );
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const { uid } = await verifyAdmin(request);

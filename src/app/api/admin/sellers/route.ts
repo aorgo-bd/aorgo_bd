@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { verifyAdmin } from "@/lib/firebase/admin-helpers";
 
+const ADMIN_LIST_LIMIT = 50;
+
+export async function GET(request: NextRequest) {
+  try {
+    await verifyAdmin(request);
+
+    // Read through the Admin SDK so admins see stores in every state (pending,
+    // approved, suspended). The client-side rules read requires the ambient SDK
+    // token to carry a `role: admin` claim, which is unreliable and silently
+    // returns an empty list for the resource-conditioned read rule.
+    const snap = await adminDb
+      .collection("stores")
+      .orderBy("createdAt", "desc")
+      .limit(ADMIN_LIST_LIMIT)
+      .get();
+    const stores = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return NextResponse.json({ stores });
+  } catch (error: any) {
+    const status = error?.status || 500;
+    console.error("Failed to list stores:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status }
+    );
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const { uid } = await verifyAdmin(request);
