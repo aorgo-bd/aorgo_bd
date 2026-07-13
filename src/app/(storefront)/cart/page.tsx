@@ -4,234 +4,243 @@ import React from "react";
 import Link from "next/link";
 import { useCartStore } from "@/lib/stores/cart";
 import { ProductImage } from "@/components/ProductImage";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, HelpCircle } from "lucide-react";
-import { cn, formatBDT } from "@/lib/utils";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
+import { formatBDT } from "@/lib/utils";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 export default function CartPage() {
   const { items, totals, updateQty, remove, clear } = useCartStore();
 
   const totalItemCount = items.reduce((acc, item) => acc + item.qty, 0);
+  const freeShippingProgress = Math.min(
+    100,
+    Math.round((totals.subtotal / FREE_SHIPPING_THRESHOLD) * 100)
+  );
 
   return (
-    <main className="min-h-screen bg-gray-50/50 py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-ink-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         {/* Page Title */}
-        <div className="mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-ink-700 uppercase tracking-wide">
-            Shopping Cart
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-ink-700 tracking-tight">
+            Shopping Bag
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {totalItemCount} {totalItemCount === 1 ? "item" : "items"} currently in your bag
+          <p className="text-sm text-ink-400 mt-1">
+            {totalItemCount} {totalItemCount === 1 ? "item" : "items"} in your bag
           </p>
         </div>
 
         {items.length === 0 ? (
           /* Empty State */
-          <div className="bg-white rounded-sm border border-gray-100 p-12 text-center max-w-xl mx-auto shadow-xs">
-            <div className="w-20 h-20 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShoppingBag className="h-10 w-10 text-gray-300" />
+          <div className="bg-white rounded-2xl border border-ink-200 p-10 sm:p-14 text-center max-w-xl mx-auto shadow-sm">
+            <div className="w-20 h-20 bg-ink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ShoppingBag className="h-9 w-9 text-ink-300" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
-            <p className="text-gray-500 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-              Looks like you haven&apos;t added anything yet. Head back to the store to explore Bangladesh&apos;s finest fashion.
+            <h2 className="text-lg sm:text-xl font-bold text-ink-700 mb-2">Your bag is empty</h2>
+            <p className="text-ink-400 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
+              Looks like you haven&apos;t added anything yet. Explore Bangladesh&apos;s finest fashion and start filling your bag.
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center justify-center px-8 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-sm text-sm uppercase tracking-wider transition-all"
+              className="inline-flex items-center justify-center px-8 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-xl text-sm transition-colors"
             >
               Continue Shopping
             </Link>
           </div>
         ) : (
-          /* Cart Grid Layout */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left side: Cart Items List */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            {/* Left: Cart Items */}
             <div className="lg:col-span-8 space-y-4">
-              <div className="bg-white rounded-sm border border-gray-100 overflow-hidden shadow-xs">
-                {/* Header row for large screens */}
-                <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  <div className="col-span-6">Product Details</div>
-                  <div className="col-span-2 text-center">Price</div>
-                  <div className="col-span-2 text-center">Quantity</div>
-                  <div className="col-span-2 text-right">Total</div>
+              {/* Free shipping progress */}
+              <div className="bg-white rounded-2xl border border-ink-200 p-4 sm:p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <Truck className="h-4 w-4 text-pink-500 shrink-0" />
+                  {totals.shipping === 0 ? (
+                    <p className="text-sm font-semibold text-ink-700">
+                      🎉 You&apos;ve unlocked <span className="text-green-600">FREE shipping!</span>
+                    </p>
+                  ) : (
+                    <p className="text-sm font-medium text-ink-500">
+                      Add <span className="font-bold text-ink-700">{formatBDT(FREE_SHIPPING_THRESHOLD - totals.subtotal)}</span> more for{" "}
+                      <span className="font-bold text-green-600">FREE shipping</span>
+                    </p>
+                  )}
                 </div>
+                <div className="h-1.5 w-full bg-ink-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-pink-500 rounded-full transition-all duration-500"
+                    style={{ width: `${freeShippingProgress}%` }}
+                  />
+                </div>
+              </div>
 
-                {/* Items */}
-                <div className="divide-y divide-gray-100">
-                  {items.map((item) => (
-                    <div
-                      key={item.variantSku}
-                      className="p-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center"
+              {/* Items list — each item is a self-contained card (identical
+                  layout on mobile & desktop, so nothing overlaps or collapses). */}
+              <div className="space-y-3">
+                {items.map((item) => (
+                  <div
+                    key={item.variantSku}
+                    className="bg-white rounded-2xl border border-ink-200 shadow-sm p-3 sm:p-4 flex gap-3 sm:gap-4"
+                  >
+                    {/* Image */}
+                    <Link
+                      href="/products"
+                      className="w-24 sm:w-28 aspect-[4/5] bg-ink-100 rounded-xl overflow-hidden shrink-0 border border-ink-200"
                     >
-                      {/* Product details (Image + Title/Variant) */}
-                      <div className="col-span-1 md:col-span-6 flex gap-4">
-                        <div className="w-20 aspect-[4/5] bg-gray-50 rounded-sm overflow-hidden shrink-0 border border-gray-100">
-                          <ProductImage
-                            src={item.imagePublicId}
-                            alt={item.title}
-                            width={160}
-                            height={200}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-col justify-center">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      <ProductImage
+                        src={item.imagePublicId}
+                        alt={item.title}
+                        width={224}
+                        height={280}
+                        className="w-full h-full object-cover"
+                      />
+                    </Link>
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0 flex flex-col">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-bold text-ink-400 uppercase tracking-widest block">
                             {item.brand}
                           </span>
-                          <h3 className="text-sm font-bold text-gray-900 mt-0.5 line-clamp-2">
+                          <h3 className="text-sm sm:text-base font-semibold text-ink-700 mt-0.5 line-clamp-2 leading-snug">
                             {item.title}
                           </h3>
-                          <div className="flex gap-2 flex-wrap items-center mt-1.5">
-                            {item.size && (
-                              <span className="text-[10px] font-bold text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 uppercase">
-                                Size: {item.size}
-                              </span>
-                            )}
-                            {item.color && (
-                              <span className="text-[10px] font-bold text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 capitalize">
-                                Color: {item.color}
-                              </span>
-                            )}
-                          </div>
                         </div>
+                        <button
+                          onClick={() => remove(item.variantSku)}
+                          className="text-ink-400 hover:text-red-600 p-1.5 -mr-1 -mt-1 rounded-lg hover:bg-red-50 transition-colors shrink-0"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
 
-                      {/* Unit Price */}
-                      <div className="col-span-1 md:col-span-2 text-left md:text-center">
-                        <span className="text-xs text-gray-400 font-semibold md:hidden">Price: </span>
-                        <span className="text-sm font-black text-black">{formatBDT(item.price)}</span>
+                      {/* Variant chips */}
+                      <div className="flex gap-2 flex-wrap items-center mt-2">
+                        {item.size && (
+                          <span className="text-[11px] font-semibold text-ink-500 bg-ink-100 rounded-md px-2 py-0.5 uppercase">
+                            Size: {item.size}
+                          </span>
+                        )}
+                        {item.color && (
+                          <span className="text-[11px] font-semibold text-ink-500 bg-ink-100 rounded-md px-2 py-0.5 capitalize">
+                            {item.color}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Quantity Selector */}
-                      <div className="col-span-1 md:col-span-2 flex justify-start md:justify-center">
-                        <div className="flex items-center border border-gray-200 rounded-sm bg-white shadow-2xs">
+                      {/* Bottom row: qty selector + line total */}
+                      <div className="flex items-center justify-between gap-3 mt-auto pt-3">
+                        <div className="flex items-center border border-ink-200 rounded-lg overflow-hidden">
                           <button
                             onClick={() => updateQty(item.variantSku, item.qty - 1)}
                             disabled={item.qty <= 1}
-                            className="p-2 text-gray-500 hover:text-black disabled:opacity-30 transition-colors"
+                            className="px-2.5 py-2 text-ink-500 hover:bg-ink-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-3.5 w-3.5" />
                           </button>
-                          <span className="px-3 font-bold text-sm text-gray-900 select-none">
+                          <span className="px-3 min-w-[2.25rem] text-center font-bold text-sm text-ink-700 select-none">
                             {item.qty}
                           </span>
                           <button
                             onClick={() => updateQty(item.variantSku, item.qty + 1)}
-                            className="p-2 text-gray-500 hover:text-black transition-colors"
+                            className="px-2.5 py-2 text-ink-500 hover:bg-ink-100 transition-colors"
                             aria-label="Increase quantity"
                           >
                             <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
-                      </div>
 
-                      {/* Total Price & Delete Button */}
-                      <div className="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-4">
-                        <div>
-                          <span className="text-xs text-gray-400 font-semibold md:hidden">Subtotal: </span>
-                          <span className="text-base font-black text-black">{formatBDT(item.price * item.qty)}</span>
+                        <div className="text-right">
+                          <p className="text-base sm:text-lg font-bold text-ink-700 leading-none">
+                            {formatBDT(item.price * item.qty)}
+                          </p>
+                          {item.qty > 1 && (
+                            <p className="text-[11px] text-ink-400 mt-1">
+                              {formatBDT(item.price)} each
+                            </p>
+                          )}
                         </div>
-                        <button
-                          onClick={() => remove(item.variantSku)}
-                          className="text-gray-400 hover:text-red-600 p-2 rounded-sm hover:bg-red-50 transition-colors"
-                          aria-label="Remove item"
-                        >
-                          <Trash2 className="h-4.5 w-4.5" />
-                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Cart Action Buttons */}
-              <div className="flex justify-between items-center px-2">
+              {/* Cart actions */}
+              <div className="flex justify-between items-center px-1 pt-1">
                 <button
                   onClick={clear}
-                  className="text-xs font-bold text-red-600 hover:text-red-700 uppercase tracking-wider py-2 transition-colors"
+                  className="text-xs font-semibold text-ink-400 hover:text-red-600 transition-colors"
                 >
-                  Clear Shopping Cart
+                  Clear bag
                 </button>
                 <Link
                   href="/products"
-                  className="text-xs font-bold text-black hover:underline uppercase tracking-wider py-2"
+                  className="text-xs font-semibold text-ink-700 hover:text-pink-500 transition-colors"
                 >
-                  &larr; Keep Shopping
+                  &larr; Continue shopping
                 </Link>
               </div>
             </div>
 
-            {/* Right side: Sticky Order Summary Card */}
+            {/* Right: Order Summary */}
             <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-              <div className="bg-white rounded-sm border border-gray-100 p-6 shadow-xs space-y-6">
-                <h3 className="text-base font-bold text-black uppercase tracking-wide">
-                  Order Summary
-                </h3>
+              <div className="bg-white rounded-2xl border border-ink-200 p-5 sm:p-6 shadow-sm">
+                <h3 className="text-base font-bold text-ink-700 mb-4">Order Summary</h3>
 
-                {/* Subtotal calculations */}
-                <div className="space-y-3.5 border-b border-gray-100 pb-5">
-                  <div className="flex justify-between text-sm text-gray-500 font-semibold">
-                    <span>Subtotal</span>
-                    <span className="text-black font-extrabold">{formatBDT(totals.subtotal)}</span>
+                <div className="space-y-3 border-b border-ink-200 pb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-ink-400">Subtotal ({totalItemCount} items)</span>
+                    <span className="text-ink-700 font-semibold">{formatBDT(totals.subtotal)}</span>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-500 font-semibold">
-                    <span>Est. Shipping Fee</span>
-                    <span className="text-black font-extrabold">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-ink-400">Shipping</span>
+                    <span className="font-semibold">
                       {totals.shipping === 0 ? (
                         <span className="text-green-600">FREE</span>
                       ) : (
-                        formatBDT(totals.shipping)
+                        <span className="text-ink-700">{formatBDT(totals.shipping)}</span>
                       )}
                     </span>
                   </div>
-                  {totals.shipping > 0 && (
-                    <p className="text-[10px] text-gray-400 leading-normal">
-                      Spend {formatBDT(FREE_SHIPPING_THRESHOLD - totals.subtotal)} more to unlock <span className="font-bold text-green-600">FREE shipping</span> in Bangladesh!
-                    </p>
-                  )}
-                  <p className="text-[10px] text-gray-400 leading-normal">
+                  <p className="text-[11px] text-ink-400 leading-relaxed">
                     Shipping is charged per store and finalized at checkout.
                   </p>
                 </div>
 
-                {/* COD Option description (Hard Constraint check) */}
-                <div className="p-4 bg-gray-50 rounded-sm border border-gray-100">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
-                    Delivery Payment Mode
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-black"></span>
-                    <span className="text-xs font-bold text-gray-900">Cash on Delivery (COD)</span>
+                {/* Total */}
+                <div className="flex items-baseline justify-between py-4">
+                  <span className="text-sm font-semibold text-ink-700">Total</span>
+                  <span className="text-2xl font-bold text-ink-700">{formatBDT(totals.total)}</span>
+                </div>
+
+                {/* COD badge */}
+                <div className="flex items-center gap-2.5 p-3 bg-ink-100 rounded-xl mb-4">
+                  <BadgeCheck className="h-5 w-5 text-green-600 shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-ink-700">Cash on Delivery</p>
+                    <p className="text-[11px] text-ink-400 leading-tight">Pay in cash when your order arrives.</p>
                   </div>
-                  <p className="text-[10px] text-gray-400 leading-relaxed mt-1.5">
-                    Pay with cash when your items arrive at your doorstep. Safe, local, and hassle-free.
-                  </p>
                 </div>
 
-                {/* Final Total */}
-                <div className="flex items-end justify-between">
-                  <span className="text-sm font-bold text-black uppercase tracking-wider">Estimated Total</span>
-                  <span className="text-2xl font-black text-black">{formatBDT(totals.total)}</span>
-                </div>
-
-                {/* Checkout CTA */}
                 <Link
                   href="/checkout"
-                  className="flex h-14 w-full bg-pink-500 hover:bg-pink-600 text-white rounded-sm font-bold uppercase tracking-wider text-xs items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md"
+                  className="flex w-full bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-semibold text-sm items-center justify-center gap-2 transition-colors active:scale-[0.99] py-4"
                 >
                   <span>Proceed to Checkout</span>
-                  <ArrowRight className="h-4.5 w-4.5" />
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
 
               {/* Trust block */}
-              <div className="bg-white rounded-sm border border-gray-100 p-4 flex items-center gap-3">
-                <ShieldCheck className="h-5 w-5 text-gray-400 shrink-0" />
-                <div className="text-[10px] text-gray-500 leading-normal font-normal">
-                  <p className="font-bold text-gray-700">100% Quality Assurance</p>
-                  <p>All items on AORGO are vetted and shipped directly from authentic merchant stores.</p>
+              <div className="bg-white rounded-2xl border border-ink-200 p-4 flex items-center gap-3 shadow-sm">
+                <ShieldCheck className="h-5 w-5 text-ink-400 shrink-0" />
+                <div className="text-[11px] text-ink-400 leading-normal">
+                  <p className="font-bold text-ink-600">100% Quality Assurance</p>
+                  <p>All items are vetted and shipped directly from authentic merchant stores.</p>
                 </div>
               </div>
             </div>

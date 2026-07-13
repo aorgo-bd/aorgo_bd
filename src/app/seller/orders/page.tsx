@@ -67,13 +67,16 @@ export default function SellerOrdersPage() {
 
   // Fetch Seller Orders
   const { data: orders = [], isLoading } = useQuery<Order[]>({
-    queryKey: ["seller-orders", user?.storeId],
+    queryKey: ["seller-orders", user?.uid],
     queryFn: async () => {
-      if (!user?.storeId) return [];
+      if (!user?.uid) return [];
       const ordersRef = collection(db, "orders");
+      // Query by storeOwnerUid to match firestore.rules (seller reads are
+      // authorized by `resource.data.storeOwnerUid == uid()`). Filtering by
+      // storeId instead gets the whole list denied by Firestore.
       const q = query(
         ordersRef,
-        where("storeId", "==", user.storeId),
+        where("storeOwnerUid", "==", user.uid),
         orderBy("createdAt", "desc"),
         limit(50)
       );
@@ -83,7 +86,7 @@ export default function SellerOrdersPage() {
         ...doc.data(),
       })) as Order[];
     },
-    enabled: !!user?.storeId,
+    enabled: !!user?.uid,
   });
 
   // Search & Filtering State

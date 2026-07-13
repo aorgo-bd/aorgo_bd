@@ -494,87 +494,35 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* Payment option list */}
+                  {/* Payment method — Cash on Delivery is the only method in
+                      this phase, so we present it as the single active option
+                      rather than mocking disabled gateways. */}
                   <div className="space-y-3">
-                    {/* COD Option */}
-                    <label className="border border-primary rounded-sm p-4 flex items-center justify-between cursor-pointer bg-primary/[0.01]">
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="cod"
-                          defaultChecked
-                          className="h-4 w-4 text-primary focus:ring-ring"
-                        />
-                        <div>
-                          <p className="font-semibold text-sm">Cash on Delivery (COD)</p>
-                          <p className="text-xs text-muted-foreground">Pay in cash when courier delivers to your door</p>
-                        </div>
+                    <label className="border-2 border-primary rounded-lg p-4 flex items-center gap-3 cursor-pointer bg-primary/[0.03]">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        defaultChecked
+                        readOnly
+                        className="h-4 w-4 text-primary focus:ring-ring shrink-0"
+                      />
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                        <CreditCard className="h-5 w-5" />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm">Cash on Delivery (COD)</p>
+                        <p className="text-xs text-muted-foreground">Pay in cash when the courier delivers to your door.</p>
                       </div>
-                      <span className="text-xs font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full">
-                        Recommended
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0">
+                        <Check className="h-3.5 w-3.5 stroke-[3]" />
                       </span>
                     </label>
 
-                    {/* bKash (disabled) */}
-                    <label className="border border-border/60 rounded-sm p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="bkash"
-                          disabled
-                          className="h-4 w-4 text-muted-foreground focus:ring-ring cursor-not-allowed"
-                        />
-                        <div>
-                          <p className="font-semibold text-sm text-zinc-500 dark:text-zinc-400">bKash Payment</p>
-                          <p className="text-xs text-muted-foreground">Direct secure payment via bKash wallet</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ml-4">
-                        Coming soon
-                      </span>
-                    </label>
-
-                    {/* Nagad (disabled) */}
-                    <label className="border border-border/60 rounded-sm p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="nagad"
-                          disabled
-                          className="h-4 w-4 text-muted-foreground focus:ring-ring cursor-not-allowed"
-                        />
-                        <div>
-                          <p className="font-semibold text-sm text-zinc-500 dark:text-zinc-400">Nagad Payment</p>
-                          <p className="text-xs text-muted-foreground">Direct secure payment via Nagad wallet</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ml-4">
-                        Coming soon
-                      </span>
-                    </label>
-
-                    {/* Credit / Debit Card (disabled) */}
-                    <label className="border border-border/60 rounded-sm p-4 flex items-center justify-between opacity-50 cursor-not-allowed bg-zinc-50/20 dark:bg-zinc-900/10">
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="card"
-                          disabled
-                          className="h-4 w-4 text-muted-foreground focus:ring-ring cursor-not-allowed"
-                        />
-                        <div>
-                          <p className="font-semibold text-sm text-zinc-500 dark:text-zinc-400">Visa / Mastercard</p>
-                          <p className="text-xs text-muted-foreground">Pay with local or international bank cards</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ml-4">
-                        Coming soon
-                      </span>
-                    </label>
+                    <p className="text-[11px] text-muted-foreground text-center leading-relaxed px-2">
+                      Online payments (bKash, Nagad, cards) are coming soon. For now,
+                      every order is placed securely with Cash on Delivery.
+                    </p>
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-6 rounded-b-xl">

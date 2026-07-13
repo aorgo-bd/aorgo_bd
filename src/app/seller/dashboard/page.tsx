@@ -39,13 +39,15 @@ export default function SellerDashboard() {
 
   // Fetch Seller Orders
   const { data: orders, isLoading: isOrdersLoading } = useQuery<Order[]>({
-    queryKey: ["seller-orders", user?.storeId],
+    queryKey: ["seller-orders", user?.uid],
     queryFn: async () => {
-      if (!user?.storeId) return [];
+      if (!user?.uid) return [];
       const ordersRef = collection(db, "orders");
+      // Match firestore.rules: seller order reads are authorized by
+      // storeOwnerUid, so the list query must filter on that field.
       const q = query(
         ordersRef,
-        where("storeId", "==", user.storeId),
+        where("storeOwnerUid", "==", user.uid),
         orderBy("createdAt", "desc"),
         limit(50)
       );
@@ -55,7 +57,7 @@ export default function SellerDashboard() {
         ...doc.data(),
       })) as Order[];
     },
-    enabled: !!user?.storeId,
+    enabled: !!user?.uid,
   });
 
   const isLoading = isStoreLoading || isOrdersLoading;

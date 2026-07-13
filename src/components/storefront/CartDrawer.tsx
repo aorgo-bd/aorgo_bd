@@ -4,54 +4,55 @@ import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { useCartStore } from "@/lib/stores/cart";
 import { ProductImage } from "@/components/ProductImage";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, X, BadgeCheck } from "lucide-react";
 import Link from "next/link";
-import { cn, formatBDT } from "@/lib/utils";
+import { formatBDT } from "@/lib/utils";
 
 export default function CartDrawer() {
   const { items, totals, isOpen, setIsOpen, updateQty, remove } = useCartStore();
+  const totalItemCount = items.reduce((acc, item) => acc + item.qty, 0);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="w-full max-w-md sm:max-w-md bg-white flex flex-col h-full p-0 shadow-2xl border-l border-gray-100"
+        className="w-full max-w-md sm:max-w-md bg-ink-100 flex flex-col h-full p-0 shadow-2xl border-l border-ink-200"
       >
-        {/* Drawer Header */}
-        <SheetHeader className="px-6 py-5 border-b border-gray-100 flex flex-row items-center justify-between gap-4">
+        {/* Header */}
+        <SheetHeader className="px-5 py-4 bg-white border-b border-ink-200 flex flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-black" />
-            <SheetTitle className="text-lg font-black text-black uppercase tracking-wide">
-              Your Cart
+            <ShoppingBag className="h-5 w-5 text-ink-700" />
+            <SheetTitle className="text-base font-bold text-ink-700 tracking-tight">
+              Your Bag
             </SheetTitle>
-            <span className="bg-gray-100 text-gray-800 text-xs font-bold px-2 py-0.5 rounded-full">
-              {items.reduce((acc, item) => acc + item.qty, 0)}
+            <span className="bg-pink-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+              {totalItemCount}
             </span>
           </div>
-          <SheetClose className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors">
+          <SheetClose className="p-1.5 rounded-lg text-ink-400 hover:text-ink-700 hover:bg-ink-100 transition-colors">
             <span className="sr-only">Close</span>
-            <span className="text-xs font-bold uppercase tracking-wider px-2">Close</span>
+            <X className="h-5 w-5" />
           </SheetClose>
         </SheetHeader>
 
-        {/* Scrollable Cart Items List */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin">
+        {/* Items */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-16 h-16 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center">
-                <ShoppingBag className="h-8 w-8 text-gray-300" />
+              <div className="w-16 h-16 bg-white border border-ink-200 rounded-full flex items-center justify-center">
+                <ShoppingBag className="h-8 w-8 text-ink-300" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-900">Your cart is empty</h3>
-                <p className="text-xs text-gray-400 max-w-[200px] mx-auto mt-1">
-                  Add some approved fashion and apparel items to start your style journey.
+                <h3 className="text-base font-bold text-ink-700">Your bag is empty</h3>
+                <p className="text-xs text-ink-400 max-w-[220px] mx-auto mt-1">
+                  Add some fashion items to start your style journey.
                 </p>
               </div>
               <SheetClose render={
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-sm text-xs uppercase tracking-wider transition-colors"
+                  className="inline-flex items-center justify-center px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-xl text-xs transition-colors"
                 >
                   Browse Products
                 </Link>
@@ -61,10 +62,10 @@ export default function CartDrawer() {
             items.map((item) => (
               <div
                 key={item.variantSku}
-                className="flex gap-4 p-3 bg-white border border-gray-100 rounded-sm shadow-2xs hover:shadow-xs transition-shadow duration-200"
+                className="flex gap-3 p-3 bg-white border border-ink-200 rounded-xl shadow-sm"
               >
-                {/* Product Image */}
-                <div className="w-20 aspect-[4/5] bg-gray-50 rounded-sm overflow-hidden shrink-0">
+                {/* Image */}
+                <div className="w-20 aspect-[4/5] bg-ink-100 rounded-lg overflow-hidden shrink-0 border border-ink-200">
                   <ProductImage
                     src={item.imagePublicId}
                     alt={item.title}
@@ -75,61 +76,61 @@ export default function CartDrawer() {
                 </div>
 
                 {/* Details */}
-                <div className="flex-1 flex flex-col justify-between min-h-[90px]">
-                  <div>
-                    <div className="flex items-start justify-between gap-1">
-                      <h4 className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight">
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <div className="flex items-start justify-between gap-1.5">
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-ink-400 uppercase tracking-widest block">
+                        {item.brand}
+                      </span>
+                      <h4 className="text-sm font-semibold text-ink-700 line-clamp-2 leading-snug mt-0.5">
                         {item.title}
                       </h4>
-                      <button
-                        onClick={() => remove(item.variantSku)}
-                        className="text-gray-400 hover:text-red-600 p-0.5 rounded-full hover:bg-red-50 transition-colors shrink-0"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mt-0.5">
-                      {item.brand}
-                    </span>
-                    <div className="flex gap-2 flex-wrap items-center mt-1">
-                      {item.size && (
-                        <span className="text-[10px] font-bold text-gray-600 bg-gray-100 rounded-md px-1.5 py-0.5 uppercase">
-                          Size: {item.size}
-                        </span>
-                      )}
-                      {item.color && (
-                        <span className="text-[10px] font-bold text-gray-600 bg-gray-100 rounded-md px-1.5 py-0.5 capitalize">
-                          Color: {item.color}
-                        </span>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => remove(item.variantSku)}
+                      className="text-ink-400 hover:text-red-600 p-1 -mt-1 -mr-1 rounded-lg hover:bg-red-50 transition-colors shrink-0"
+                      aria-label="Remove item"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
 
-                  {/* Quantity & Price */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
-                    <div className="flex items-center border border-gray-100 rounded-lg bg-gray-50/50">
+                  <div className="flex gap-1.5 flex-wrap items-center mt-1.5">
+                    {item.size && (
+                      <span className="text-[10px] font-semibold text-ink-500 bg-ink-100 rounded px-1.5 py-0.5 uppercase">
+                        {item.size}
+                      </span>
+                    )}
+                    {item.color && (
+                      <span className="text-[10px] font-semibold text-ink-500 bg-ink-100 rounded px-1.5 py-0.5 capitalize">
+                        {item.color}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between mt-auto pt-2.5">
+                    <div className="flex items-center border border-ink-200 rounded-lg overflow-hidden">
                       <button
                         onClick={() => updateQty(item.variantSku, item.qty - 1)}
                         disabled={item.qty <= 1}
-                        className="p-1.5 text-gray-500 hover:text-black disabled:opacity-30 transition-colors"
+                        className="px-2 py-1.5 text-ink-500 hover:bg-ink-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="h-3 w-3" />
                       </button>
-                      <span className="px-2.5 font-bold text-xs text-gray-900 select-none">
+                      <span className="px-2 min-w-[1.75rem] text-center font-bold text-xs text-ink-700 select-none">
                         {item.qty}
                       </span>
                       <button
                         onClick={() => updateQty(item.variantSku, item.qty + 1)}
-                        className="p-1.5 text-gray-500 hover:text-black transition-colors"
+                        className="px-2 py-1.5 text-ink-500 hover:bg-ink-100 transition-colors"
                         aria-label="Increase quantity"
                       >
                         <Plus className="h-3 w-3" />
                       </button>
                     </div>
 
-                    <span className="text-sm font-black text-black">
+                    <span className="text-sm font-bold text-ink-700">
                       {formatBDT(item.price * item.qty)}
                     </span>
                   </div>
@@ -139,47 +140,52 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* Drawer Footer (Checkout Block) */}
+        {/* Footer */}
         {items.length > 0 && (
-          <div className="p-6 border-t border-gray-100 bg-gray-50/50 space-y-4">
-            {/* Calculation summary */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-gray-500 font-semibold">
-                <span>Subtotal</span>
-                <span className="text-black font-extrabold">{formatBDT(totals.subtotal)}</span>
+          <div className="bg-white border-t border-ink-200 p-4 space-y-3.5">
+            {/* COD note */}
+            <div className="flex items-center gap-2 text-[11px] text-ink-500">
+              <BadgeCheck className="h-4 w-4 text-green-600 shrink-0" />
+              <span className="font-medium">Cash on Delivery available</span>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-ink-400">Subtotal</span>
+                <span className="text-ink-700 font-semibold">{formatBDT(totals.subtotal)}</span>
               </div>
-              <div className="flex items-center justify-between text-sm text-gray-500 font-semibold">
-                <span>Shipping Estimate</span>
-                <span className="text-black font-extrabold">
-                  {totals.shipping === 0 ? "FREE" : `৳${totals.shipping}`}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-ink-400">Shipping</span>
+                <span className="font-semibold">
+                  {totals.shipping === 0 ? (
+                    <span className="text-green-600">FREE</span>
+                  ) : (
+                    <span className="text-ink-700">{formatBDT(totals.shipping)}</span>
+                  )}
                 </span>
               </div>
-              <div className="border-t border-gray-200/60 my-2 pt-2 flex items-end justify-between">
-                <span className="text-base font-bold text-black uppercase tracking-wide">Total</span>
-                <span className="text-xl font-black text-black">{formatBDT(totals.total)}</span>
+              <div className="border-t border-ink-200 pt-2 mt-1 flex items-baseline justify-between">
+                <span className="text-sm font-bold text-ink-700">Total</span>
+                <span className="text-lg font-bold text-ink-700">{formatBDT(totals.total)}</span>
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex flex-col gap-2.5">
-              {/* Primary Checkout CTA */}
+            <div className="flex flex-col gap-2">
               <SheetClose render={
                 <Link
                   href="/checkout"
-                  className="flex h-12 w-full bg-pink-500 hover:bg-pink-600 text-white rounded-sm font-bold uppercase tracking-wider text-xs items-center justify-center gap-2 transition-all active:scale-[0.99] shadow-md"
+                  className="flex w-full bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-semibold text-sm items-center justify-center gap-2 py-3.5 transition-colors active:scale-[0.99]"
                 >
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               } />
-
-              {/* View Full Cart Page */}
               <SheetClose render={
                 <Link
                   href="/cart"
-                  className="flex h-12 w-full bg-white border border-gray-200 hover:bg-gray-50 text-black rounded-sm font-bold uppercase tracking-wider text-xs items-center justify-center transition-all active:scale-[0.99]"
+                  className="flex w-full bg-white border border-ink-200 hover:bg-ink-100 text-ink-700 rounded-xl font-semibold text-sm items-center justify-center py-3 transition-colors active:scale-[0.99]"
                 >
-                  <span>View Shopping Cart</span>
+                  <span>View Full Bag</span>
                 </Link>
               } />
             </div>

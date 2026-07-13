@@ -59,19 +59,22 @@ export default function SellerAnalyticsPage() {
     enabled: !!storeId,
   });
 
+  const ownerUid = user?.uid;
   const { data: orders = [], isLoading } = useQuery<Order[]>({
-    queryKey: ["seller-orders-analytics", storeId],
+    queryKey: ["seller-orders-analytics", ownerUid],
     queryFn: async () => {
-      if (!storeId) return [];
+      if (!ownerUid) return [];
+      // Match firestore.rules: seller order reads are authorized by
+      // storeOwnerUid, so the list query must filter on that field.
       const q = query(
         collection(db, "orders"),
-        where("storeId", "==", storeId),
+        where("storeOwnerUid", "==", ownerUid),
         orderBy("createdAt", "desc")
       );
       const snapshot = await getDocs(q);
       return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Order[];
     },
-    enabled: !!storeId,
+    enabled: !!ownerUid,
   });
 
   const analytics = useMemo(() => {
