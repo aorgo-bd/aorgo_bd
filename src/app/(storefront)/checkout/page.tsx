@@ -11,7 +11,6 @@ import { useUser } from "@/lib/hooks/useUser";
 import { AddressForm } from "@/components/storefront/AddressForm";
 import { Address } from "@/lib/types";
 import { AddressFormData } from "@/lib/schemas";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductImage } from "@/components/ProductImage";
@@ -279,52 +278,63 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Checkout Steps Form */}
         <div className="lg:col-span-8 space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            {/* Accessible step progress — the triggers keep Tabs' keyboard/ARIA
-                behaviour while reading as a connected checkout stepper. */}
-            <TabsList
-              aria-label="Checkout steps"
-              className="relative grid w-full grid-cols-3 mb-8 h-auto bg-transparent p-0 gap-2 sm:gap-3"
-            >
-              {[
-                { value: "cart", label: "Review Cart", shortLabel: "Cart", icon: ShoppingBag, done: true, disabled: false },
-                { value: "shipping", label: "Shipping", shortLabel: "Address", icon: MapPin, done: !!selectedAddress, disabled: items.length === 0 },
-                { value: "payment", label: "Payment", shortLabel: "Pay", icon: CreditCard, done: false, disabled: !selectedAddress },
-              ].map((step, idx) => {
-                const StepIcon = step.icon;
-                const isActive = activeTab === step.value;
-                const isComplete = step.done && !isActive;
-                return (
-                  <TabsTrigger
-                    key={step.value}
-                    value={step.value}
-                    disabled={step.disabled}
-                    className="group flex flex-col items-center gap-2 rounded-xl border border-border/60 bg-background/60 px-2 py-3 text-center transition-all data-[state=active]:border-primary data-[state=active]:bg-primary/[0.04] data-[state=active]:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:border-border"
+          {/* Checkout stepper — plain state-driven buttons (no Tabs primitive,
+              which shipped Tailwind-v4-only classes that broke the mobile
+              layout in this v3 project). */}
+          <div className="grid w-full grid-cols-3 gap-2 sm:gap-3" role="tablist" aria-label="Checkout steps">
+            {[
+              { value: "cart", label: "Review Cart", shortLabel: "Cart", icon: ShoppingBag, done: true, disabled: false },
+              { value: "shipping", label: "Shipping", shortLabel: "Address", icon: MapPin, done: !!selectedAddress, disabled: items.length === 0 },
+              { value: "payment", label: "Payment", shortLabel: "Pay", icon: CreditCard, done: false, disabled: !selectedAddress },
+            ].map((step, idx) => {
+              const StepIcon = step.icon;
+              const isActive = activeTab === step.value;
+              const isComplete = step.done && !isActive;
+              return (
+                <button
+                  key={step.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  disabled={step.disabled}
+                  onClick={() => !step.disabled && setActiveTab(step.value)}
+                  className={cn(
+                    "flex min-w-0 flex-col items-center gap-2 rounded-xl border px-1.5 py-3 text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                    isActive
+                      ? "border-primary bg-primary/[0.04] shadow-sm"
+                      : "border-border/60 bg-background/60 hover:border-border"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors shrink-0",
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : isComplete
+                        ? "bg-emerald-500 text-white"
+                        : "bg-muted text-muted-foreground"
+                    )}
                   >
-                    <span
-                      className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors shrink-0",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : isComplete
-                          ? "bg-emerald-500 text-white"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {isComplete ? <Check className="h-4 w-4 stroke-[3]" /> : idx + 1}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-muted-foreground group-data-[state=active]:text-foreground">
-                      <StepIcon className="h-3.5 w-3.5 shrink-0 hidden sm:inline" />
-                      <span className="hidden sm:inline">{step.label}</span>
-                      <span className="sm:hidden">{step.shortLabel}</span>
-                    </span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+                    {isComplete ? <Check className="h-4 w-4 stroke-[3]" /> : idx + 1}
+                  </span>
+                  <span
+                    className={cn(
+                      "flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold truncate max-w-full",
+                      isActive ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    <StepIcon className="h-3.5 w-3.5 shrink-0 hidden sm:inline" />
+                    <span className="hidden sm:inline">{step.label}</span>
+                    <span className="sm:hidden">{step.shortLabel}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-            {/* TAB 1: REVIEW CART ITEMS */}
-            <TabsContent value="cart" className="space-y-4 outline-none">
+          {/* STEP 1: REVIEW CART ITEMS */}
+          {activeTab === "cart" && (
+            <div className="space-y-4">
               <Card className="shadow-sm border-border/50">
                 <CardHeader>
                   <CardTitle className="text-lg">Review Cart Items</CardTitle>
@@ -372,10 +382,12 @@ export default function CheckoutPage() {
                   </Button>
                 </CardFooter>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* TAB 2: SHIPPING ADDRESS */}
-            <TabsContent value="shipping" className="space-y-4 outline-none">
+          {/* STEP 2: SHIPPING ADDRESS */}
+          {activeTab === "shipping" && (
+            <div className="space-y-4">
               <Card className="shadow-sm border-border/50">
                 <CardHeader>
                   <div className="flex justify-between items-center">
@@ -464,10 +476,12 @@ export default function CheckoutPage() {
                   )}
                 </CardFooter>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* TAB 3: PAYMENT METHOD */}
-            <TabsContent value="payment" className="space-y-4 outline-none">
+          {/* STEP 3: PAYMENT METHOD */}
+          {activeTab === "payment" && (
+            <div className="space-y-4">
               <Card className="shadow-sm border-border/50">
                 <CardHeader>
                   <CardTitle className="text-lg">Payment Methods</CardTitle>
@@ -540,8 +554,8 @@ export default function CheckoutPage() {
                   </Button>
                 </CardFooter>
               </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </div>
 
         {/* Desktop Order Summary Sidebar */}
