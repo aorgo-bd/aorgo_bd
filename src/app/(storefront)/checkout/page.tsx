@@ -370,14 +370,14 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </CardContent>
-                <CardFooter className="flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-6 rounded-b-xl">
+                <CardFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-4 sm:p-6 rounded-b-xl">
                   <Link
                     href="/cart"
-                    className={cn(buttonVariants({ variant: "ghost" }), "flex items-center py-2")}
+                    className={cn(buttonVariants({ variant: "ghost" }), "w-full sm:w-auto flex items-center justify-center py-2")}
                   >
                     <ChevronLeft className="h-4 w-4 mr-2" /> Modify Cart
                   </Link>
-                  <Button onClick={() => setActiveTab("shipping")}>
+                  <Button className="w-full sm:w-auto" onClick={() => setActiveTab("shipping")}>
                     Next: Shipping Address <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
                 </CardFooter>
@@ -390,7 +390,7 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               <Card className="shadow-sm border-border/50">
                 <CardHeader>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
                     <div>
                       <CardTitle className="text-lg">Delivery Address</CardTitle>
                       <CardDescription>Select a delivery location or add a new one.</CardDescription>
@@ -400,7 +400,7 @@ export default function CheckoutPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => setShowNewAddressForm(true)}
-                        className="flex items-center space-x-1"
+                        className="flex items-center justify-center space-x-1 w-full sm:w-auto shrink-0"
                       >
                         <Plus className="h-4 w-4" />
                         <span>Add New Address</span>
@@ -465,12 +465,12 @@ export default function CheckoutPage() {
                     </div>
                   ) : null}
                 </CardContent>
-                <CardFooter className="flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-6 rounded-b-xl">
-                  <Button variant="outline" onClick={() => setActiveTab("cart")}>
+                <CardFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-4 sm:p-6 rounded-b-xl">
+                  <Button variant="outline" className="w-full sm:w-auto" onClick={() => setActiveTab("cart")}>
                     <ChevronLeft className="h-4 w-4 mr-2" /> Back to Cart
                   </Button>
                   {!showNewAddressForm && selectedAddress && (
-                    <Button onClick={() => setActiveTab("payment")}>
+                    <Button className="w-full sm:w-auto" onClick={() => setActiveTab("payment")}>
                       Next: Payment Method <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
                   )}
@@ -539,11 +539,11 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-6 rounded-b-xl">
-                  <Button variant="outline" onClick={() => setActiveTab("shipping")} disabled={isPlacingOrder}>
+                <CardFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between bg-zinc-50/50 dark:bg-zinc-900/10 border-t p-4 sm:p-6 rounded-b-xl">
+                  <Button variant="outline" className="w-full sm:w-auto" onClick={() => setActiveTab("shipping")} disabled={isPlacingOrder}>
                     <ChevronLeft className="h-4 w-4 mr-2" /> Back to Shipping
                   </Button>
-                  <Button onClick={handlePlaceOrder} disabled={isPlacingOrder || !selectedAddress} className="min-w-[150px]">
+                  <Button onClick={handlePlaceOrder} disabled={isPlacingOrder || !selectedAddress} className="w-full sm:w-auto sm:min-w-[150px]">
                     {isPlacingOrder ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Placing Order...
