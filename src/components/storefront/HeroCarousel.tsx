@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useBanners } from "@/lib/hooks/useBanners";
 import { CldImage } from "next-cloudinary";
 import type { Banner } from "@/lib/types";
@@ -16,8 +16,8 @@ import type { Banner } from "@/lib/types";
 const FALLBACK_BANNERS: Banner[] = [
   {
     id: "fallback-1",
-    title: "New season fashion",
-    subtitle: "",
+    title: "New Season Fashion",
+    subtitle: "Fresh arrivals from verified Bangladeshi sellers — Cash on Delivery nationwide.",
     imagePublicId: "/banner-fallback-1.jpg",
     ctaUrl: "/products",
     position: "hero",
@@ -26,8 +26,8 @@ const FALLBACK_BANNERS: Banner[] = [
   },
   {
     id: "fallback-2",
-    title: "Ethnic wear edit",
-    subtitle: "",
+    title: "The Ethnic Edit",
+    subtitle: "Sarees, kurtis & salwar kameez for every occasion.",
     imagePublicId: "/banner-fallback-2.jpg",
     ctaUrl: "/category/women",
     position: "hero",
@@ -36,8 +36,8 @@ const FALLBACK_BANNERS: Banner[] = [
   },
   {
     id: "fallback-3",
-    title: "Footwear drop",
-    subtitle: "",
+    title: "Step Out in Style",
+    subtitle: "Trending footwear to complete every look.",
     imagePublicId: "/banner-fallback-3.jpg",
     ctaUrl: "/category/footwear",
     position: "hero",
@@ -88,8 +88,10 @@ export default function HeroCarousel({ initialBanners }: HeroCarouselProps) {
     }
   }, [banners.length, currentIndex]);
 
-  // Responsive aspect ratios per spec #9: tall 9:16 on mobile, wide on desktop.
-  const aspectClasses = "aspect-[9/16] sm:aspect-[16/9] lg:aspect-[5/2]";
+  // Landscape banner ratios: moderate 4:3 on mobile (matches typical uploads),
+  // widening to a cinematic 5:2 on desktop. object-cover keeps the image
+  // undistorted; the scrim + copy sit on top.
+  const aspectClasses = "aspect-[4/3] sm:aspect-[2/1] lg:aspect-[5/2]";
 
   if (isLoading) {
     return (
@@ -162,9 +164,32 @@ export default function HeroCarousel({ initialBanners }: HeroCarouselProps) {
               <Link
                 href={currentBanner.ctaUrl || "/products"}
                 aria-label={currentBanner.title || "Shop the latest collection"}
-                className="block w-full h-full"
+                className="block w-full h-full relative"
               >
                 {renderSlideImage(currentBanner.imagePublicId, currentBanner.title, currentIndex === 0)}
+
+                {/* Readability scrim — bottom-up on mobile, left-anchored on desktop */}
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/70 sm:via-black/25 sm:to-transparent" />
+
+                {/* Copy overlay (admin Title / Subtitle + CTA) */}
+                <div className="absolute inset-0 flex flex-col justify-end sm:justify-center p-5 sm:p-10 lg:p-14">
+                  <div className="max-w-[85%] sm:max-w-md space-y-2 sm:space-y-3">
+                    {currentBanner.title && (
+                      <h2 className="text-white font-display font-black uppercase tracking-wide leading-[1.05] text-2xl sm:text-4xl lg:text-5xl drop-shadow-sm">
+                        {currentBanner.title}
+                      </h2>
+                    )}
+                    {currentBanner.subtitle && (
+                      <p className="text-white/90 text-xs sm:text-sm lg:text-base font-medium leading-snug line-clamp-2 sm:line-clamp-3 max-w-sm">
+                        {currentBanner.subtitle}
+                      </p>
+                    )}
+                    <span className="inline-flex items-center gap-1.5 bg-white text-ink-900 font-bold text-xs sm:text-sm rounded-full px-4 sm:px-5 py-2 sm:py-2.5 shadow-md mt-1 group-hover:gap-2.5 transition-all">
+                      Shop Now
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </div>
               </Link>
             </motion.div>
           </AnimatePresence>
