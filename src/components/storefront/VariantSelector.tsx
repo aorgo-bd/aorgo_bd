@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ProductVariant } from "@/lib/types";
+import { colorToHex } from "@/lib/utils";
 
 interface VariantSelectorProps {
   variants: ProductVariant[];
@@ -11,52 +12,9 @@ interface VariantSelectorProps {
   onColorChange: (color: string) => void;
 }
 
-const colorHexMap: Record<string, string> = {
-  black: "#111111",
-  white: "#FFFFFF",
-  red: "#E11D48",
-  blue: "#2563EB",
-  navy: "#1E3A8A",
-  "navy blue": "#1E3A8A",
-  green: "#16A34A",
-  yellow: "#EAB308",
-  pink: "#DB2777",
-  purple: "#7C3AED",
-  orange: "#EA580C",
-  gray: "#4B5563",
-  grey: "#4B5563",
-  brown: "#78350F",
-  beige: "#F5F5DC",
-  silver: "#D1D5DB",
-  gold: "#CA8A04",
-  cream: "#FAF5FF",
-  charcoal: "#1F2937",
-  teal: "#0D9488",
-  burgundy: "#800020",
-  maroon: "#7F1D1D",
-  olive: "#3F6212",
-  khaki: "#C2B280",
-  peach: "#FFDAB9",
-  lavender: "#E9D5FF",
-  rust: "#B45309",
-  mustard: "#CA8A04",
-};
-
-const getColorStyle = (colorName: string) => {
-  const normalized = colorName.toLowerCase().trim();
-  if (colorHexMap[normalized]) {
-    return { backgroundColor: colorHexMap[normalized] };
-  }
-  for (const [key, hex] of Object.entries(colorHexMap)) {
-    if (normalized.includes(key)) {
-      return { backgroundColor: hex };
-    }
-  }
-  // Fallback to light slate
-  return {
-    backgroundColor: "#F1F5F9",
-  };
-};
+const getColorStyle = (colorName: string) => ({
+  backgroundColor: colorToHex(colorName),
+});
 
 export default function VariantSelector({
   variants,

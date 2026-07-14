@@ -4,6 +4,7 @@ import HeroCarousel from "@/components/storefront/HeroCarousel";
 import ProductRail from "@/components/storefront/ProductRail";
 import FeaturedCategories from "@/components/storefront/FeaturedCategories";
 import ShopByPrice from "@/components/storefront/ShopByPrice";
+import DiscountBanner from "@/components/storefront/DiscountBanner";
 import AllProductsFeed from "@/components/storefront/AllProductsFeed";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Banner, Category, Product } from "@/lib/types";
@@ -187,7 +188,10 @@ export default async function StorefrontHomePage() {
       {/* 3b. Featured Categories (2-row, immediately below hero) */}
       <FeaturedCategories categories={categories} />
 
-      {/* 3c. Shop by Price */}
+      {/* 3c. Signature AORGO gradient discount banner */}
+      <DiscountBanner />
+
+      {/* 3d. Shop by Price */}
       <ShopByPrice />
 
       {/* 4. Mid-page Promo Strip (4 tiles) */}
@@ -226,8 +230,8 @@ export default async function StorefrontHomePage() {
 
       {/* 5. Section: DEAL OF THE DAY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             Deal of the Day
           </h2>
           <CountdownWrapper />
@@ -235,29 +239,38 @@ export default async function StorefrontHomePage() {
         <ProductRail title="" filter={dealOfTheDayFilter} initialProducts={dealOfTheDay} />
       </section>
 
-      {/* 6. Section: EXCLUSIVE BRANDS */}
+      {/* 6. Section: FEATURED BRANDS (logo + name + highlight tag) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
-            Exclusive Brands
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
+            Featured Brands
           </h2>
+          <Link href="/stores" className="text-xs font-bold text-pink-500 hover:text-pink-600 transition-colors">
+            View All
+          </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {[
-            { name: "Aarong", label: "Heritage Prints", slug: "aarong", bg: "from-[#FDFBF7] to-[#F5EFE6]" },
-            { name: "Yellow", label: "Contemporary Chic", slug: "yellow", bg: "from-[#F6F8F9] to-[#E9ECEF]" },
-            { name: "Sailor", label: "Casual Everyday", slug: "sailor", bg: "from-[#FAF9F6] to-[#EAE6DF]" },
-            { name: "Ecstasy", label: "Western Edits", slug: "ecstasy", bg: "from-[#FBF8F9] to-[#EFE5E7]" }
+            { name: "Aarong", tag: "Top Selling", slug: "aarong", ring: "from-[#FDE7EF] to-[#FBCFE0]", tagColor: "bg-pink-50 text-pink-600" },
+            { name: "Yellow", tag: "Best Rated", slug: "yellow", ring: "from-[#FEF3C7] to-[#FDE68A]", tagColor: "bg-amber-50 text-amber-600" },
+            { name: "Sailor", tag: "Trending", slug: "sailor", ring: "from-[#DBEAFE] to-[#BFDBFE]", tagColor: "bg-blue-50 text-blue-600" },
+            { name: "Ecstasy", tag: "Editor's Pick", slug: "ecstasy", ring: "from-[#EDE9FE] to-[#DDD6FE]", tagColor: "bg-violet-50 text-violet-600" },
+            { name: "Rang", tag: "New Arrival", slug: "rang", ring: "from-[#DCFCE7] to-[#BBF7D0]", tagColor: "bg-emerald-50 text-emerald-600" },
           ].map((brand) => (
             <Link
               href={`/products?search=${brand.slug}`}
               key={brand.name}
-              className="block bg-white border border-ink-200 hover:border-pink-500 rounded-sm p-6 text-center shadow-2xs hover:shadow-sm transition-all group"
+              className="flex flex-col items-center gap-2.5 rounded-2xl bg-white border border-ink-100 p-4 shadow-[0_1px_3px_rgba(40,44,63,0.06)] hover:shadow-[0_10px_26px_rgba(40,44,63,0.12)] hover:-translate-y-0.5 transition-all duration-300 group"
             >
-              <h3 className="text-lg sm:text-2xl font-display font-black tracking-wider text-ink-900 uppercase group-hover:text-pink-500 transition-colors">
+              <span className={`flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br ${brand.ring} text-ink-900 font-display font-black text-xl`}>
+                {brand.name.charAt(0)}
+              </span>
+              <h3 className="text-sm font-extrabold tracking-wide text-ink-900 group-hover:text-pink-500 transition-colors">
                 {brand.name}
               </h3>
-              <p className="text-[10px] text-ink-500 font-bold uppercase tracking-wider mt-1">{brand.label}</p>
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${brand.tagColor}`}>
+                {brand.tag}
+              </span>
             </Link>
           ))}
         </div>
@@ -265,51 +278,18 @@ export default async function StorefrontHomePage() {
 
       {/* 7. Section: NEW ARRIVALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             New Arrivals
           </h2>
         </div>
         <ProductRail title="" filter={newArrivalsFilter} initialProducts={newArrivals} />
       </section>
 
-      {/* 8. Section: SHOP BY CATEGORY */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
-            Shop By Category
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {categories.filter((c) => !c.parent).slice(0, 6).map((cat) => (
-            <a
-              href={`/category/${cat.slug}`}
-              key={cat.slug}
-              className="block bg-white border border-ink-200 hover:border-pink-500 rounded-sm overflow-hidden shadow-2xs hover:shadow-sm transition-all group"
-            >
-              <div className="aspect-square relative w-full bg-ink-100">
-                <Image
-                  src={cat.image || "/images/products/placeholder.webp"}
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 180px"
-                  className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-3 text-center border-t border-ink-200 bg-ink-50">
-                <h3 className="text-xs font-bold text-ink-900 uppercase tracking-widest group-hover:text-pink-500 transition-colors truncate">
-                  {cat.name}
-                </h3>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-
       {/* 9. Section: TOP SELLING */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             Top Selling
           </h2>
         </div>
@@ -318,8 +298,8 @@ export default async function StorefrontHomePage() {
 
       {/* 10. Section: TRENDING ETHNIC FOR HER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             Trending Ethnic for Her
           </h2>
         </div>
@@ -328,8 +308,8 @@ export default async function StorefrontHomePage() {
 
       {/* 11. Section: TRENDING MEN'S WEAR */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             Trending Men&apos;s Tops
           </h2>
         </div>
@@ -338,8 +318,8 @@ export default async function StorefrontHomePage() {
 
       {/* 12. Section: CUSTOMERS LOVE THESE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             Customers Love These
           </h2>
         </div>
@@ -373,8 +353,8 @@ export default async function StorefrontHomePage() {
 
       {/* 13b. Section: ALL PRODUCTS (main infinite feed) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-6 border-b border-ink-200 pb-3">
-          <h2 className="text-xl sm:text-2xl font-display font-black tracking-widest text-ink-900 uppercase">
+        <div className="mb-5">
+          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
             All Products
           </h2>
         </div>

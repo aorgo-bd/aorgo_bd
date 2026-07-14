@@ -83,16 +83,16 @@ export default function SearchBar({ className = "", onSearchExecuted }: SearchBa
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           {isLoading ? (
-            <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+            <Loader2 className="h-5 w-5 text-ink-400 animate-spin" />
           ) : (
-            <Search className="h-4 w-4 text-gray-400" />
+            <Search className="h-5 w-5 text-ink-400" />
           )}
         </div>
         <input
           type="search"
-          placeholder="Search for products, brands..."
+          placeholder="Search for brands, products & styles"
           value={queryVal}
           onChange={(e) => {
             setQueryVal(e.target.value);
@@ -101,7 +101,7 @@ export default function SearchBar({ className = "", onSearchExecuted }: SearchBa
           }}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 border border-transparent rounded-full focus:outline-none focus:bg-white focus:border-black transition-all duration-200"
+          className="w-full h-12 pl-12 pr-4 text-sm font-medium text-ink-900 placeholder:text-ink-400 bg-ink-100 border border-transparent rounded-2xl shadow-[0_2px_10px_rgba(40,44,63,0.06)] focus:outline-none focus:bg-white focus:border-pink-300 focus:shadow-[0_4px_18px_rgba(255,63,108,0.12)] transition-all duration-200"
         />
       </form>
 

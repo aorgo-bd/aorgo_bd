@@ -80,6 +80,8 @@ export interface Product {
   price: number;             // INTEGER in taka (NOT string, NOT float)
   comparePrice?: number;     // strike-through original price
   discountPercent?: number;
+  couponCode?: string;       // optional extra-savings coupon shown on cards/PDP
+  couponPrice?: number;      // effective price after applying couponCode (BDT)
   variants: ProductVariant[];
   images: string[];          // Cloudinary public_ids ONLY
   attributes: {

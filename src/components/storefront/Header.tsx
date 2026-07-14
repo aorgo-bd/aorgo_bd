@@ -136,8 +136,8 @@ export default function Header() {
         </motion.span>
       </div>
 
-      {/* Main Navigation Row: [search] — [logo] — [wishlist][cart][more] */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 lg:h-20 flex items-center gap-3 lg:gap-6">
+      {/* Main Navigation Row: [search] — [logo centered] — [wishlist][cart][more] */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 lg:h-20 flex items-center gap-3 lg:gap-6 lg:grid lg:grid-cols-3">
         {/* Mobile Hamburger Drawer (left) */}
         <div className="block lg:hidden">
           <Sheet>
@@ -258,13 +258,13 @@ export default function Header() {
           </Sheet>
         </div>
 
-        {/* 1. Wide Search Bar (desktop, leftmost per spec) */}
-        <SearchBar className="hidden lg:block flex-1 max-w-2xl" />
+        {/* 1. Wide Search Bar (desktop, left cell) */}
+        <SearchBar className="hidden lg:block w-full max-w-md lg:justify-self-start" />
 
-        {/* 2. Logo + Brand Name (centered on mobile, right of search on desktop) */}
+        {/* 2. Logo + Brand Name (always perfectly centered) */}
         <Link
           href="/"
-          className="flex items-center gap-2 shrink-0 mx-auto lg:mx-0 lg:ml-auto"
+          className="flex items-center gap-2 shrink-0 mx-auto lg:mx-0 lg:justify-self-center"
         >
           <Logo className="h-9 sm:h-11" />
           <span className="hidden sm:block text-2xl font-display font-black tracking-widest text-ink-900 uppercase leading-none">
@@ -273,7 +273,7 @@ export default function Header() {
         </Link>
 
         {/* Right Side Icons: Wishlist, Cart, More */}
-        <div className="flex items-center gap-3 sm:gap-5 shrink-0 ml-auto lg:ml-0">
+        <div className="flex items-center gap-3 sm:gap-5 shrink-0 ml-auto lg:ml-0 lg:justify-self-end">
           {/* 3. Wishlist */}
           <Link
             href="/wishlist"
