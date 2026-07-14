@@ -218,6 +218,40 @@ export interface StorefrontSettings {
   updatedBy?: string;
 }
 
+// settings/homepage — admin-managed homepage content (single doc). Read
+// server-side on the storefront home page; edited from Admin → Homepage.
+export interface HomepageDiscountBanner {
+  eyebrow: string;    // small label, e.g. "Discover New Fashion"
+  headline: string;   // big offer, e.g. "UP TO 70% OFF"
+  trustLine: string;  // trust line, e.g. "Verified Sellers Only"
+  ctaLabel: string;   // pill label, e.g. "Shop the Sale"
+  link: string;       // where the banner navigates, e.g. "/products?maxPrice=1999"
+}
+
+export interface HomepagePriceTier {
+  label: string;      // e.g. "Under ৳499"
+  maxPrice: number;   // integer taka ceiling used as ?maxPrice=
+}
+
+export interface HomepageSectionToggles {
+  discountBanner: boolean;
+  shopByPrice: boolean;
+  featuredBrands: boolean;
+  dealOfTheDay: boolean;
+  newArrivals: boolean;
+  topSelling: boolean;
+  allProducts: boolean;
+}
+
+export interface HomepageSettings {
+  discountBanner: HomepageDiscountBanner;
+  priceTiers: HomepagePriceTier[];
+  featuredBrandSlugs: string[];   // manual order; empty = auto (top by sales)
+  sections: HomepageSectionToggles;
+  updatedAt?: number;
+  updatedBy?: string;
+}
+
 // audit_logs/{id}
 export interface AuditLog {
   id: string;

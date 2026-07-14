@@ -6,6 +6,8 @@ import { ProductImage } from "@/components/ProductImage";
 
 interface FeaturedBrandsProps {
   stores: Store[];
+  /** Admin-selected store slugs, in display order. Empty = auto (top by sales). */
+  featuredSlugs?: string[];
 }
 
 const TAG_STYLES: Record<string, string> = {
@@ -23,11 +25,17 @@ const TAG_STYLES: Record<string, string> = {
  * products. Tags are assigned from actual store metrics so the hierarchy is
  * meaningful (top seller, best rated, newest, …) rather than decorative.
  */
-export default function FeaturedBrands({ stores }: FeaturedBrandsProps) {
+export default function FeaturedBrands({ stores, featuredSlugs }: FeaturedBrandsProps) {
   if (!stores || stores.length === 0) return null;
 
   const bySales = [...stores].sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0));
-  const featured = bySales.slice(0, 5);
+
+  // Admin-curated selection (in order) takes priority; otherwise auto-feature
+  // the top-selling approved stores.
+  const curated = (featuredSlugs ?? [])
+    .map((slug) => stores.find((s) => s.slug === slug))
+    .filter((s): s is Store => Boolean(s));
+  const featured = (curated.length > 0 ? curated : bySales).slice(0, 5);
 
   const topSellingId = bySales[0]?.id;
   const bestRatedId = [...stores].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0]?.id;

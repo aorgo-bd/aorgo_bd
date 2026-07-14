@@ -8,9 +8,10 @@ import DiscountBanner from "@/components/storefront/DiscountBanner";
 import AllProductsFeed from "@/components/storefront/AllProductsFeed";
 import FeaturedBrands from "@/components/storefront/FeaturedBrands";
 import { adminDb } from "@/lib/firebase/admin";
-import type { Banner, Category, Product, Store } from "@/lib/types";
+import type { Banner, Category, Product, Store, HomepageSettings } from "@/lib/types";
 import type { ProductFilter } from "@/lib/hooks/useProducts";
 import { MOCK_PRODUCTS, MOCK_BANNERS, MOCK_CATEGORIES, MOCK_STORES } from "@/lib/data/mock-db";
+import { DEFAULT_HOMEPAGE, mergeHomepage } from "@/lib/data/homepage-defaults";
 import { ShieldCheck, RefreshCw, Truck } from "lucide-react";
 import Image from "next/image";
 import { DealCountdown } from "@/components/ui/myntra/DealCountdown";
@@ -110,6 +111,18 @@ async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
 }
 
 
+async function getHomepageSettings(): Promise<HomepageSettings> {
+  if (!adminDb) return DEFAULT_HOMEPAGE;
+
+  try {
+    const snap = await adminDb.collection("settings").doc("homepage").get();
+    return snap.exists ? mergeHomepage(toPlainValue(snap.data())) : DEFAULT_HOMEPAGE;
+  } catch (err) {
+    console.warn("[getHomepageSettings] server error:", err);
+    return DEFAULT_HOMEPAGE;
+  }
+}
+
 async function getFeaturedStores(): Promise<Store[]> {
   if (!adminDb) return USE_MOCKS ? MOCK_STORES : [];
 
@@ -168,7 +181,8 @@ export default async function StorefrontHomePage() {
   const menTshirtsFilter: ProductFilter = { limit: 8, category: "men-tops", sortBy: "createdAt", sortOrder: "desc" };
   const highRatedFilter: ProductFilter = { limit: 8, sortBy: "rating", sortOrder: "desc" };
 
-  const [banners, categories, featuredStores, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
+  const [homepage, banners, categories, featuredStores, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
+    getHomepageSettings(),
     getHeroBanners(),
     getCategories(),
     getFeaturedStores(),
@@ -179,6 +193,8 @@ export default async function StorefrontHomePage() {
     getApprovedProducts(menTshirtsFilter),
     getApprovedProducts(highRatedFilter),
   ]);
+
+  const { sections } = homepage;
 
   return (
     <div className="bg-[#FAFBFC] min-h-screen pb-16">
@@ -212,10 +228,10 @@ export default async function StorefrontHomePage() {
       <FeaturedCategories categories={categories} />
 
       {/* 3c. Signature AORGO gradient discount banner */}
-      <DiscountBanner />
+      {sections.discountBanner && <DiscountBanner config={homepage.discountBanner} />}
 
       {/* 3d. Shop by Price */}
-      <ShopByPrice />
+      {sections.shopByPrice && <ShopByPrice tiers={homepage.priceTiers} />}
 
       {/* 4. Mid-page Promo Strip (4 tiles) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
@@ -252,38 +268,46 @@ export default async function StorefrontHomePage() {
       </div>
 
       {/* 5. Section: DEAL OF THE DAY */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            Deal of the Day
-          </h2>
-          <CountdownWrapper />
-        </div>
-        <ProductRail title="" filter={dealOfTheDayFilter} initialProducts={dealOfTheDay} />
-      </section>
+      {sections.dealOfTheDay && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 mb-5">
+            <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
+              Deal of the Day
+            </h2>
+            <CountdownWrapper />
+          </div>
+          <ProductRail title="" filter={dealOfTheDayFilter} initialProducts={dealOfTheDay} />
+        </section>
+      )}
 
       {/* 6. Section: FEATURED BRANDS (real stores → brand landing pages) */}
-      <FeaturedBrands stores={featuredStores} />
+      {sections.featuredBrands && (
+        <FeaturedBrands stores={featuredStores} featuredSlugs={homepage.featuredBrandSlugs} />
+      )}
 
       {/* 7. Section: NEW ARRIVALS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            New Arrivals
-          </h2>
-        </div>
-        <ProductRail title="" filter={newArrivalsFilter} initialProducts={newArrivals} />
-      </section>
+      {sections.newArrivals && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="mb-5">
+            <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
+              New Arrivals
+            </h2>
+          </div>
+          <ProductRail title="" filter={newArrivalsFilter} initialProducts={newArrivals} />
+        </section>
+      )}
 
       {/* 9. Section: TOP SELLING */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            Top Selling
-          </h2>
-        </div>
-        <ProductRail title="" filter={topSellingFilter} initialProducts={topSelling} />
-      </section>
+      {sections.topSelling && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="mb-5">
+            <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
+              Top Selling
+            </h2>
+          </div>
+          <ProductRail title="" filter={topSellingFilter} initialProducts={topSelling} />
+        </section>
+      )}
 
       {/* 10. Section: TRENDING ETHNIC FOR HER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
@@ -341,14 +365,16 @@ export default async function StorefrontHomePage() {
       </div>
 
       {/* 13b. Section: ALL PRODUCTS (main infinite feed) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            All Products
-          </h2>
-        </div>
-        <AllProductsFeed sortBy="newest" />
-      </section>
+      {sections.allProducts && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+          <div className="mb-5">
+            <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
+              All Products
+            </h2>
+          </div>
+          <AllProductsFeed sortBy="newest" />
+        </section>
+      )}
 
       {/* 14. Section: WHY SHOP AT AORGO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 border-t border-ink-200 pt-12 sm:pt-16">

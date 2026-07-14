@@ -171,6 +171,39 @@ export const settingsSchema = z.object({
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
 
+// Admin-managed homepage content (settings/homepage). Kept in a separate doc /
+// schema from the general marketplace settings so saving one never clobbers the
+// other.
+export const homepageSchema = z.object({
+  discountBanner: z.object({
+    eyebrow: z.string().max(60, "Keep the eyebrow under 60 characters").optional().or(z.literal("")),
+    headline: z.string().min(1, "Headline is required").max(60, "Keep the headline under 60 characters"),
+    trustLine: z.string().max(60, "Keep the trust line under 60 characters").optional().or(z.literal("")),
+    ctaLabel: z.string().max(40, "Keep the button label under 40 characters").optional().or(z.literal("")),
+    link: z.string().min(1, "Banner link is required"),
+  }),
+  priceTiers: z
+    .array(
+      z.object({
+        label: z.string().min(1, "Label is required").max(40, "Label too long"),
+        maxPrice: z.coerce.number().int().positive("Max price must be a positive integer (৳)"),
+      })
+    )
+    .max(6, "Up to 6 price tiers"),
+  featuredBrandSlugs: z.array(z.string()).max(10, "Up to 10 featured brands").default([]),
+  sections: z.object({
+    discountBanner: z.boolean().default(true),
+    shopByPrice: z.boolean().default(true),
+    featuredBrands: z.boolean().default(true),
+    dealOfTheDay: z.boolean().default(true),
+    newArrivals: z.boolean().default(true),
+    topSelling: z.boolean().default(true),
+    allProducts: z.boolean().default(true),
+  }),
+});
+
+export type HomepageFormData = z.infer<typeof homepageSchema>;
+
 export const reviewSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   orderId: z.string().min(1, "Order ID is required"),
