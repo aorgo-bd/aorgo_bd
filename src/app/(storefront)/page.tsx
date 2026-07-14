@@ -6,11 +6,12 @@ import FeaturedCategories from "@/components/storefront/FeaturedCategories";
 import ShopByPrice from "@/components/storefront/ShopByPrice";
 import DiscountBanner from "@/components/storefront/DiscountBanner";
 import AllProductsFeed from "@/components/storefront/AllProductsFeed";
+import FeaturedBrands from "@/components/storefront/FeaturedBrands";
 import { adminDb } from "@/lib/firebase/admin";
-import type { Banner, Category, Product } from "@/lib/types";
+import type { Banner, Category, Product, Store } from "@/lib/types";
 import type { ProductFilter } from "@/lib/hooks/useProducts";
-import { MOCK_PRODUCTS, MOCK_BANNERS, MOCK_CATEGORIES } from "@/lib/data/mock-db";
-import { Star, ShieldCheck, RefreshCw, Truck, Heart } from "lucide-react";
+import { MOCK_PRODUCTS, MOCK_BANNERS, MOCK_CATEGORIES, MOCK_STORES } from "@/lib/data/mock-db";
+import { ShieldCheck, RefreshCw, Truck } from "lucide-react";
 import Image from "next/image";
 import { DealCountdown } from "@/components/ui/myntra/DealCountdown";
 
@@ -109,6 +110,27 @@ async function getApprovedProducts(filter: ProductFilter): Promise<Product[]> {
 }
 
 
+async function getFeaturedStores(): Promise<Store[]> {
+  if (!adminDb) return USE_MOCKS ? MOCK_STORES : [];
+
+  try {
+    const snap = await adminDb
+      .collection("stores")
+      .where("status", "==", "approved")
+      .get();
+
+    if (snap.empty) return USE_MOCKS ? MOCK_STORES : [];
+
+    return snap.docs
+      .map((doc) => ({ id: doc.id, ...toPlainValue(doc.data()) }) as Store)
+      .sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0))
+      .slice(0, 10);
+  } catch (err) {
+    console.warn("[getFeaturedStores] server error:", err);
+    return USE_MOCKS ? MOCK_STORES : [];
+  }
+}
+
 async function getCategories(): Promise<Category[]> {
   if (!adminDb) return USE_MOCKS ? MOCK_CATEGORIES : [];
 
@@ -146,9 +168,10 @@ export default async function StorefrontHomePage() {
   const menTshirtsFilter: ProductFilter = { limit: 8, category: "men-tops", sortBy: "createdAt", sortOrder: "desc" };
   const highRatedFilter: ProductFilter = { limit: 8, sortBy: "rating", sortOrder: "desc" };
 
-  const [banners, categories, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
+  const [banners, categories, featuredStores, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
     getHeroBanners(),
     getCategories(),
+    getFeaturedStores(),
     getApprovedProducts(dealOfTheDayFilter),
     getApprovedProducts(newArrivalsFilter),
     getApprovedProducts(topSellingFilter),
@@ -239,42 +262,8 @@ export default async function StorefrontHomePage() {
         <ProductRail title="" filter={dealOfTheDayFilter} initialProducts={dealOfTheDay} />
       </section>
 
-      {/* 6. Section: FEATURED BRANDS (logo + name + highlight tag) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            Featured Brands
-          </h2>
-          <Link href="/stores" className="text-xs font-bold text-pink-500 hover:text-pink-600 transition-colors">
-            View All
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {[
-            { name: "Aarong", tag: "Top Selling", slug: "aarong", ring: "from-[#FDE7EF] to-[#FBCFE0]", tagColor: "bg-pink-50 text-pink-600" },
-            { name: "Yellow", tag: "Best Rated", slug: "yellow", ring: "from-[#FEF3C7] to-[#FDE68A]", tagColor: "bg-amber-50 text-amber-600" },
-            { name: "Sailor", tag: "Trending", slug: "sailor", ring: "from-[#DBEAFE] to-[#BFDBFE]", tagColor: "bg-blue-50 text-blue-600" },
-            { name: "Ecstasy", tag: "Editor's Pick", slug: "ecstasy", ring: "from-[#EDE9FE] to-[#DDD6FE]", tagColor: "bg-violet-50 text-violet-600" },
-            { name: "Rang", tag: "New Arrival", slug: "rang", ring: "from-[#DCFCE7] to-[#BBF7D0]", tagColor: "bg-emerald-50 text-emerald-600" },
-          ].map((brand) => (
-            <Link
-              href={`/products?search=${brand.slug}`}
-              key={brand.name}
-              className="flex flex-col items-center gap-2.5 rounded-2xl bg-white border border-ink-100 p-4 shadow-[0_1px_3px_rgba(40,44,63,0.06)] hover:shadow-[0_10px_26px_rgba(40,44,63,0.12)] hover:-translate-y-0.5 transition-all duration-300 group"
-            >
-              <span className={`flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br ${brand.ring} text-ink-900 font-display font-black text-xl`}>
-                {brand.name.charAt(0)}
-              </span>
-              <h3 className="text-sm font-extrabold tracking-wide text-ink-900 group-hover:text-pink-500 transition-colors">
-                {brand.name}
-              </h3>
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${brand.tagColor}`}>
-                {brand.tag}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* 6. Section: FEATURED BRANDS (real stores → brand landing pages) */}
+      <FeaturedBrands stores={featuredStores} />
 
       {/* 7. Section: NEW ARRIVALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">

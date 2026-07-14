@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Star, Heart, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight, Store as StoreIcon, ChevronRight as ArrowRight } from "lucide-react";
+import { Star, Heart, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight, Store as StoreIcon, ChevronRight as ArrowRight, Share2, BadgePercent } from "lucide-react";
 
 import { useProductBySlug, useProducts } from "@/lib/hooks/useProducts";
 import { useStoreById } from "@/lib/hooks/useStores";
@@ -12,6 +12,7 @@ import { Category, Product, ProductVariant, Order } from "@/lib/types";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { useCartStore } from "@/lib/stores/cart";
 import { useWishlistStore } from "@/lib/stores/wishlist";
+import { useRecentlyViewedStore } from "@/lib/stores/recentlyViewed";
 import { useUser } from "@/lib/hooks/useUser";
 import { useReviews } from "@/lib/hooks/useReviews";
 import { useQuery } from "@tanstack/react-query";
@@ -20,11 +21,14 @@ import { db } from "@/lib/firebase/client";
 
 import ProductGallery from "@/components/storefront/ProductGallery";
 import VariantSelector from "@/components/storefront/VariantSelector";
+import DeliveryCheck from "@/components/storefront/DeliveryCheck";
+import ProductDetailsAccordion from "@/components/storefront/ProductDetailsAccordion";
 import StickyMobileCTA from "@/components/storefront/StickyMobileCTA";
 import TrustBadges from "@/components/storefront/TrustBadges";
 import ReviewList from "@/components/storefront/ReviewList";
 import ProductRail from "@/components/storefront/ProductRail";
 import ProductCard from "@/components/storefront/ProductCard";
+import RecentlyViewed from "@/components/storefront/RecentlyViewed";
 
 export default function ProductDetailClient({ initialProduct }: { initialProduct: Product }) {
   const params = useParams();
@@ -73,6 +77,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
   const { add: addItem, setIsOpen: setCartOpen } = useCartStore();
   const { toggle: toggleWishlist, has: hasWishlist } = useWishlistStore();
+  const recordRecentlyViewed = useRecentlyViewedStore((s) => s.add);
 
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -88,6 +93,30 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
     setSelectedColor("");
     setQuantity(1);
   }, [slug]);
+
+  // Record this product in the client-side "Recently Viewed" history (spec #13).
+  useEffect(() => {
+    if (product?.id) recordRecentlyViewed(product);
+  }, [product?.id, product, recordRecentlyViewed]);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = {
+      title: product?.title,
+      text: `Check out ${product?.title} on AORGO`,
+      url,
+    };
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(shareData);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast.success("Product link copied to clipboard");
+      }
+    } catch {
+      // User dismissed the share sheet — no action needed.
+    }
+  };
 
   if (isLoading && !product) {
     return (
@@ -352,19 +381,43 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
             
             {/* Title & Brand Header */}
             <div>
-              {storeHref ? (
-                <Link
-                  href={storeHref}
-                  className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-pink-500 hover:text-pink-600 uppercase tracking-widest mb-1.5 transition-colors group"
-                >
-                  <StoreIcon className="h-3.5 w-3.5" />
-                  <span className="group-hover:underline underline-offset-2">{storeName}</span>
-                </Link>
-              ) : (
-                <span className="text-xs sm:text-sm font-extrabold text-gray-400 uppercase tracking-widest block mb-1.5">
-                  {storeName}
-                </span>
-              )}
+              <div className="flex items-start justify-between gap-3">
+                {storeHref ? (
+                  <Link
+                    href={storeHref}
+                    className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-pink-500 hover:text-pink-600 uppercase tracking-widest mb-1.5 transition-colors group"
+                  >
+                    <StoreIcon className="h-3.5 w-3.5" />
+                    <span className="group-hover:underline underline-offset-2">{storeName}</span>
+                  </Link>
+                ) : (
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-400 uppercase tracking-widest block mb-1.5">
+                    {storeName}
+                  </span>
+                )}
+
+                {/* Quick actions: Share + Wishlist (spec #13 top row) */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={handleShare}
+                    aria-label="Share product"
+                    className="h-9 w-9 flex items-center justify-center rounded-full border border-ink-200 text-ink-500 hover:text-pink-500 hover:border-pink-300 transition-colors"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleWishlistToggle}
+                    aria-label="Toggle wishlist"
+                    className={`h-9 w-9 flex items-center justify-center rounded-full border transition-colors ${
+                      isWishlisted
+                        ? "border-pink-200 bg-pink-50 text-pink-500"
+                        : "border-ink-200 text-ink-500 hover:text-pink-500 hover:border-pink-300"
+                    }`}
+                  >
+                    <Heart className={`h-4 w-4 ${isWishlisted ? "fill-pink-500" : ""}`} />
+                  </button>
+                </div>
+              </div>
               <h1 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight leading-snug">
                 {product.title}
               </h1>
@@ -426,20 +479,39 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
             </div>
 
             {/* Pricing Details */}
-            <div className="flex items-end gap-3.5">
-              <span className="text-2xl sm:text-4xl font-black text-black leading-none">
-                ৳{product.price.toLocaleString("en-BD")}
-              </span>
-              {product.comparePrice && product.comparePrice > product.price && (
-                <span className="text-sm sm:text-lg text-gray-400 line-through leading-none">
-                  ৳{product.comparePrice.toLocaleString("en-BD")}
+            <div className="space-y-2">
+              <div className="flex items-end gap-3.5">
+                <span className="text-2xl sm:text-4xl font-black text-black leading-none">
+                  ৳{product.price.toLocaleString("en-BD")}
                 </span>
-              )}
-              {discount > 0 && (
-                <span className="text-sm sm:text-base font-bold text-brand-orange uppercase tracking-wide leading-none">
-                  ({discount}% OFF)
-                </span>
-              )}
+                {product.comparePrice && product.comparePrice > product.price && (
+                  <span className="text-sm sm:text-lg text-gray-400 line-through leading-none">
+                    ৳{product.comparePrice.toLocaleString("en-BD")}
+                  </span>
+                )}
+                {discount > 0 && (
+                  <span className="text-sm sm:text-base font-bold text-brand-orange uppercase tracking-wide leading-none">
+                    ({discount}% OFF)
+                  </span>
+                )}
+              </div>
+
+              {/* Coupon price (spec #13 / #4) — shown only when the product carries one */}
+              {typeof product.couponPrice === "number" &&
+                product.couponPrice > 0 &&
+                product.couponPrice < product.price && (
+                  <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 rounded-lg px-2.5 py-1.5 w-fit max-w-full">
+                    <BadgePercent className="h-4 w-4 shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold leading-none">
+                      ৳{product.couponPrice.toLocaleString("en-BD")} with coupon
+                      {product.couponCode && (
+                        <span className="ml-1 font-black uppercase tracking-wide">
+                          {product.couponCode}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                )}
             </div>
 
             {/* Variant Selector */}
@@ -528,38 +600,17 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
               </div>
             )}
 
+            {/* Delivery / COD check (spec #13) */}
+            <div className="pt-4 border-t border-gray-100">
+              <DeliveryCheck />
+            </div>
+
             {/* Trust Badges section */}
             <TrustBadges />
 
-            {/* Description & Technical Specifications */}
-            <div className="space-y-4 pt-4 border-t border-gray-100">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
-                  Product Details
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed font-normal">
-                  {product.description}
-                </p>
-              </div>
-
-              {/* Attributes lists */}
-              {product.attributes && Object.keys(product.attributes).length > 0 && (
-                <div className="grid grid-cols-2 gap-4 bg-ink-50 border border-ink-200 rounded-sm p-4 mt-2">
-                  {Object.entries(product.attributes).map(([key, value]) => {
-                    if (!value || (Array.isArray(value) && value.length === 0)) return null;
-                    return (
-                      <div key={key} className="space-y-0.5">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                          {key}
-                        </span>
-                        <span className="text-xs font-semibold text-gray-900 block capitalize">
-                          {Array.isArray(value) ? value.join(", ") : String(value)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+            {/* Product Details accordion (spec #13) */}
+            <div className="pt-2">
+              <ProductDetailsAccordion product={product} />
             </div>
 
           </div>
@@ -620,6 +671,9 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
             </div>
           </section>
         )}
+
+        {/* Recently Viewed Rail (spec #13) */}
+        <RecentlyViewed currentProductId={product.id} />
 
         {/* Customer Reviews Section */}
         {eligibleOrder && (
