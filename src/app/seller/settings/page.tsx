@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Store, Landmark, ShieldCheck } from "lucide-react";
+import { Loader2, Store, Landmark, ShieldCheck, ExternalLink } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaWhatsapp, FaGlobe } from "react-icons/fa";
+import { StoreImageUploader } from "@/components/seller/StoreImageUploader";
 
 export default function SellerSettingsPage() {
   const { user } = useUser();
@@ -23,6 +25,12 @@ export default function SellerSettingsPage() {
   const [storeDesc, setStoreDesc] = useState("");
   const [logoPublicId, setLogoPublicId] = useState("");
   const [bannerPublicId, setBannerPublicId] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialWhatsapp, setSocialWhatsapp] = useState("");
+  const [socialWebsite, setSocialWebsite] = useState("");
 
   const [bankAccName, setBankAccName] = useState("");
   const [bankAccNumber, setBankAccNumber] = useState("");
@@ -46,7 +54,13 @@ export default function SellerSettingsPage() {
       setStoreDesc(store.description || "");
       setLogoPublicId(store.logoPublicId || "");
       setBannerPublicId(store.bannerPublicId || "");
-      
+      setContactEmail(store.contact?.email || "");
+      setContactPhone(store.contact?.phone || "");
+      setSocialFacebook(store.socialLinks?.facebook || "");
+      setSocialInstagram(store.socialLinks?.instagram || "");
+      setSocialWhatsapp(store.socialLinks?.whatsapp || "");
+      setSocialWebsite(store.socialLinks?.website || "");
+
       if (store.bankDetails) {
         setBankAccName(store.bankDetails.accountName || "");
         setBankAccNumber(store.bankDetails.accountNumber || "");
@@ -81,6 +95,16 @@ export default function SellerSettingsPage() {
       description: storeDesc,
       logoPublicId,
       bannerPublicId,
+      contact: {
+        email: contactEmail,
+        phone: contactPhone,
+      },
+      socialLinks: {
+        facebook: socialFacebook.trim(),
+        instagram: socialInstagram.trim(),
+        whatsapp: socialWhatsapp.trim(),
+        website: socialWebsite.trim(),
+      },
     });
   };
 
@@ -140,13 +164,45 @@ export default function SellerSettingsPage() {
           <form onSubmit={handleSaveDetails}>
             <Card className="border border-slate-150 rounded-2xl shadow-3xs">
               <CardHeader className="border-b border-gray-100">
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Store className="h-5 w-5 text-pink-500" />
-                  <span>Public Store Profile</span>
-                </CardTitle>
-                <CardDescription>Update name, description, and visual identifiers shown to customers.</CardDescription>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      <Store className="h-5 w-5 text-pink-500" />
+                      <span>Public Store Profile</span>
+                    </CardTitle>
+                    <CardDescription>Upload your logo &amp; cover banner, and update the details customers see.</CardDescription>
+                  </div>
+                  {store.status === "approved" && store.slug && (
+                    <a
+                      href={`/stores/${store.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-pink-600 hover:text-pink-700 border border-pink-200 rounded-lg px-3 h-9"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" /> View store
+                    </a>
+                  )}
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4 pt-6">
+              <CardContent className="space-y-6 pt-6">
+                {/* Branding: cover banner + logo */}
+                <StoreImageUploader
+                  label="Cover Banner"
+                  aspect="wide"
+                  value={bannerPublicId}
+                  onChange={setBannerPublicId}
+                  onRemove={() => setBannerPublicId("")}
+                  hint="Recommended 1600×500px. Shown across the top of your store page."
+                />
+                <StoreImageUploader
+                  label="Store Logo"
+                  aspect="square"
+                  value={logoPublicId}
+                  onChange={setLogoPublicId}
+                  onRemove={() => setLogoPublicId("")}
+                  hint="Square image works best (min 300×300px)."
+                />
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Store Name</label>
@@ -168,14 +224,38 @@ export default function SellerSettingsPage() {
                   />
                 </div>
 
+                {/* Contact */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Cloudinary Logo Public ID</label>
-                    <Input value={logoPublicId} onChange={(e) => setLogoPublicId(e.target.value)} placeholder="e.g. aorgo/stores/logos/my-store-logo" />
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Contact Email</label>
+                    <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="store@example.com" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Cloudinary Banner Public ID</label>
-                    <Input value={bannerPublicId} onChange={(e) => setBannerPublicId(e.target.value)} placeholder="e.g. aorgo/stores/banners/my-store-banner" />
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Contact Phone</label>
+                    <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="01XXXXXXXXX" />
+                  </div>
+                </div>
+
+                {/* Social media links (shown on your store page) */}
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Social Media Links</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <FaFacebookF className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+                      <Input value={socialFacebook} onChange={(e) => setSocialFacebook(e.target.value)} placeholder="Facebook page URL" className="pl-9" />
+                    </div>
+                    <div className="relative">
+                      <FaInstagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pink-500" />
+                      <Input value={socialInstagram} onChange={(e) => setSocialInstagram(e.target.value)} placeholder="Instagram profile URL" className="pl-9" />
+                    </div>
+                    <div className="relative">
+                      <FaWhatsapp className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+                      <Input value={socialWhatsapp} onChange={(e) => setSocialWhatsapp(e.target.value)} placeholder="WhatsApp number or wa.me link" className="pl-9" />
+                    </div>
+                    <div className="relative">
+                      <FaGlobe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input value={socialWebsite} onChange={(e) => setSocialWebsite(e.target.value)} placeholder="Website URL" className="pl-9" />
+                    </div>
                   </div>
                 </div>
 

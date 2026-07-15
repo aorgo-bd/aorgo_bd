@@ -12,6 +12,7 @@ import {
   Phone,
   BadgeCheck,
 } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaWhatsapp, FaGlobe } from "react-icons/fa";
 import { useStoreBySlug } from "@/lib/hooks/useStores";
 import { useStoreProducts } from "@/lib/hooks/useProducts";
 import { ProductImage } from "@/components/ProductImage";
@@ -164,6 +165,64 @@ export default function StoreDetailClient({ slug }: StoreDetailClientProps) {
                 )}
               </div>
             )}
+
+            {/* Social links */}
+            {store.socialLinks &&
+              (store.socialLinks.facebook ||
+                store.socialLinks.instagram ||
+                store.socialLinks.whatsapp ||
+                store.socialLinks.website) && (
+                <div className="flex items-center gap-2.5 mt-3">
+                  {store.socialLinks.facebook && (
+                    <a
+                      href={store.socialLinks.facebook}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Facebook"
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-blue-500 hover:text-white transition-colors"
+                    >
+                      <FaFacebookF className="h-4 w-4" />
+                    </a>
+                  )}
+                  {store.socialLinks.instagram && (
+                    <a
+                      href={store.socialLinks.instagram}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Instagram"
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-pink-500 hover:text-white transition-colors"
+                    >
+                      <FaInstagram className="h-4 w-4" />
+                    </a>
+                  )}
+                  {store.socialLinks.whatsapp && (
+                    <a
+                      href={
+                        store.socialLinks.whatsapp.startsWith("http")
+                          ? store.socialLinks.whatsapp
+                          : `https://wa.me/${store.socialLinks.whatsapp.replace(/[^0-9]/g, "")}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="WhatsApp"
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white transition-colors"
+                    >
+                      <FaWhatsapp className="h-4 w-4" />
+                    </a>
+                  )}
+                  {store.socialLinks.website && (
+                    <a
+                      href={store.socialLinks.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Website"
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-800 hover:text-white transition-colors"
+                    >
+                      <FaGlobe className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+              )}
           </div>
         </div>
 

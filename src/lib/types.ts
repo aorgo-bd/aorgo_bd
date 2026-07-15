@@ -43,6 +43,8 @@ export interface Store {
   description?: string;
   logoPublicId?: string;     // Cloudinary
   bannerPublicId?: string;
+  socialLinks?: StoreSocialLinks;
+  verified?: boolean;        // admin-controlled brand verification badge
   status: StoreStatus;
   tradeLicenseUrl?: string;  // Cloudinary public_id
   nidUrl?: string;           // Cloudinary public_id
@@ -55,6 +57,13 @@ export interface Store {
   totalProducts: number;
   createdAt: number;
   approvedAt?: number;
+}
+
+export interface StoreSocialLinks {
+  facebook?: string;
+  instagram?: string;
+  whatsapp?: string;   // phone number or wa.me link
+  website?: string;
 }
 
 export interface BankDetails {
