@@ -110,9 +110,11 @@ export default function StoreDetailClient({ slug }: StoreDetailClientProps) {
               <h1 className="text-xl sm:text-2xl font-extrabold text-black">
                 {store.name}
               </h1>
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                <BadgeCheck className="h-3.5 w-3.5" /> Verified
-              </span>
+              {store.verified && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <BadgeCheck className="h-3.5 w-3.5" /> Verified
+                </span>
+              )}
             </div>
 
             {store.description && (

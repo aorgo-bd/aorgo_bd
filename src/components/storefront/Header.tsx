@@ -264,10 +264,10 @@ export default function Header() {
         {/* 2. Logo + Brand Name (always perfectly centered) */}
         <Link
           href="/"
-          className="flex items-center gap-2 shrink-0 mx-auto lg:mx-0 lg:justify-self-center"
+          className="flex items-center gap-1.5 sm:gap-2 shrink-0 mx-auto lg:mx-0 lg:justify-self-center"
         >
-          <Logo className="h-9 sm:h-11" />
-          <span className="hidden sm:block text-2xl font-display font-black tracking-widest text-ink-900 uppercase leading-none">
+          <Logo className="h-8 sm:h-11" />
+          <span className="block text-xl sm:text-2xl font-display font-black tracking-[0.15em] sm:tracking-widest text-ink-900 uppercase leading-none">
             AORGO
           </span>
         </Link>

@@ -34,10 +34,10 @@ export async function PUT(request: NextRequest) {
   try {
     const { uid } = await verifyAdmin(request);
     const body = await request.json();
-    const { storeId, status } = body;
+    const { storeId, status, verified } = body;
 
-    if (!storeId || !["approved", "suspended"].includes(status)) {
-      return NextResponse.json({ error: "Invalid status or store ID" }, { status: 400 });
+    if (!storeId) {
+      return NextResponse.json({ error: "Store ID is required" }, { status: 400 });
     }
 
     const storeRef = adminDb.collection("stores").doc(storeId);
@@ -47,6 +47,29 @@ export async function PUT(request: NextRequest) {
     }
 
     const beforeData = storeSnap.data();
+
+    // --- Verification badge toggle (independent of approval status) ---
+    if (typeof verified === "boolean") {
+      await storeRef.update({ verified, updatedAt: Date.now() });
+      const auditRef = adminDb.collection("audit_logs").doc();
+      await auditRef.set({
+        id: auditRef.id,
+        actorUid: uid,
+        actorRole: "admin",
+        action: verified ? "store.verify" : "store.unverify",
+        entity: "store",
+        entityId: storeId,
+        before: beforeData || null,
+        after: { ...beforeData, verified },
+        at: Date.now(),
+      });
+      return NextResponse.json({ success: true, verified });
+    }
+
+    if (!["approved", "suspended"].includes(status)) {
+      return NextResponse.json({ error: "Invalid status or store ID" }, { status: 400 });
+    }
+
     const ownerUid = beforeData?.ownerUid;
 
     const afterData = {

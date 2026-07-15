@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ProductVariant } from "@/lib/types";
-import { colorToHex } from "@/lib/utils";
+import { colorToHex, isLightColor } from "@/lib/utils";
 
 interface VariantSelectorProps {
   variants: ProductVariant[];
@@ -16,6 +16,10 @@ const getColorStyle = (colorName: string) => ({
   backgroundColor: colorToHex(colorName),
 });
 
+/** "Default"/blank are placeholder colors sellers use for single-colour items. */
+const isPlaceholderColor = (color: string) =>
+  !color || color.toLowerCase().trim() === "default";
+
 export default function VariantSelector({
   variants,
   selectedSize,
@@ -23,31 +27,40 @@ export default function VariantSelector({
   selectedColor,
   onColorChange,
 }: VariantSelectorProps) {
-  // Extract unique sizes and colors
-  const sizes = Array.from(new Set(variants.map((v) => v.size)));
-  const colors = Array.from(new Set(variants.map((v) => v.color)));
+  // Extract unique sizes and real (non-placeholder) colors.
+  const sizes = Array.from(new Set(variants.map((v) => v.size).filter(Boolean)));
+  const colors = Array.from(
+    new Set(variants.map((v) => v.color).filter((c) => !isPlaceholderColor(c)))
+  );
 
-  // Availability checks
+  // A size is offered for the currently selected colour (or any colour if none
+  // is picked yet) and has stock.
   const isSizeAvailable = (size: string) => {
     if (selectedColor) {
-      // If a color is selected, check if this size has stock for that color
       return variants.some(
         (v) => v.size === size && v.color === selectedColor && v.stock > 0
       );
     }
-    // Otherwise check if this size has stock in any variant
     return variants.some((v) => v.size === size && v.stock > 0);
   };
 
-  const isColorAvailable = (color: string) => {
-    if (selectedSize) {
-      // If a size is selected, check if this color has stock for that size
-      return variants.some(
-        (v) => v.color === color && v.size === selectedSize && v.stock > 0
-      );
+  // Colour is the primary axis (like Myntra): a colour is available as long as
+  // ANY size of it is in stock — it must NOT be gated by the size already
+  // chosen, otherwise switching colour gets stuck on out-of-stock combos.
+  const isColorAvailable = (color: string) =>
+    variants.some((v) => v.color === color && v.stock > 0);
+
+  // Selecting a colour: if the size already chosen isn't offered for the new
+  // colour, clear it so the shopper re-picks a valid size.
+  const handleColorSelect = (color: string) => {
+    if (!isColorAvailable(color)) return;
+    onColorChange(color);
+    if (
+      selectedSize &&
+      !variants.some((v) => v.color === color && v.size === selectedSize && v.stock > 0)
+    ) {
+      onSizeChange("");
     }
-    // Otherwise check if this color has stock in any variant
-    return variants.some((v) => v.color === color && v.stock > 0);
   };
 
   return (
@@ -73,7 +86,8 @@ export default function VariantSelector({
               return (
                 <button
                   key={color}
-                  onClick={() => available && onColorChange(color)}
+                  type="button"
+                  onClick={() => handleColorSelect(color)}
                   disabled={!available}
                   className={`group relative w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
                     selected
@@ -88,13 +102,11 @@ export default function VariantSelector({
                     }`}
                     style={getColorStyle(color)}
                   >
-                    {/* Tick for selected white or very light colors */}
+                    {/* Tick for selected color (dark tick on light swatches) */}
                     {selected && (
                       <span
                         className={`h-2 w-2 rounded-full ${
-                          color.toLowerCase().trim() === "white" || color.toLowerCase().trim() === "cream"
-                            ? "bg-black"
-                            : "bg-white"
+                          isLightColor(color) ? "bg-black" : "bg-white"
                         }`}
                       />
                     )}

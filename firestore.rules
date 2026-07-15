@@ -53,7 +53,8 @@ service cloud.firestore {
                     && request.resource.data.status == 'pending';
       allow update: if (isSeller() && resource.data.ownerUid == uid()
                        && !('status' in request.resource.data.diff(resource.data).affectedKeys())
-                       && !('commissionRate' in request.resource.data.diff(resource.data).affectedKeys()))
+                       && !('commissionRate' in request.resource.data.diff(resource.data).affectedKeys())
+                       && !('verified' in request.resource.data.diff(resource.data).affectedKeys()))
                     || isAdmin();
       allow delete: if isAdmin();
     }

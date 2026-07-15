@@ -26,9 +26,12 @@ export default function StickyMobileCTA({
   onWishlistToggle,
   isAvailable,
 }: StickyMobileCTAProps) {
+  const hasRealColors = product.variants.some(
+    (v) => v.color && v.color.toLowerCase().trim() !== "default"
+  );
   const needsSelection =
     (product.variants.some((v) => v.size) && !selectedSize) ||
-    (product.variants.some((v) => v.color) && !selectedColor);
+    (hasRealColors && !selectedColor);
 
   return (
     <motion.div

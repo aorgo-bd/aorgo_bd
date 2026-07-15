@@ -87,6 +87,17 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
 
   const isWishlisted = hasWishlist(product?.id || "");
 
+  // When a colour with its own photo is selected, jump the gallery to it (spec #3).
+  const colorImageIndex = React.useMemo(() => {
+    if (!selectedColor || !product) return undefined;
+    const match = product.variants.find(
+      (v: ProductVariant) => v.color === selectedColor && v.imagePublicId
+    );
+    if (!match?.imagePublicId) return undefined;
+    const idx = product.images.indexOf(match.imagePublicId);
+    return idx >= 0 ? idx : undefined;
+  }, [selectedColor, product]);
+
   // Reset selections when product changes
   useEffect(() => {
     setSelectedSize("");
@@ -158,13 +169,22 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
     );
   }
 
+  // "Default"/blank are placeholder colours for single-colour products.
+  const isPlaceholderColor = (color?: string) =>
+    !color || color.toLowerCase().trim() === "default";
+  const hasRealColors = product.variants.some(
+    (v: ProductVariant) => !isPlaceholderColor(v.color)
+  );
+
   // Calculate stock levels
   const getActiveVariant = () => {
-    return product.variants.find(
-      (v: ProductVariant) =>
-        (v.size === selectedSize || (!v.size && !selectedSize)) &&
-        (v.color === selectedColor || (!v.color && !selectedColor))
-    );
+    return product.variants.find((v: ProductVariant) => {
+      const sizeMatch = v.size === selectedSize || (!v.size && !selectedSize);
+      const colorMatch =
+        v.color === selectedColor ||
+        (isPlaceholderColor(v.color) && !selectedColor);
+      return sizeMatch && colorMatch;
+    });
   };
 
   const totalStock = product.variants.reduce((acc: number, v: ProductVariant) => acc + (v.stock || 0), 0);
@@ -221,8 +241,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
       return;
     }
 
-    const hasColors = product.variants.some((v: ProductVariant) => v.color);
-    if (hasColors && !selectedColor) {
+    if (hasRealColors && !selectedColor) {
       toast.error("Please select a color");
       return;
     }
@@ -262,8 +281,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
       return;
     }
 
-    const hasColors = product.variants.some((v: ProductVariant) => v.color);
-    if (hasColors && !selectedColor) {
+    if (hasRealColors && !selectedColor) {
       toast.error("Please select a color");
       return;
     }
@@ -373,7 +391,7 @@ export default function ProductDetailClient({ initialProduct }: { initialProduct
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-16">
           {/* Left Column: Image Gallery */}
           <div className="lg:col-span-7">
-            <ProductGallery images={product.images} title={product.title} />
+            <ProductGallery images={product.images} title={product.title} syncIndex={colorImageIndex} />
           </div>
 
           {/* Right Column: Product Detail Pane */}

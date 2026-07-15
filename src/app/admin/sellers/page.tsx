@@ -70,6 +70,30 @@ export default function AdminSellersPage() {
     }
   };
 
+  const handleToggleVerified = async (storeId: string, verified: boolean) => {
+    setActionLoading(storeId);
+    try {
+      const idToken = await getFreshIdToken();
+      const res = await fetch("/api/admin/sellers", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ storeId, verified }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update verification");
+      toast.success(verified ? "Store marked as Verified" : "Verification removed");
+      refetch();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "An error occurred");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const renderSellersTable = (storesList: Store[], targetStatus: StoreStatus) => {
     if (storesList.length === 0) {
       return (
@@ -192,15 +216,30 @@ export default function AdminSellersPage() {
                       </>
                     )}
                     {targetStatus === "approved" && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="text-xs font-semibold"
-                        disabled={actionLoading === store.id}
-                        onClick={() => handleUpdateStatus(store.id, "suspended")}
-                      >
-                        Suspend
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className={`text-xs font-semibold ${
+                            store.verified
+                              ? "border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                              : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                          }`}
+                          disabled={actionLoading === store.id}
+                          onClick={() => handleToggleVerified(store.id, !store.verified)}
+                        >
+                          {store.verified ? "Verified ✓" : "Mark Verified"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="text-xs font-semibold"
+                          disabled={actionLoading === store.id}
+                          onClick={() => handleUpdateStatus(store.id, "suspended")}
+                        >
+                          Suspend
+                        </Button>
+                      </>
                     )}
                     {targetStatus === "suspended" && (
                       <Button

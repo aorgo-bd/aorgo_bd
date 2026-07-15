@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CldImage } from "next-cloudinary";
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
@@ -8,12 +8,25 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 interface ProductGalleryProps {
   images: string[];
   title: string;
+  /** When set (e.g. after a colour swatch is picked), jump to this image. */
+  syncIndex?: number;
 }
 
-export default function ProductGallery({ images, title }: ProductGalleryProps) {
+export default function ProductGallery({ images, title, syncIndex }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
+
+  // Follow an externally-driven image (colour selection) when provided.
+  useEffect(() => {
+    if (
+      typeof syncIndex === "number" &&
+      syncIndex >= 0 &&
+      syncIndex < images.length
+    ) {
+      setActiveIndex(syncIndex);
+    }
+  }, [syncIndex, images.length]);
 
   if (!images || images.length === 0) {
     return (
