@@ -21,10 +21,15 @@ import { Input } from "@/components/ui/input";
 import { cloudinaryDocumentUrl } from "@/lib/cloudinary";
 import { getFreshIdToken } from "@/lib/firebase/client-token";
 
+/** Store the canonical commission fraction (0.125) as a clean percent string ("12.5"). */
+const toPercentStr = (rate: number) => String(Math.round((rate || 0) * 10000) / 100);
+
 export default function AdminSellersPage() {
   const { data: sellers = [], isLoading, refetch } = useAdminSellers();
   const [searchTerm, setSearchTerm] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  // Per-store draft values for the inline commission editor (keyed by storeId).
+  const [commissionEdits, setCommissionEdits] = useState<Record<string, string>>({});
 
   // Filter sellers based on search term
   const searchedSellers = useMemo(() => {
@@ -85,6 +90,41 @@ export default function AdminSellersPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update verification");
       toast.success(verified ? "Store marked as Verified" : "Verification removed");
+      refetch();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "An error occurred");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUpdateCommission = async (storeId: string, rawPercent: string) => {
+    const percent = parseFloat(rawPercent);
+    if (!Number.isFinite(percent) || percent < 0 || percent > 100) {
+      toast.error("Commission must be between 0 and 100%");
+      return;
+    }
+    setActionLoading(storeId);
+    try {
+      const idToken = await getFreshIdToken();
+      const res = await fetch("/api/admin/sellers", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ storeId, commissionPercent: percent }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update commission");
+      toast.success(`Commission updated to ${percent}%`);
+      // Drop the draft so the input falls back to the freshly-saved value.
+      setCommissionEdits((prev) => {
+        const next = { ...prev };
+        delete next[storeId];
+        return next;
+      });
       refetch();
     } catch (err: any) {
       console.error(err);
@@ -187,9 +227,42 @@ export default function AdminSellersPage() {
                   )}
                 </TableCell>
                 <TableCell className="align-top">
-                  <Badge variant="outline" className="font-semibold text-xs border-slate-200 text-slate-600">
-                    {(store.commissionRate * 100).toFixed(0)}%
-                  </Badge>
+                  {(() => {
+                    const saved = toPercentStr(store.commissionRate);
+                    const draft = commissionEdits[store.id] ?? saved;
+                    const dirty = draft !== saved;
+                    return (
+                      <div className="flex items-center gap-1.5">
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step={0.5}
+                            value={draft}
+                            disabled={actionLoading === store.id}
+                            onChange={(e) =>
+                              setCommissionEdits((prev) => ({ ...prev, [store.id]: e.target.value }))
+                            }
+                            className="h-8 w-[4.5rem] pr-5 text-xs font-semibold"
+                            aria-label={`Commission rate for ${store.name}`}
+                          />
+                          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+                            %
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs font-semibold border-pink-200 text-pink-600 hover:bg-pink-50 disabled:opacity-40"
+                          disabled={!dirty || actionLoading === store.id}
+                          onClick={() => handleUpdateCommission(store.id, draft)}
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className="align-top text-right">
                   <div className="flex justify-end gap-2">

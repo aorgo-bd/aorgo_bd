@@ -48,6 +48,34 @@ export async function PUT(request: NextRequest) {
 
     const beforeData = storeSnap.data();
 
+    // --- Commission rate update (independent of approval status) ---
+    // The client sends a percentage (0-100); we persist the canonical fraction
+    // (e.g. 12.5% -> 0.125) rounded to two decimal places of a percent.
+    if (body.commissionPercent !== undefined) {
+      const percent = Number(body.commissionPercent);
+      if (!Number.isFinite(percent) || percent < 0 || percent > 100) {
+        return NextResponse.json(
+          { error: "Commission must be a number between 0 and 100%." },
+          { status: 400 }
+        );
+      }
+      const commissionRate = Math.round(percent * 100) / 10000;
+      await storeRef.update({ commissionRate, updatedAt: Date.now() });
+      const auditRef = adminDb.collection("audit_logs").doc();
+      await auditRef.set({
+        id: auditRef.id,
+        actorUid: uid,
+        actorRole: "admin",
+        action: "store.commission_update",
+        entity: "store",
+        entityId: storeId,
+        before: { commissionRate: beforeData?.commissionRate ?? null },
+        after: { commissionRate },
+        at: Date.now(),
+      });
+      return NextResponse.json({ success: true, commissionRate });
+    }
+
     // --- Verification badge toggle (independent of approval status) ---
     if (typeof verified === "boolean") {
       await storeRef.update({ verified, updatedAt: Date.now() });
