@@ -2,10 +2,13 @@
 
 import React, { useState, useMemo } from "react";
 import { useUser } from "@/lib/hooks/useUser";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import { Order } from "@/lib/types";
+import { Order, OrderStatus } from "@/lib/types";
+import { getFreshIdToken } from "@/lib/firebase/client-token";
+import { ORDER_STATUS_TRANSITIONS, ORDER_STATUS_LABELS } from "@/lib/orders";
+import toast from "react-hot-toast";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -28,6 +31,7 @@ import {
   Calendar,
   User,
   CreditCard,
+  Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,81 @@ function getStatusBadgeClass(status: string) {
     default:
       return "bg-zinc-50 text-zinc-750 dark:bg-zinc-850 dark:text-zinc-350 border-zinc-200/50";
   }
+}
+
+/**
+ * Inline status control for the orders table. Lets a seller advance an order
+ * through its lifecycle without opening the detail page ("live" management).
+ * Only offers valid next states from the shared state-machine; terminal orders
+ * render as a read-only badge.
+ */
+function QuickStatusSelect({ order, invalidateKey }: { order: Order; invalidateKey: unknown[] }) {
+  const queryClient = useQueryClient();
+  const [isSaving, setIsSaving] = useState(false);
+  const current = order.status as OrderStatus;
+  const nextStatuses = ORDER_STATUS_TRANSITIONS[current] ?? [];
+
+  // No moves left — show the coloured badge instead of an inert dropdown.
+  if (nextStatuses.length === 0) {
+    return (
+      <Badge
+        className={cn(
+          "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 border shadow-xs",
+          getStatusBadgeClass(current)
+        )}
+        variant="secondary"
+      >
+        {current}
+      </Badge>
+    );
+  }
+
+  const handleChange = async (next: OrderStatus) => {
+    if (next === current) return;
+    setIsSaving(true);
+    try {
+      const idToken = await getFreshIdToken();
+      const res = await fetch(`/api/seller/orders/${order.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ status: next }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update order status.");
+      toast.success(`Order marked as ${next}.`);
+      queryClient.invalidateQueries({ queryKey: invalidateKey });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update order status.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <select
+        value={current}
+        disabled={isSaving}
+        onChange={(e) => handleChange(e.target.value as OrderStatus)}
+        aria-label="Update order status"
+        className={cn(
+          "h-8 rounded-lg border px-2 text-[10px] font-bold uppercase tracking-wider outline-none transition-colors focus-visible:border-ring disabled:opacity-60 cursor-pointer",
+          getStatusBadgeClass(current)
+        )}
+      >
+        <option value={current}>{current}</option>
+        {nextStatuses.map((s) => (
+          <option key={s} value={s}>
+            → {ORDER_STATUS_LABELS[s]}
+          </option>
+        ))}
+      </select>
+      {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin text-pink-600" />}
+    </div>
+  );
 }
 
 export default function SellerOrdersPage() {
@@ -162,20 +241,12 @@ export default function SellerOrdersPage() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => {
-          const status = row.original.status;
-          return (
-            <Badge
-              className={cn(
-                "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 border shadow-xs",
-                getStatusBadgeClass(status)
-              )}
-              variant="secondary"
-            >
-              {status}
-            </Badge>
-          );
-        },
+        cell: ({ row }) => (
+          <QuickStatusSelect
+            order={row.original}
+            invalidateKey={["seller-orders", user?.uid]}
+          />
+        ),
       },
       {
         accessorKey: "createdAt",
@@ -210,7 +281,7 @@ export default function SellerOrdersPage() {
         ),
       },
     ],
-    []
+    [user?.uid]
   );
 
   // Initialize TanStack Table

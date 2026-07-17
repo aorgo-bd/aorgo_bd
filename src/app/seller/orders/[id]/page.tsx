@@ -7,6 +7,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Order, OrderStatus } from "@/lib/types";
+import {
+  ORDER_STATUS_TRANSITIONS as ALLOWED_TRANSITIONS,
+  ORDER_STATUS_LABELS as STATUS_LABELS,
+  PAYMENT_STATUS_TRANSITIONS,
+  PAYMENT_STATUS_LABELS,
+  PaymentStatus,
+} from "@/lib/orders";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
@@ -56,27 +63,6 @@ const COURIERS = [
   { value: "paperfly", label: "Paperfly" },
 ];
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: "Pending Confirmation",
-  confirmed: "Confirmed",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  returned: "Returned",
-  cancelled: "Cancelled",
-};
-
-// Mirror of the server-side state-machine so the UI only offers valid moves.
-const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["processing", "cancelled"],
-  processing: ["shipped", "cancelled"],
-  shipped: ["delivered", "returned"],
-  delivered: ["returned"],
-  returned: [],
-  cancelled: [],
-};
-
 export default function SellerOrderDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
@@ -84,6 +70,7 @@ export default function SellerOrderDetailPage() {
   const queryClient = useQueryClient();
 
   const [status, setStatus] = useState<OrderStatus>("pending");
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("pending");
   const [courier, setCourier] = useState<string>("");
   const [trackingId, setTrackingId] = useState<string>("");
   const [note, setNote] = useState<string>("");
@@ -109,6 +96,7 @@ export default function SellerOrderDetailPage() {
   useEffect(() => {
     if (order) {
       setStatus(order.status);
+      setPaymentStatus((order.payment?.status || "pending") as PaymentStatus);
       setCourier(order.shipping.courier || "");
       setTrackingId(order.shipping.trackingId || "");
     }
@@ -129,6 +117,7 @@ export default function SellerOrderDetailPage() {
         },
         body: JSON.stringify({
           status,
+          paymentStatus,
           courier: courier || null,
           trackingId,
           note,
@@ -193,6 +182,9 @@ export default function SellerOrderDetailPage() {
 
   const currentStatus = order.status as OrderStatus;
   const nextStatuses = ALLOWED_TRANSITIONS[currentStatus] ?? [];
+
+  const currentPayment = (order.payment?.status || "pending") as PaymentStatus;
+  const nextPayments = PAYMENT_STATUS_TRANSITIONS[currentPayment] ?? [];
 
   return (
     <div className="space-y-6">
@@ -378,6 +370,36 @@ export default function SellerOrderDetailPage() {
                       This order is in a final state and cannot change.
                     </p>
                   )}
+                </div>
+
+                {/* Payment Status (COD collection) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                    Payment Status
+                  </label>
+                  <select
+                    value={paymentStatus}
+                    onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus)}
+                    className="flex h-10 w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm transition-colors outline-none focus-visible:border-ring disabled:opacity-60"
+                    disabled={nextPayments.length === 0}
+                  >
+                    {/* Current payment status (kept selectable so the form has a value) */}
+                    <option value={currentPayment}>
+                      {PAYMENT_STATUS_LABELS[currentPayment]} (current)
+                    </option>
+                    {nextPayments.map((p) => (
+                      <option key={p} value={p}>
+                        {PAYMENT_STATUS_LABELS[p]}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-slate-400">
+                    {currentPayment === "pending"
+                      ? "Mark as “Payment Received” once you collect cash on delivery."
+                      : nextPayments.length === 0
+                      ? "Payment is in a final state and cannot change."
+                      : "Update the collected payment state for this order."}
+                  </p>
                 </div>
 
                 {/* Courier Selection */}

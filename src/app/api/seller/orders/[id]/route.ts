@@ -3,26 +3,19 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import { verifyRequestUser, AuthError } from "@/lib/firebase/server-auth";
 import { Order, OrderStatus, Product } from "@/lib/types";
+import {
+  ORDER_STATUS_TRANSITIONS as ALLOWED_TRANSITIONS,
+  RESTOCK_STATUSES,
+  PAYMENT_STATUS_TRANSITIONS,
+  PaymentStatus,
+  isValidOrderStatus,
+  isValidPaymentStatus,
+  paymentHistoryNote,
+} from "@/lib/orders";
 
 const COURIERS = ["manual", "steadfast", "pathao", "redx", "paperfly"] as const;
 
 type Courier = (typeof COURIERS)[number];
-
-// Order status state-machine. A status may only move to one of its allowed next
-// states; `cancelled` and `returned` are terminal. This prevents nonsensical
-// transitions (e.g. delivered -> pending) that would corrupt the lifecycle.
-const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["processing", "cancelled"],
-  processing: ["shipped", "cancelled"],
-  shipped: ["delivered", "returned"],
-  delivered: ["returned"],
-  returned: [],
-  cancelled: [],
-};
-
-// Transitioning into one of these releases the reserved inventory back to stock.
-const RESTOCK_STATUSES: OrderStatus[] = ["cancelled", "returned"];
 
 export async function PUT(
   request: NextRequest,
@@ -47,10 +40,21 @@ export async function PUT(
     const courier = (body.courier || null) as Courier | null;
     const trackingId = typeof body.trackingId === "string" ? body.trackingId.trim() : "";
     const note = typeof body.note === "string" ? body.note.trim() : "";
+    // Payment status is optional — omitting it leaves payment untouched so the
+    // seller can update fulfilment and payment independently.
+    const paymentStatusRaw =
+      body.paymentStatus === undefined || body.paymentStatus === null || body.paymentStatus === ""
+        ? null
+        : body.paymentStatus;
 
-    if (!Object.prototype.hasOwnProperty.call(ALLOWED_TRANSITIONS, status)) {
+    if (!isValidOrderStatus(status)) {
       return NextResponse.json({ error: "Invalid order status." }, { status: 400 });
     }
+
+    if (paymentStatusRaw !== null && !isValidPaymentStatus(paymentStatusRaw)) {
+      return NextResponse.json({ error: "Invalid payment status." }, { status: 400 });
+    }
+    const paymentStatus = paymentStatusRaw as PaymentStatus | null;
 
     if (courier && !COURIERS.includes(courier)) {
       return NextResponse.json({ error: "Invalid courier partner." }, { status: 400 });
@@ -75,13 +79,25 @@ export async function PUT(
       }
 
       // Validate the transition against the state-machine (no-op to same status
-      // is rejected — nothing to record).
+      // is allowed so fulfilment/payment-only edits can go through).
       const currentStatus = beforeData.status;
       if (currentStatus !== status) {
         const allowed = ALLOWED_TRANSITIONS[currentStatus] || [];
         if (!allowed.includes(status)) {
           throw new Error(
             `Invalid status transition: "${currentStatus}" cannot move to "${status}".`
+          );
+        }
+      }
+
+      // Validate the payment-status transition when one is requested.
+      const currentPayment = (beforeData.payment?.status || "pending") as PaymentStatus;
+      const paymentChanged = paymentStatus !== null && paymentStatus !== currentPayment;
+      if (paymentChanged) {
+        const allowedPayment = PAYMENT_STATUS_TRANSITIONS[currentPayment] || [];
+        if (!allowedPayment.includes(paymentStatus as PaymentStatus)) {
+          throw new Error(
+            `Invalid payment transition: "${currentPayment}" cannot move to "${paymentStatus}".`
           );
         }
       }
@@ -146,12 +162,37 @@ export async function PUT(
         }
       }
 
-      const historyEntry = {
-        status,
-        at: now,
-        by: isAdmin ? "admin" : "seller",
-        note: note || `Status updated to ${status} by ${isAdmin ? "admin" : "seller"}.`,
-      };
+      const actor = isAdmin ? "admin" : "seller";
+      const statusChanged = currentStatus !== status;
+
+      // Build the timeline entries: one for the order-status change and/or one
+      // for the payment change. If neither the status nor the payment moved
+      // (courier/tracking-only edit) record a single fulfilment note.
+      const newHistory: Order["statusHistory"] = [];
+      if (statusChanged) {
+        newHistory.push({
+          status,
+          at: now,
+          by: actor,
+          note: note || `Status updated to ${status} by ${actor}.`,
+        });
+      }
+      if (paymentChanged) {
+        newHistory.push({
+          status,
+          at: now,
+          by: actor,
+          note: paymentHistoryNote(paymentStatus as PaymentStatus, actor),
+        });
+      }
+      if (!statusChanged && !paymentChanged) {
+        newHistory.push({
+          status,
+          at: now,
+          by: actor,
+          note: note || `Fulfilment details updated by ${actor}.`,
+        });
+      }
 
       const shipping = {
         ...beforeData.shipping,
@@ -162,9 +203,12 @@ export async function PUT(
       const updatePayload: Partial<Order> = {
         status,
         shipping,
-        statusHistory: [...(beforeData.statusHistory || []), historyEntry],
+        statusHistory: [...(beforeData.statusHistory || []), ...newHistory],
         updatedAt: now,
       };
+      if (paymentChanged) {
+        updatePayload.payment = { ...beforeData.payment, status: paymentStatus as PaymentStatus };
+      }
       updatedOrder = updatePayload;
 
       transaction.update(orderRef, updatePayload);
@@ -177,8 +221,12 @@ export async function PUT(
         action: "order.fulfillment_update",
         entity: "order",
         entityId: orderId,
-        before: { status: currentStatus },
-        after: { status, restocked: willRestock },
+        before: { status: currentStatus, paymentStatus: currentPayment },
+        after: {
+          status,
+          paymentStatus: paymentChanged ? paymentStatus : currentPayment,
+          restocked: willRestock,
+        },
         at: now,
       });
     });
