@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useBanners } from "@/lib/hooks/useBanners";
 import { CldImage } from "next-cloudinary";
 import type { Banner } from "@/lib/types";
@@ -184,10 +184,6 @@ export default function HeroCarousel({ initialBanners }: HeroCarouselProps) {
                         {currentBanner.subtitle}
                       </p>
                     )}
-                    <span className="inline-flex items-center gap-1.5 bg-white text-ink-900 font-bold text-xs sm:text-sm rounded-full px-4 sm:px-5 py-2 sm:py-2.5 shadow-md mt-1 group-hover:gap-2.5 transition-all">
-                      Shop Now
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
                   </div>
                 </div>
               </Link>

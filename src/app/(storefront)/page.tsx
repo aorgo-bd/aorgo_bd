@@ -3,7 +3,6 @@ import Link from "next/link";
 import HeroCarousel from "@/components/storefront/HeroCarousel";
 import ProductRail from "@/components/storefront/ProductRail";
 import FeaturedCategories from "@/components/storefront/FeaturedCategories";
-import ShopByPrice from "@/components/storefront/ShopByPrice";
 import DiscountBanner from "@/components/storefront/DiscountBanner";
 import AllProductsFeed from "@/components/storefront/AllProductsFeed";
 import FeaturedBrands from "@/components/storefront/FeaturedBrands";
@@ -224,14 +223,11 @@ export default async function StorefrontHomePage() {
       {/* 3. Hero Banners Carousel */}
       <HeroCarousel initialBanners={banners} />
 
-      {/* 3b. Featured Categories (2-row, immediately below hero) */}
-      <FeaturedCategories categories={categories} />
-
-      {/* 3c. Signature AORGO gradient discount banner */}
+      {/* 3b. Signature AORGO gradient discount banner (above Shop by Category) */}
       {sections.discountBanner && <DiscountBanner config={homepage.discountBanner} />}
 
-      {/* 3d. Shop by Price */}
-      {sections.shopByPrice && <ShopByPrice tiers={homepage.priceTiers} />}
+      {/* 3c. Featured Categories (Shop by Category) */}
+      <FeaturedCategories categories={categories} />
 
       {/* 4. Mid-page Promo Strip (4 tiles) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">

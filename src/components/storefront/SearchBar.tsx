@@ -85,9 +85,9 @@ export default function SearchBar({ className = "", onSearchExecuted }: SearchBa
       <form onSubmit={handleSearchSubmit} className="relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           {isLoading ? (
-            <Loader2 className="h-5 w-5 text-ink-400 animate-spin" />
+            <Loader2 className="h-5 w-5 text-pink-500 animate-spin" />
           ) : (
-            <Search className="h-5 w-5 text-ink-400" />
+            <Search className="h-5 w-5 text-pink-500" />
           )}
         </div>
         <input

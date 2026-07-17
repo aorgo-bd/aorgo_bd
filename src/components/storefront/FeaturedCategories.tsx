@@ -1,19 +1,28 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Category } from "@/lib/types";
 
 interface FeaturedCategoriesProps {
   categories: Category[];
 }
 
+// Two rows on mobile (3 columns) = 6 tiles shown up front; the rest sit behind
+// a "See more" toggle so the section never grows past two rows on load.
+const INITIAL_VISIBLE = 6;
+
 /**
- * "Featured Categories" — a Myntra-style two-row grid of popular fashion
- * categories with large rounded images. Data-driven from the `categories`
- * collection (subcategories preferred, falling back to top-level), so admins
- * can add/replace images, rename, and reorder entirely from the Admin Panel.
+ * "Shop by Category" — a Myntra-style grid of popular fashion categories with
+ * large rounded images. Data-driven from the `categories` collection
+ * (subcategories preferred, falling back to top-level), so admins can
+ * add/replace images, rename, and reorder entirely from the Admin Panel.
  */
 export default function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
+  const [expanded, setExpanded] = useState(false);
+
   const subcategories = categories
     .filter((c) => c.parent)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -22,11 +31,14 @@ export default function FeaturedCategories({ categories }: FeaturedCategoriesPro
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   // Prefer leaf categories (T-Shirts, Kurtas, …); fall back to top-level if a
-  // store hasn't seeded subcategories yet. Show up to 8 across two rows.
+  // store hasn't seeded subcategories yet.
   const source = subcategories.length >= 4 ? subcategories : roots;
-  const featured = source.slice(0, 8);
+  const featured = source.slice(0, 12);
 
   if (featured.length === 0) return null;
+
+  const visible = expanded ? featured : featured.slice(0, INITIAL_VISIBLE);
+  const hasMore = featured.length > INITIAL_VISIBLE;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-10">
@@ -35,9 +47,9 @@ export default function FeaturedCategories({ categories }: FeaturedCategoriesPro
           Shop by Category
         </h2>
       </div>
-      {/* Two horizontal rows of rounded-square cards (spec #7) */}
+      {/* Capped at two rows on load; "See more" reveals the remainder. */}
       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-        {featured.map((cat) => (
+        {visible.map((cat) => (
           <Link
             key={cat.slug}
             href={`/category/${cat.slug}`}
@@ -58,6 +70,26 @@ export default function FeaturedCategories({ categories }: FeaturedCategoriesPro
           </Link>
         ))}
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center mt-5">
+          <button
+            type="button"
+            onClick={() => setExpanded((prev) => !prev)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-5 py-2 text-xs font-bold uppercase tracking-widest text-ink-700 hover:border-pink-300 hover:text-pink-500 transition-colors shadow-2xs"
+          >
+            {expanded ? (
+              <>
+                See Less <ChevronUp className="h-4 w-4" />
+              </>
+            ) : (
+              <>
+                See More <ChevronDown className="h-4 w-4" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

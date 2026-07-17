@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 import Header from "@/components/storefront/Header";
 import Footer from "@/components/storefront/Footer";
 import BottomNav from "@/components/storefront/BottomNav";
-import AnnouncementBar from "@/components/storefront/AnnouncementBar";
 import { cn } from "@/lib/utils";
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
@@ -18,7 +17,6 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   return (
     <>
       <Toaster />
-      {!isDashboardRoute && <AnnouncementBar />}
       {!isDashboardRoute && <Header />}
       <div
         className={cn(
