@@ -176,11 +176,9 @@ export default async function StorefrontHomePage() {
   const dealOfTheDayFilter: ProductFilter = { limit: 8, sortBy: "totalSold", sortOrder: "desc" };
   const newArrivalsFilter: ProductFilter = { limit: 8, sortBy: "createdAt", sortOrder: "desc" };
   const topSellingFilter: ProductFilter = { limit: 8, sortBy: "totalSold", sortOrder: "desc" };
-  const ethnicForHerFilter: ProductFilter = { limit: 8, category: "women-ethnic", sortBy: "createdAt", sortOrder: "desc" };
-  const menTshirtsFilter: ProductFilter = { limit: 8, category: "men-tops", sortBy: "createdAt", sortOrder: "desc" };
   const highRatedFilter: ProductFilter = { limit: 8, sortBy: "rating", sortOrder: "desc" };
 
-  const [homepage, banners, categories, featuredStores, dealOfTheDay, newArrivals, topSelling, ethnicForHer, menTshirts, highRated] = await Promise.all([
+  const [homepage, banners, categories, featuredStores, dealOfTheDay, newArrivals, topSelling, highRated] = await Promise.all([
     getHomepageSettings(),
     getHeroBanners(),
     getCategories(),
@@ -188,8 +186,6 @@ export default async function StorefrontHomePage() {
     getApprovedProducts(dealOfTheDayFilter),
     getApprovedProducts(newArrivalsFilter),
     getApprovedProducts(topSellingFilter),
-    getApprovedProducts(ethnicForHerFilter),
-    getApprovedProducts(menTshirtsFilter),
     getApprovedProducts(highRatedFilter),
   ]);
 
@@ -305,26 +301,6 @@ export default async function StorefrontHomePage() {
         </section>
       )}
 
-      {/* 10. Section: TRENDING ETHNIC FOR HER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            Trending Ethnic for Her
-          </h2>
-        </div>
-        <ProductRail title="" filter={ethnicForHerFilter} initialProducts={ethnicForHer} />
-      </section>
-
-      {/* 11. Section: TRENDING MEN'S WEAR */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <div className="mb-5">
-          <h2 className="text-lg sm:text-2xl font-display font-black tracking-wide text-ink-900">
-            Trending Men&apos;s Tops
-          </h2>
-        </div>
-        <ProductRail title="" filter={menTshirtsFilter} initialProducts={menTshirts} />
-      </section>
-
       {/* 12. Section: CUSTOMERS LOVE THESE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
         <div className="mb-5">
@@ -334,31 +310,6 @@ export default async function StorefrontHomePage() {
         </div>
         <ProductRail title="" filter={highRatedFilter} initialProducts={highRated} />
       </section>
-
-      {/* 13. Full-width Promo Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
-        <Link
-          href="/products"
-          className="relative block w-full aspect-[21/9] sm:aspect-[21/6] rounded-sm overflow-hidden group shadow-2xs border border-ink-200"
-        >
-          <Image
-            src="/images/banners/banner-1.webp"
-            alt="Festival Offer"
-            fill
-            sizes="1280px"
-            className="object-cover object-center group-hover:scale-[1.01] transition-transform duration-500"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent flex flex-col justify-center px-6 sm:px-12 text-white">
-            <span className="text-[10px] font-bold tracking-widest uppercase bg-pink-500 text-white w-fit px-2.5 py-0.5 rounded-sm mb-2">FESTIVE EXCLUSIVE</span>
-            <h3 className="text-xl sm:text-3xl font-display font-black tracking-wide uppercase leading-tight max-w-sm sm:max-w-md">
-              New Season Fashion Picks
-            </h3>
-            <p className="text-[11px] sm:text-xs text-white/80 leading-normal max-w-xs mt-1 sm:mt-2">
-              Cash on Delivery available across Bangladesh.
-            </p>
-          </div>
-        </Link>
-      </div>
 
       {/* 13b. Section: ALL PRODUCTS (main infinite feed) */}
       {sections.allProducts && (
