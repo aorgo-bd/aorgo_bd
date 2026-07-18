@@ -47,15 +47,6 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 
-// Promotional messages rotated in the top bar. Kept at module scope so the
-// rotation effect has a stable reference (no exhaustive-deps warning) and the
-// copy matches the app's real COD-only, per-store shipping policy.
-const PROMO_MESSAGES = [
-  "🇧🇩 CASH ON DELIVERY AVAILABLE ACROSS BANGLADESH",
-  "💥 FIRST ORDER: FREE SHIPPING ON ELIGIBLE ITEMS",
-  "✨ EID & PUJA COLLECTIONS NOW LIVE",
-];
-
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -66,17 +57,7 @@ export default function Header() {
   const setCartOpen = useCartStore((state) => state.setIsOpen);
 
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
-  const [promoMessageIndex, setPromoMessageIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const promoMessages = PROMO_MESSAGES;
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPromoMessageIndex((prev) => (prev + 1) % PROMO_MESSAGES.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Group categories into parent-child structure
   const rootCategories = categories
@@ -123,19 +104,6 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white border-b border-ink-200 shadow-[0_1px_3px_rgba(40,44,63,0.08)]">
-      {/* Top Banner Ribbon — hidden on mobile, shown from lg+ */}
-      <div className="w-full bg-ink-900 text-white text-center py-1.5 px-4 text-[11px] font-bold tracking-widest hidden lg:flex items-center justify-center gap-1 min-h-[28px] overflow-hidden select-none">
-        <motion.span
-          key={promoMessageIndex}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          {promoMessages[promoMessageIndex]}
-        </motion.span>
-      </div>
-
       {/* Main Navigation Row: [search] — [logo centered] — [wishlist][cart][more] */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 lg:h-20 flex items-center gap-3 lg:gap-6 lg:grid lg:grid-cols-3">
         {/* Mobile Hamburger Drawer (left) */}
