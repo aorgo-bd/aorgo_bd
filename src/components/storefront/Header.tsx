@@ -123,8 +123,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white border-b border-ink-200 shadow-[0_1px_3px_rgba(40,44,63,0.08)]">
-      {/* Top Banner Ribbon */}
-      <div className="w-full bg-ink-900 text-white text-center py-1.5 px-4 text-[11px] font-bold tracking-widest flex items-center justify-center gap-1 min-h-[28px] overflow-hidden select-none">
+      {/* Top Banner Ribbon — hidden on mobile, shown from lg+ */}
+      <div className="w-full bg-ink-900 text-white text-center py-1.5 px-4 text-[11px] font-bold tracking-widest hidden lg:flex items-center justify-center gap-1 min-h-[28px] overflow-hidden select-none">
         <motion.span
           key={promoMessageIndex}
           initial={{ opacity: 0, y: 10 }}
